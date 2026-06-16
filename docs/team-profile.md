@@ -13,7 +13,7 @@ Campus Innovators
 
 | Student ID | Name | Role | Main Responsibility |
 |---|---|---|---|
-| 6705057 | Khin Zu Zu Oo| Product Lead + Technical Lead| Define problem and target users |
+| 6705057 | Khin Zu Zu Oo| Product Lead + Technical Lead| Defines product vision, manages prototyping, and ensures technical feasibility |
 | 6709729 | Min Khant Zaw| Documentation Lead + Validation Lead| Manage respository and system development |
 | 6709650 | Phyo Min Khant | UX/UI Lead  | Define problem and target users |
 
