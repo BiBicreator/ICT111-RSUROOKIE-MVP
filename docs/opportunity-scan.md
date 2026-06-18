@@ -10,7 +10,7 @@
 | Idea | Prototype Type | Tools Needed | Data Needed | Difficulty | Fessible? |
 |---|---|---|---|---|---|
 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
-| 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| Student Roommate Matching & Housing Platform | Web-based roommate matching and housing management prototype | HTML, CSS, JavaScript, Bootstrap, PHP/Laravel, MySQL, VS Code, XAMPP, Google Maps API (optional), Firebase Chat API (optional) | Student profiles (name, age, gender, university), roommate preferences (budget, cleanliness, sleep schedule, study habits, smoking preference, hobbies), room listings (location, rent, facilities, photos), compatibility questionnaire responses, chat messages, reviews and ratings, favorite/bookmark data | 2 | 2 | 2 |
 | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
 
 
