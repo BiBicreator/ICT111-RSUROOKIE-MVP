@@ -11,7 +11,7 @@
 |---|---|---|---|---|---|
 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
 | Student Roommate Matching & Housing Platform | Web-based roommate matching and housing management prototype | HTML, CSS, JavaScript, Bootstrap, PHP/Laravel, MySQL, VS Code, XAMPP, Google Maps API (optional), Firebase Chat API (optional) | Student profiles (name, age, gender, university), roommate preferences (budget, cleanliness, sleep schedule, study habits, smoking preference, hobbies), room listings (location, rent, facilities, photos), compatibility questionnaire responses, chat messages, reviews and ratings, favorite/bookmark data | 2 | 2 | 2 |
-| 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+| Student Second-Hand Marketplace Platform | Web-based marketplace prototype for buying, selling, and exchanging used items | HTML, CSS, JavaScript, Bootstrap, PHP/Laravel, MySQL, VS Code, XAMPP, Cloudinary/Image Upload API (optional), Firebase Chat API (optional) | Student profiles, product listings (title, description, category, condition, price, photos), seller and buyer information, search and filter data, chat messages, wishlist/favorites, transaction records, reviews and ratings, item reports and complaints | 3 | 3 | 3 |
 
 
 
