@@ -44,9 +44,9 @@ The team evaluated three project ideas using the NUF (New, Useful, Feasible) fra
 
 | Idea | New | Useful | Feasible | Total | Rank |
 |--------|--------|--------|--------|--------|--------|
-| RSU Campus Buddy | 8 | 9 | 8 | 25 | 1 |
-| Student Second-Hand Marketplace | 6 | 8 | 9 | 23 | 2 |
-| Student Roommate Matching & Housing Platform | 7 | 7 | 7 | 21 | 3 |
+| RSU Campus Buddy | 8 | 9 | 8 | 25 | 25/30 |
+| Student Second-Hand Marketplace | 5 | 7 | 6 | 18 | 18/30 |
+| Student Roommate Matching & Housing Platform | 3 | 8 | 5 | 16 | 16/30 |
 
 RSU Campus Buddy achieved the highest score because it solves a common problem experienced by students, provides a unique solution through image recognition and chatbot technology, and can be realistically developed within the semester using the team's skills and available resources.
 
