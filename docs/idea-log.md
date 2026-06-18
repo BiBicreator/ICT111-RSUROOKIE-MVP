@@ -37,18 +37,29 @@ Students searching for accommodation near campus face challenges in finding room
 
 ### Target Users
 - University and college students
-international students,
-exchange students, 
-freshmen seeking shared accommodation.
+- international students
+- exchange students 
+- freshmen seeking shared accommodation.
 
 ### Current Alternative
-Facebook housing groups, rental websites, property portals, student forums, WhatsApp/Telegram groups, and personal referrals
+- Facebook housing groups
+- rental websites, property portals
+- student forums
+- WhatsApp/Telegram groups
+- personal referrals
 
 ### Proposed IT Solution
 Student Roommate Matching & Housing Platform that combines room listings with a compatibility-based matching system. Students complete a profile and preference questionnaire, receive compatibility scores, view recommended roommates, communicate through in-app messaging, and browse verified room listings. Additional features may include student verification, roommate reviews, location-based search, favorite lists, reporting tools, and housing recommendations.
 
 ### Possible Technology
-HTML, CSS, JavaScript, Bootstrap, PHP/Laravel, MySQL, Google Maps API, Firebase Chat API (optional).
+- HTML 
+- CSS
+- JavaScript
+- Bootstrap
+- PHP/Laravel
+- MySQL
+- Google Maps API
+- Firebase Chat API (optional).
 
 ### Why This is Suitable
 The Student Roommate Matching & Housing Platform addresses a common challenge faced by university students, especially freshmen and international students. The platform can be developed as a web-based MVP using existing web development technologies and a simple compatibility scoring system. Core features such as user profiles, preference questionnaires, roommate matching, and room listings can be prototyped within one semester without requiring advanced AI or complex infrastructure.
@@ -58,16 +69,30 @@ The Student Roommate Matching & Housing Platform addresses a common challenge fa
 Students frequently own textbooks, electronics, furniture, dormitory supplies, and other items that become unnecessary after a semester or academic year. Existing marketplaces are often cluttered with non-student users, making transactions less trustworthy, while campus-specific buying and selling opportunities remain fragmented across multiple social media platforms.
 
 ### Target Users
-University and college students, graduating students, exchange students, and dormitory residents.
+- University and college students
+- graduating students 
+- exchange students
+- dormitory residents.
 
 ### Current Alternative
-Facebook Marketplace, campus Facebook groups, online classified websites, bulletin boards, and peer-to-peer social media transactions.
+- Facebook Marketplace 
+- campus Facebook groups
+- online classified websites
+- bulletin boards
+- peer-to-peer social media transactions.
 
 ### Proposed IT Solution
 Student Second-Hand Marketplace Platform designed exclusively for verified students. The system enables users to create listings, browse categorized products, negotiate through chat, save favorite items, rate sellers, and track transactions. Advanced features may include recommendation systems, smart search and filtering, student verification, fraud reporting, item condition scoring, price comparison, and campus-specific marketplace communities.
 
 ### Possible Technology
-HTML, CSS, JavaScript, Bootstrap, PHP/Laravel, MySQL, Cloudinary/Image Upload API, Firebase Chat API (optional).
+- HTML
+- CSS
+- JavaScript
+- Bootstrap
+- PHP/Laravel
+- MySQL
+- Cloudinary/Image Upload API
+- Firebase Chat API (optional).
 
 ### Why This is Suitable
 The Student Second-Hand Marketplace Platform solves a practical problem experienced by many students who want to buy or sell used items at affordable prices. The project can be developed as a web-based MVP with essential features such as product listings, search, categories, user accounts, and messaging. The platform is technically feasible within one semester and allows the team to apply database management, web development, and user experience design skills.
