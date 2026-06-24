@@ -65,3 +65,39 @@ Student Roommate Matching & Housing Platform was not selected because it require
 - Commit link: [Insert Commit Link]
 ### Plan for Lab 03
 The team will prepare interview and survey questions for RSU students, especially freshmen and international students. We will collect evidence about difficulties in campus navigation and information accessibility to validate the problem and identify the most valuable MVP features.
+
+# Weekly Venture Logbook
+
+## Lab 03: Customer Problem Discovery
+
+### What We Completed
+1. Prepared customer discovery questions and identified target respondents.
+2. Conducted surveys and interviews with RSU students to validate the problem.
+3. Created problem notes, assumption-evidence table, and customer discovery summary.
+
+### What We Learned About the Problem
+1. Many freshmen and international students have difficulty finding campus buildings and information.
+2. Students currently rely on friends, university staff, websites, and social media to find information.
+3. Information is scattered across multiple sources, making it inconvenient and time-consuming to access.
+
+### What Evidence We Collected
+- Number of respondents/interviews: 14 survey responses and 5 interviews.
+- Evidence file: `data/raw-responses.xlsx`
+- Key repeated pattern: Students often ask friends or senior students for directions and spend extra time searching for campus information.
+
+### What We Changed Based on Evidence
+The team decided to focus the MVP on the most important user needs, including building identification with image recognition, facility information, operating hours, and chatbot assistance. Advanced features will be considered in future versions.
+
+### Problems or Difficulties
+1. Finding enough target respondents, especially international students.
+2. Some responses were incomplete or provided limited details about their experiences.
+
+### Evidence of Work
+- GitHub repository link: `https://github.com/BiBicreator/ICT111-RSUROOKIE-MVP`
+- Customer questions file: `docs/customer-questions.md`
+- Raw responses file: `data/raw-responses.xlsx`
+- Assumption-evidence table: `docs/assumption-evidence-table.md`
+- Commit link: `https://github.com/BiBicreator/ICT111-RSUROOKIE-MVP/commit/xxxxxxxx`
+
+### Plan for Lab 04
+The team will define the customer segments and create user personas based on the collected evidence. We will then develop user stories and identify the core features that should be included in the MVP design and prototype.
