@@ -67,12 +67,48 @@ Our team selected **RSU Campus Buddy (Smart Campus Chatbot for Student Services 
 |---|---|---|---|
 | Lab 1 | Repository setup and idea generation | Repository, team profile, README, initial idea log, weekly logbook | Completed |
 | Lab 2 | Opportunity scanning and project selection | Opportunity scan, NUF scoring, selected opportunity document | Completed |
+| Lab 3 | Customer problem discovery and validation | Survey responses, interviews, problem notes, assumption-evidence table, customer discovery summary | Completed |
 
 
 ## Current Status
 
-During Lab 02, the team conducted opportunity scanning and evaluated three potential IT venture ideas using the NUF (New, Useful, Feasible) framework. After comparing the ideas, RSU Campus Buddy achieved the highest score and was selected as the final project direction. The team has completed the opportunity analysis, NUF scoring, project selection documentation, and repository updates.
+During Lab 03, the team conducted customer problem discovery by surveying and interviewing RSU students, especially freshmen and international students. The findings confirmed that students often experience difficulty identifying campus buildings and finding information about facilities, services, and operating hours. Students currently rely on asking friends, university staff, websites, and social media, which are often inconvenient and time-consuming. Based on the collected evidence, the team decided to continue developing RSU Campus Buddy and focus on the most important user problems.
 
 ## Next Step
 
-In Lab 03, the team will conduct customer problem discovery by interviewing and surveying RSU students, especially freshmen and international students. The team will gather evidence about campus navigation challenges, validate the identified problem, and determine the most important features to include in the MVP.
+In Lab 04, the team will define the MVP requirements and begin designing the solution prototype. The team will prioritize core features such as building image upload, building information display, and chatbot interaction, followed by creating wireframes and an initial user interface design.
+
+# README Update Template After Lab 03
+
+## Customer Problem Discovery Summary
+
+In Lab 03, our team collected early problem evidence from target users to confirm whether our selected problem from Lab 02 is real and important. We conducted surveys and interviews with RSU students regarding their experiences finding campus buildings and information.
+
+## Target Respondents
+
+- Freshmen (1st-year students)
+- International students
+- Current RSU students
+
+**Number of responses:** 14 surveys and 5 interviews.
+
+## Main Evidence Found
+
+- 12 out of 19 respondents reported difficulty finding campus buildings or services.
+- 10 out of 19 respondents usually ask friends or senior students for help.
+- 11 out of 19 respondents said current methods are time-consuming or inconvenient.
+- Students use university websites, social media, and Google Maps, but information is often scattered across different sources.
+
+## Updated Problem Statement
+
+Freshmen and international students at Rangsit University frequently experience difficulty identifying campus buildings and finding accurate information about services, facilities, and operating hours. They currently rely on asking others or searching through multiple sources, which is often time-consuming and inconvenient.
+
+## Decision for Next Step
+
+The team decided to continue with the same project direction and focus the MVP on solving the most significant problems identified during customer discovery.
+
+The initial MVP will prioritize:
+- Building identification through image upload
+- Building and facility information
+- Operating hours and regulations
+- A chatbot for campus-related questions
