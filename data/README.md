@@ -113,3 +113,38 @@ The initial MVP will prioritize:
 - Operating hours and regulations
 - A chatbot for campus-related questions
 
+# README Update - Lab 05
+
+## Lab 05: Product Concept and UI/UX Wireframe
+
+### Product Concept
+
+RSU Campus Buddy is a web-based smart campus assistant designed to help freshmen, international students, and campus visitors quickly access campus information. Users can upload a photo of a campus building or search by building name to receive information about facilities, services, operating hours, student clubs, and university regulations. The system uses a Google Teachable Machine image recognition model and a custom database maintained by the project team to provide campus information through an easy-to-use interface and chatbot.
+
+### Requirement-Driven Screens
+
+| Screen | Related Requirement IDs | Wireframe File |
+|---|---|---|
+| Homepage / Landing | FR-01, FR-02 | /wireframes/homepage.png |
+| Image Upload & Recognition | FR-03, FR-04 | /wireframes/input-form.png |
+| Building Search / List | FR-05, FR-06 | /wireframes/record-list.png |
+| Building Detail View | FR-07, FR-08 | /wireframes/detail-view.png |
+| Chatbot | FR-09, FR-10 | /wireframes/chatbot.png |
+| Admin View | FR-11, FR-12 | /wireframes/admin-view.png |
+
+### User Flow
+
+The user starts on the homepage and chooses either to upload a building image or search for a building by name. If an image is uploaded, the Google Teachable Machine model identifies the building and retrieves information from the project's custom database. Users can then view detailed building information or ask additional questions through the chatbot. Administrators can manage the building information by adding, editing, or deleting records through the admin interface.
+
+**User Flow Diagram:** `/diagrams/user-flow.mmd`
+
+### Team Contribution
+
+All team members contributed to the same GitHub repository throughout Lab 05.
+
+- **Product Lead:** Defined the product concept, requirements, and MVP scope.
+- **Technical Lead:** Developed the system architecture, integrated Google Teachable Machine, and managed the project repository.
+- **UX/UI Lead:** Designed the wireframes, user flow, and interface layout.
+- **Documentation Lead:** Updated the README, documentation, and weekly logbook.
+- **Validation Lead:** Ensured the wireframes and features aligned with the validated user requirements collected during customer discovery.
+
