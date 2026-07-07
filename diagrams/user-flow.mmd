@@ -1,0 +1,21 @@
+```mermaid
+flowchart TD
+    A[Homepage / Landing Screen] --> B{What does the user want to do?}
+
+    B -->|Upload a building image| C[Image Upload]
+    C --> D[Google Teachable Machine Image Recognition]
+    D --> E[Building Detail View]
+
+    B -->|Search for a building| F[Building Search / List]
+    F --> E
+
+    E --> G[View Building Information]
+    G --> H[Facilities, Services, Operating Hours, Clubs, Regulations]
+
+    E --> I[Ask Campus Chatbot]
+    I --> J[Chatbot Response]
+
+    K[Admin View] --> L[Add, Edit, Delete Building Information]
+    L --> M[(Custom Database)]
+    M --> E
+```
