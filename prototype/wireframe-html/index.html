@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RSU Smart Campus Chatbot</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --rsu-red: #C8102E;
+    --rsu-dark: #1a0a0e;
+    --rsu-gold: #F5A623;
+    --rsu-blue: #1A4A8A;
+    --rsu-surface: #fff;
+    --rsu-bg: #f8f6f4;
+    --rsu-border: rgba(0,0,0,0.1);
+    --rsu-text: #1a1a1a;
+    --rsu-muted: #6b6b6b;
+    --rsu-tag: #fff0f3;
+    --rsu-tag-text: #C8102E;
+    --sidebar-w: 220px;
+    --tab-h: 52px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --rsu-surface: #1e1014;
+      --rsu-bg: #140810;
+      --rsu-border: rgba(255,255,255,0.1);
+      --rsu-text: #f0eae8;
+      --rsu-muted: #9e8e8a;
+      --rsu-tag: #2a0f14;
+      --rsu-tag-text: #ff6b7a;
+    }
+  }
+  body { background: #f0ece8; display: flex; justify-content: center; padding: 24px 16px; min-height: 100vh; }
+  #app { width: 100%; max-width: 960px; min-height: 640px; background: var(--rsu-bg); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
+
+  /* Tab Bar */
+  #tabs { display: flex; background: var(--rsu-red); height: var(--tab-h); align-items: stretch; }
+  .tab-btn { flex: 1; border: none; background: none; color: rgba(255,255,255,0.6); font-family: 'Kanit', sans-serif; font-size: 15px; font-weight: 500; letter-spacing: 0.3px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: color 0.2s, background 0.2s; position: relative; }
+  .tab-btn.active { color: #fff; }
+  .tab-btn.active::after { content:''; position:absolute; bottom:0; left:10%; width:80%; height:3px; background:var(--rsu-gold); border-radius:3px 3px 0 0; }
+  .tab-btn:hover:not(.active) { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
+  .tab-icon { font-size: 17px; }
+
+  /* Content area */
+  #content { flex: 1; display: flex; min-height: 588px; }
+  .tab-panel { display: none; flex: 1; }
+  .tab-panel.active { display: flex; }
+
+  /* ===== CHAT TAB ===== */
+  #chat-panel { flex-direction: row; }
+  #sidebar { width: var(--sidebar-w); background: var(--rsu-surface); border-right: 1px solid var(--rsu-border); display: flex; flex-direction: column; }
+  #sidebar-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--rsu-border); }
+  #sidebar-header h3 { font-family: 'Kanit', sans-serif; font-size: 13px; font-weight: 600; color: var(--rsu-muted); text-transform: uppercase; letter-spacing: 1px; }
+  #chat-history { flex: 1; overflow-y: auto; padding: 10px 8px; }
+  .hist-item { padding: 9px 10px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; transition: background 0.15s; }
+  .hist-item:hover { background: var(--rsu-bg); }
+  .hist-item.active-hist { background: #fff0f3; }
+  .hist-title { font-size: 13px; font-weight: 500; color: var(--rsu-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hist-sub { font-size: 11px; color: var(--rsu-muted); margin-top: 2px; }
+  #new-chat-btn { margin: 10px 8px; padding: 9px; border: 1px dashed var(--rsu-border); border-radius: 8px; background: none; color: var(--rsu-muted); font-size: 13px; cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  #new-chat-btn:hover { border-color: var(--rsu-red); color: var(--rsu-red); background: #fff0f3; }
+
+  /* Chat main */
+  #chat-main { flex: 1; display: flex; flex-direction: column; }
+  #chat-topbar { padding: 12px 16px; border-bottom: 1px solid var(--rsu-border); display: flex; align-items: center; gap: 10px; background: var(--rsu-surface); }
+  #chat-topbar .building-tag { background: var(--rsu-tag); color: var(--rsu-tag-text); font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  #chat-topbar h2 { font-family: 'Kanit', sans-serif; font-size: 15px; font-weight: 600; color: var(--rsu-text); flex:1; }
+  #back-btn { padding: 5px 12px; border: 1px solid var(--rsu-border); border-radius: 8px; background: none; color: var(--rsu-muted); font-size: 12px; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  #back-btn:hover { background: var(--rsu-bg); }
+  #messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--rsu-bg); }
+  .msg { display: flex; gap: 10px; max-width: 85%; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .msg-bubble { padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.55; }
+  .msg.bot .msg-bubble { background: var(--rsu-surface); color: var(--rsu-text); border-radius: 4px 14px 14px 14px; border: 1px solid var(--rsu-border); }
+  .msg.user .msg-bubble { background: var(--rsu-red); color: #fff; border-radius: 14px 4px 14px 14px; }
+  .msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .bot-avatar { background: linear-gradient(135deg, var(--rsu-red), #a00020); color: #fff; font-weight: 600; font-size: 11px; font-family: 'Kanit',sans-serif; }
+  .user-avatar { background: var(--rsu-gold); color: #fff; font-size: 12px; }
+  .msg-img { width: 100%; max-width: 200px; border-radius: 10px; margin-bottom: 8px; border: 2px solid rgba(200,16,46,0.2); display: block; }
+  .info-card { background: var(--rsu-tag); border: 1px solid rgba(200,16,46,0.15); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+  .info-card h4 { color: var(--rsu-red); font-family: 'Kanit',sans-serif; font-size: 13px; margin-bottom: 6px; }
+  .info-row { display: flex; gap: 6px; font-size: 12px; color: var(--rsu-muted); margin: 3px 0; flex-wrap: wrap; }
+  .info-row strong { color: var(--rsu-text); }
+  .typing { display: flex; gap: 4px; align-items: center; padding: 8px 14px; }
+  .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--rsu-muted); animation: bounce 1s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  #chat-input-area { padding: 12px 16px; border-top: 1px solid var(--rsu-border); background: var(--rsu-surface); }
+  #input-box { display: flex; align-items: center; gap: 8px; border: 1.5px solid var(--rsu-border); border-radius: 12px; padding: 8px 12px; background: var(--rsu-bg); transition: border-color 0.2s; }
+  #input-box:focus-within { border-color: var(--rsu-red); }
+  #msg-input { flex: 1; border: none; background: none; outline: none; font-size: 14px; color: var(--rsu-text); font-family: 'DM Sans', sans-serif; }
+  #msg-input::placeholder { color: var(--rsu-muted); }
+  #upload-btn, #send-btn { border: none; background: none; cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  #send-btn { background: var(--rsu-red); color: #fff; border-radius: 8px; width: 34px; height: 34px; font-size: 16px; }
+  #send-btn:hover { background: #a00020; }
+  #upload-btn { color: var(--rsu-muted); font-size: 18px; }
+  #upload-btn:hover { background: var(--rsu-bg); color: var(--rsu-red); }
+  #upload-preview { display: none; margin-bottom: 8px; position: relative; width: fit-content; }
+  #upload-preview img { height: 60px; border-radius: 8px; border: 2px solid rgba(200,16,46,0.3); }
+  #clear-img { position: absolute; top: -5px; right: -5px; background: var(--rsu-red); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== MAP TAB ===== */
+  #map-panel { flex-direction: column; }
+  #map-controls { padding: 12px 16px; background: var(--rsu-surface); border-bottom: 1px solid var(--rsu-border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  #map-controls h3 { font-family: 'Kanit',sans-serif; font-size: 15px; font-weight: 600; color: var(--rsu-text); margin-right: 4px; }
+  .floor-btn { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--rsu-border); background: none; cursor: pointer; font-size: 13px; color: var(--rsu-muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .floor-btn.active, .floor-btn:hover { background: var(--rsu-red); color: #fff; border-color: var(--rsu-red); }
+  .route-input { border: 1px solid var(--rsu-border); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-family: 'DM Sans',sans-serif; background: var(--rsu-bg); color: var(--rsu-text); outline: none; }
+  .route-input:focus { border-color: var(--rsu-red); }
+  #find-route { background: var(--rsu-red); color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-family: 'Kanit',sans-serif; transition: background 0.15s; }
+  #find-route:hover { background: #a00020; }
+  #map-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #e8e4de; }
+  #map-svg { width: 100%; height: 100%; }
+  .map-building { fill: #fff; stroke: #c8102e; stroke-width: 2; cursor: pointer; transition: fill 0.2s; }
+  .map-building:hover { fill: #fff5f7; }
+  .map-building.selected { fill: #fff0f3; stroke-width: 3; }
+  .map-label { font-family: 'Kanit',sans-serif; font-size: 11px; fill: #1a1a1a; font-weight: 600; text-anchor: middle; pointer-events: none; }
+  .map-sub { font-size: 9px; fill: #6b6b6b; text-anchor: middle; font-family: 'DM Sans',sans-serif; pointer-events: none; }
+  .map-road { fill: none; stroke: #d4cfc8; stroke-width: 6; stroke-linecap: round; }
+  .route-path { fill: none; stroke: #C8102E; stroke-width: 3; stroke-dasharray: 8 5; stroke-linecap: round; animation: dash-anim 0.6s linear infinite; }
+  @keyframes dash-anim { to { stroke-dashoffset: -13; } }
+  .route-node { fill: #C8102E; stroke: #fff; stroke-width: 2; }
+  .node-label { font-size: 10px; fill: #C8102E; font-family:'Kanit',sans-serif; font-weight:600; text-anchor:middle; }
+  #map-legend { position:absolute; bottom:10px; right:10px; background: var(--rsu-surface); border-radius: 10px; padding: 10px 14px; font-size: 12px; border: 1px solid var(--rsu-border); }
+  .legend-row { display:flex; align-items:center; gap:6px; margin:3px 0; color:var(--rsu-muted); }
+  .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  #building-popup { display:none; position:absolute; top:10px; left:50%; transform:translateX(-50%); background:var(--rsu-surface); border:1.5px solid var(--rsu-red); border-radius:12px; padding:10px 16px; font-size:13px; color:var(--rsu-text); box-shadow:0 4px 20px rgba(200,16,46,0.15); white-space:nowrap; z-index:10; }
+  #route-info { display:none; position:absolute; bottom:10px; left:10px; background:var(--rsu-surface); border-radius:10px; padding:10px 14px; font-size:12px; border:1px solid var(--rsu-border); color:var(--rsu-text); }
+
+  /* ===== DIRECTORY TAB ===== */
+  #dir-panel { flex-direction: column; }
+  #dir-header { padding: 14px 20px; background: var(--rsu-surface); border-bottom: 1px solid var(--rsu-border); display: flex; align-items: center; gap: 12px; }
+  #dir-search { flex: 1; border: 1.5px solid var(--rsu-border); border-radius: 10px; padding: 8px 14px; font-size: 14px; font-family: 'DM Sans',sans-serif; background: var(--rsu-bg); color: var(--rsu-text); outline: none; }
+  #dir-search:focus { border-color: var(--rsu-red); }
+  #dir-filter { display: flex; gap: 6px; padding: 10px 16px; background: var(--rsu-bg); border-bottom: 1px solid var(--rsu-border); flex-wrap: wrap; }
+  .filter-chip { padding: 4px 14px; border-radius: 20px; border: 1px solid var(--rsu-border); background: var(--rsu-surface); font-size: 12px; cursor: pointer; color: var(--rsu-muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .filter-chip.active { background: var(--rsu-red); color: #fff; border-color: var(--rsu-red); }
+  #dir-list { flex: 1; overflow-y: auto; padding: 12px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; align-content: start; }
+  .dir-card { background: var(--rsu-surface); border: 1px solid var(--rsu-border); border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s; }
+  .dir-card:hover { border-color: var(--rsu-red); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(200,16,46,0.1); }
+  .dir-cat { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; font-family: 'Kanit', sans-serif; }
+  .cat-service { color: #1A4A8A; }
+  .cat-club { color: #C8102E; }
+  .cat-facility { color: #2a7a2a; }
+  .cat-staff { color: #8a4a00; }
+  .dir-name { font-family: 'Kanit',sans-serif; font-size: 15px; font-weight: 600; color: var(--rsu-text); margin-bottom: 4px; }
+  .dir-loc { font-size: 12px; color: var(--rsu-muted); }
+  .dir-hours { font-size: 11px; color: var(--rsu-muted); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .dir-status { display:inline-block; width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .open { background:#2a7a2a; }
+  .closed { background:#c84a00; }
+  .no-results { grid-column: 1/-1; text-align: center; color: var(--rsu-muted); padding: 40px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Tab Bar -->
+  <div id="tabs">
+    <button class="tab-btn active" onclick="switchTab('chat')">
+      <span class="tab-icon">💬</span> Image Chat
+    </button>
+    <button class="tab-btn" onclick="switchTab('map')">
+      <span class="tab-icon">🗺</span> Uni Map
+    </button>
+    <button class="tab-btn" onclick="switchTab('dir')">
+      <span class="tab-icon">📋</span> Directory
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+
+    <!-- ===== CHAT PANEL ===== -->
+    <div id="chat-panel" class="tab-panel active">
+      <div id="sidebar">
+        <div id="sidebar-header"><h3>Chat History</h3></div>
+        <div id="chat-history">
+          <div class="hist-item active-hist">
+            <div class="hist-title">Building 11 Inquiry</div>
+            <div class="hist-sub">Today, 10:24 AM</div>
+          </div>
+          <div class="hist-item">
+            <div class="hist-title">Library Hours</div>
+            <div class="hist-sub">Yesterday, 2:11 PM</div>
+          </div>
+          <div class="hist-item">
+            <div class="hist-title">Swimming Pool Location</div>
+            <div class="hist-sub">Mon, 9:05 AM</div>
+          </div>
+          <div class="hist-item">
+            <div class="hist-title">Table Tennis Club</div>
+            <div class="hist-sub">Sun, 4:55 PM</div>
+          </div>
+        </div>
+        <button id="new-chat-btn" onclick="startNewChat()">+ New Conversation</button>
+      </div>
+
+      <div id="chat-main">
+        <div id="chat-topbar">
+          <h2>RSU Campus Assistant</h2>
+          <span class="building-tag" id="active-building-tag">Building 11</span>
+          <button id="back-btn" onclick="switchTab('map')">View on Map ↗</button>
+        </div>
+
+        <div id="messages">
+          <div class="msg bot">
+            <div class="msg-avatar bot-avatar">RSU</div>
+            <div class="msg-bubble">
+              Hi! I'm your Rangsit University campus guide 🎓<br><br>
+              Upload a photo of any campus building and I'll identify it and tell you all about it — services, clubs, facilities, hours, and rules.<br><br>
+              Or just type a question below!
+            </div>
+          </div>
+          <div class="msg user">
+            <div class="msg-avatar user-avatar">👤</div>
+            <div class="msg-bubble">
+              <img class="msg-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e8e4de'/%3E%3Crect x='30' y='20' width='140' height='80' fill='%23d4cfc8' rx='4'/%3E%3Crect x='45' y='30' width='110' height='55' fill='%23c0bab2' rx='2'/%3E%3Ctext x='100' y='62' font-family='sans-serif' font-size='11' fill='%23666' text-anchor='middle'%3EBuilding Photo%3C/text%3E%3C/svg%3E" alt="uploaded building photo"/>
+              What is this building?
+            </div>
+          </div>
+          <div class="msg bot">
+            <div class="msg-avatar bot-avatar">RSU</div>
+            <div class="msg-bubble">
+              I've identified this as <strong>Building 11 (Henry Dunant)</strong> 🏛
+              <div class="info-card">
+                <h4>📍 Building 11 — Henry Dunant</h4>
+                <div class="info-row"><strong>Services:</strong> <span>Registrar, Student Affairs, IT Help Desk</span></div>
+                <div class="info-row"><strong>Facilities:</strong> <span>Lecture halls, Computer labs (Floors 5–6)</span></div>
+                <div class="info-row"><strong>Clubs:</strong> <span>Table Tennis Club (Floor 5), Chess Club (Floor 3, Room 302)</span></div>
+                <div class="info-row"><strong>Hours:</strong> <span>Mon–Fri 8:00–20:00, Sat 9:00–17:00</span></div>
+                <div class="info-row"><strong>Rules:</strong> <span>No food in computer labs. RSU ID required after 18:00.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="chat-input-area">
+          <div id="upload-preview">
+            <img id="preview-img" src="" alt="preview"/>
+            <button id="clear-img" onclick="clearImg()">✕</button>
+          </div>
+          <div id="input-box">
+            <button id="upload-btn" onclick="document.getElementById('file-in').click()" title="Upload building photo">📷</button>
+            <input type="file" id="file-in" accept="image/*" style="display:none" onchange="handleFile(event)"/>
+            <input id="msg-input" placeholder="Ask about any building, room, club, or service..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+            <button id="send-btn" onclick="sendMsg()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MAP PANEL ===== -->
+    <div id="map-panel" class="tab-panel">
+      <div id="map-controls">
+        <h3>Campus Map</h3>
+        <button class="floor-btn active" onclick="setFloor(0,this)">Outdoor</button>
+        <button class="floor-btn" onclick="setFloor(1,this)">Floor 1</button>
+        <button class="floor-btn" onclick="setFloor(2,this)">Floor 2</button>
+        <button class="floor-btn" onclick="setFloor(3,this)">Floor 3</button>
+        <button class="floor-btn" onclick="setFloor(5,this)">Floor 5</button>
+        <div style="flex:1"></div>
+        <select class="route-input" id="from-sel">
+          <option value="">From…</option>
+          <option value="B6-Canteen">B6 Canteen</option>
+          <option value="B11-Entrance">B11 Entrance</option>
+          <option value="Library">RSU Library</option>
+          <option value="Sports">Sports Complex</option>
+          <option value="Admin">Administration</option>
+        </select>
+        <select class="route-input" id="to-sel">
+          <option value="">To…</option>
+          <option value="B11-TT">B11 F5 Table Tennis</option>
+          <option value="B11-Entrance">B11 Entrance</option>
+          <option value="Library">RSU Library</option>
+          <option value="Canteen">B6 Canteen</option>
+          <option value="Sports">Sports Complex</option>
+        </select>
+        <button id="find-route" onclick="drawRoute()">Find Route</button>
+        <button id="clear-route-btn" onclick="clearRoute()" style="padding:6px 10px;border:1px solid var(--rsu-border);border-radius:8px;background:none;color:var(--rsu-muted);font-size:13px;cursor:pointer;">Clear</button>
+      </div>
+
+      <div id="map-canvas-wrap">
+        <svg id="map-svg" viewBox="0 0 680 490" xmlns="http://www.w3.org/2000/svg">
+          <!-- Roads / paths -->
+          <path class="map-road" d="M0 245 H680"/>
+          <path class="map-road" d="M340 0 V490"/>
+          <path class="map-road" d="M0 370 H680"/>
+          <path class="map-road" d="M170 0 V490"/>
+
+          <!-- Buildings -->
+          <g onclick="selectBuilding('B6','Building 6 — Science & Canteen','B6 houses the Science faculty and the main ground-floor canteen.')">
+            <rect class="map-building" x="30" y="60" width="120" height="80" rx="8"/>
+            <text class="map-label" x="90" y="96">B6</text>
+            <text class="map-sub" x="90" y="111">Science + Canteen</text>
+          </g>
+          <g onclick="selectBuilding('B7','Building 7 — Engineering','Engineering faculty, robotics lab, and maker space.')">
+            <rect class="map-building" x="30" y="165" width="120" height="70" rx="8"/>
+            <text class="map-label" x="90" y="197">B7</text>
+            <text class="map-sub" x="90" y="212">Engineering</text>
+          </g>
+          <g onclick="selectBuilding('Library','RSU Main Library','Open Mon–Sat 8:00–21:00. 6 floors, 500+ study seats, silent zone on Floor 5.')">
+            <rect class="map-building" x="200" y="60" width="130" height="80" rx="8"/>
+            <text class="map-label" x="265" y="96">Library</text>
+            <text class="map-sub" x="265" y="111">Learning Center</text>
+          </g>
+          <g onclick="selectBuilding('B9','Building 9 — Medical Sciences','Medical and health science faculty. Health Center on Floor 1.')">
+            <rect class="map-building" x="200" y="165" width="130" height="70" rx="8"/>
+            <text class="map-label" x="265" y="197">B9</text>
+            <text class="map-sub" x="265" y="212">Medical Sciences</text>
+          </g>
+          <g onclick="selectBuilding('B11','Building 11 — Henry Dunant','Registrar, Student Affairs, IT Help Desk, Table Tennis Club (F5), Chess Club (F3).')">
+            <rect class="map-building selected" id="b11-rect" x="370" y="60" width="140" height="90" rx="8"/>
+            <text class="map-label" x="440" y="100">B11</text>
+            <text class="map-sub" x="440" y="116">Henry Dunant</text>
+          </g>
+          <g onclick="selectBuilding('B12','Building 12 — Business Administration','Business, Marketing, Finance departments. Finance office on Floor 2.')">
+            <rect class="map-building" x="530" y="60" width="130" height="80" rx="8"/>
+            <text class="map-label" x="595" y="96">B12</text>
+            <text class="map-sub" x="595" y="111">Business Admin</text>
+          </g>
+          <g onclick="selectBuilding('Sports','Sports &amp; Recreation Complex','Olympic pool, fitness center, basketball courts, badminton hall.')">
+            <rect class="map-building" x="370" y="175" width="290" height="60" rx="8"/>
+            <text class="map-label" x="515" y="202">Sports Complex</text>
+            <text class="map-sub" x="515" y="217">Pool · Courts · Gym</text>
+          </g>
+          <g onclick="selectBuilding('Admin','Administration Building','President\'s Office, Finance & Bursar, International Affairs, HR.')">
+            <rect class="map-building" x="200" y="265" width="460" height="70" rx="8"/>
+            <text class="map-label" x="430" y="297">Administration</text>
+            <text class="map-sub" x="430" y="312">President · Finance · HR · International</text>
+          </g>
+          <g onclick="selectBuilding('Gate','Main Gate &amp; Security','24/7 manned security checkpoint. RSU ID required after 21:00.')">
+            <rect class="map-building" x="30" y="390" width="120" height="50" rx="8"/>
+            <text class="map-label" x="90" y="413">Main Gate</text>
+            <text class="map-sub" x="90" y="428">Security</text>
+          </g>
+          <g onclick="selectBuilding('Parking','Parking Complex','P1 (Staff) and P2 (Student) multi-storey carparks. Motorbike parking on B1.')">
+            <rect class="map-building" x="530" y="390" width="130" height="50" rx="8"/>
+            <text class="map-label" x="595" y="413">Parking</text>
+            <text class="map-sub" x="595" y="428">P1 · P2</text>
+          </g>
+
+          <!-- Route path (hidden by default) -->
+          <path id="route-path" class="route-path" d="" style="display:none"/>
+          <circle id="route-a" class="route-node" cx="0" cy="0" r="7" style="display:none"/>
+          <circle id="route-b" class="route-node" cx="0" cy="0" r="7" style="display:none"/>
+          <text id="route-a-label" class="node-label" x="0" y="0" style="display:none">A</text>
+          <text id="route-b-label" class="node-label" x="0" y="0" style="display:none">B</text>
+
+          <!-- You-are-here marker B11 -->
+          <circle cx="440" cy="80" r="9" fill="#C8102E" opacity="0.9"/>
+          <circle cx="440" cy="80" r="16" fill="none" stroke="#C8102E" stroke-width="2" opacity="0.35"/>
+          <text x="440" y="84" font-size="9" fill="#fff" text-anchor="middle" font-family="Kanit" font-weight="700">YOU</text>
+        </svg>
+
+        <div id="map-legend">
+          <div class="legend-row"><div class="legend-dot" style="background:#C8102E"></div>You are here</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#C8102E;border-radius:2px;width:20px;height:3px"></div>Route</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#bbb"></div>Building</div>
+        </div>
+
+        <div id="route-info">
+          <strong id="route-info-text"></strong>
+        </div>
+
+        <div id="building-popup">
+          <div>
+            <strong id="popup-title"></strong><br>
+            <span id="popup-desc" style="font-size:11px;color:var(--rsu-muted)"></span>
+          </div>
+          <button onclick="document.getElementById('building-popup').style.display='none'" style="margin-left:14px;background:none;border:none;cursor:pointer;color:var(--rsu-muted);font-size:18px;line-height:1;flex-shrink:0;">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DIRECTORY PANEL ===== -->
+    <div id="dir-panel" class="tab-panel">
+      <div id="dir-header">
+        <span style="font-size:22px">🔍</span>
+        <input id="dir-search" placeholder="Search services, clubs, facilities, staff..." oninput="filterDir()"/>
+      </div>
+      <div id="dir-filter">
+        <span class="filter-chip active" onclick="setFilter('all',this)">All</span>
+        <span class="filter-chip" onclick="setFilter('service',this)">Services</span>
+        <span class="filter-chip" onclick="setFilter('club',this)">Clubs</span>
+        <span class="filter-chip" onclick="setFilter('facility',this)">Facilities</span>
+        <span class="filter-chip" onclick="setFilter('staff',this)">Staff</span>
+      </div>
+      <div id="dir-list"></div>
+    </div>
+
+  </div><!-- end #content -->
+</div><!-- end #app -->
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const DIR_DATA = [
+  {cat:'service', name:'Student Affairs Office',    loc:'B11, Floor 2',           hours:'Mon–Fri 8:00–17:00',           open:true},
+  {cat:'service', name:'Registrar Office',          loc:'Admin Building, Floor 1', hours:'Mon–Fri 8:00–16:30',          open:true},
+  {cat:'service', name:'IT Help Desk',              loc:'B11, Floor 1',            hours:'Mon–Fri 8:00–20:00',          open:true},
+  {cat:'service', name:'Health Center',             loc:'B9, Floor 1',             hours:'Mon–Fri 8:00–17:00',          open:true},
+  {cat:'service', name:'Finance & Bursar',          loc:'Admin, Floor 3',          hours:'Mon–Fri 8:30–16:00',          open:false},
+  {cat:'service', name:'International Affairs',     loc:'Admin, Floor 2',          hours:'Mon–Fri 9:00–16:00',          open:true},
+  {cat:'service', name:'Counselling Center',        loc:'B9, Floor 2',             hours:'Mon–Fri 9:00–17:00',          open:true},
+  {cat:'club',    name:'Table Tennis Club',         loc:'B11, Floor 5',            hours:'Mon/Wed/Fri 16:00–20:00',     open:false},
+  {cat:'club',    name:'Chess Club',                loc:'B11, Floor 3, Room 302',  hours:'Tue/Thu 17:00–19:00',         open:false},
+  {cat:'club',    name:'Photography Club',          loc:'B12, Floor 2',            hours:'Sat 10:00–14:00',             open:false},
+  {cat:'club',    name:'Engineering Society',       loc:'B7, Floor 4',             hours:'Wed 15:00–18:00',             open:false},
+  {cat:'club',    name:'RSU Music Band',            loc:'B6, Basement',            hours:'Daily 18:00–21:00',           open:false},
+  {cat:'club',    name:'Debate Club',               loc:'Library, Floor 3',        hours:'Tue 17:00–19:00',             open:false},
+  {cat:'club',    name:'E-Sports Club',             loc:'B11, Floor 6',            hours:'Mon–Fri 17:00–21:00',         open:false},
+  {cat:'facility',name:'RSU Main Library',          loc:'Library Building',        hours:'Mon–Sat 8:00–21:00',          open:true},
+  {cat:'facility',name:'Swimming Pool',             loc:'Sports Complex',          hours:'Daily 6:00–20:00',            open:true},
+  {cat:'facility',name:'Fitness Center',            loc:'Sports Complex, Floor 2', hours:'Daily 6:00–22:00',            open:true},
+  {cat:'facility',name:'B6 Canteen',                loc:'Building 6, Ground Floor',hours:'Mon–Fri 7:00–19:00',          open:true},
+  {cat:'facility',name:'Computer Lab B11',          loc:'B11, Floors 5–6',         hours:'Mon–Fri 8:00–20:00',          open:true},
+  {cat:'facility',name:'Basketball Courts',         loc:'Sports Complex',          hours:'Daily 6:00–21:00',            open:true},
+  {cat:'staff',   name:'Dean of Students',          loc:'Admin Building, Floor 4', hours:'By appointment',              open:true},
+  {cat:'staff',   name:'IT Department',             loc:'B11, Floor 1',            hours:'Mon–Fri 8:00–17:00',          open:true},
+  {cat:'staff',   name:'Security Office',           loc:'Main Gate',               hours:'24 hours',                    open:true},
+];
+
+const ROUTES = {
+  'B6-Canteen_B11-TT':      { path:'M90,140 L90,245 L440,245 L440,155 L440,105', label:'~8 min walk via main road' },
+  'B6-Canteen_B11-Entrance':{ path:'M90,140 L90,245 L370,245 L370,150', label:'~6 min walk' },
+  'B11-Entrance_Library':   { path:'M370,105 L265,105', label:'~2 min walk' },
+  'Library_Sports':         { path:'M265,140 L265,245 L515,245 L515,205', label:'~5 min walk' },
+  'Sports_Canteen':         { path:'M515,235 L515,245 L90,245 L90,140', label:'~9 min walk' },
+  'B11-Entrance_Sports':    { path:'M440,150 L440,205', label:'~2 min walk' },
+  'Library_Admin':          { path:'M265,140 L265,300', label:'~3 min walk' },
+  'Admin_Sports':           { path:'M430,265 L430,235 L515,235', label:'~4 min walk' },
+};
+
+const NODES = {
+  'B6-Canteen':    [90,  140],
+  'B11-TT':        [440, 105],
+  'B11-Entrance':  [370, 150],
+  'Library':       [265, 105],
+  'Sports':        [515, 205],
+  'Canteen':       [90,  140],
+  'Admin':         [430, 265],
+};
+
+let currentFilter = 'all';
+let pendingImg = null;
+
+// ─── DIRECTORY ────────────────────────────────────────────────────────────────
+function renderDir(data) {
+  const cats = { service:'Service', club:'Club', facility:'Facility', staff:'Staff Office' };
+  const el = document.getElementById('dir-list');
+  if (data.length === 0) {
+    el.innerHTML = '<div class="no-results">No results found. Try a different search term or filter.</div>';
+    return;
+  }
+  el.innerHTML = data.map(d => `
+    <div class="dir-card" onclick="chatAbout('${d.name.replace(/'/g,"\\'")}')">
+      <div class="dir-cat cat-${d.cat}">${cats[d.cat]}</div>
+      <div class="dir-name">${d.name}</div>
+      <div class="dir-loc">📍 ${d.loc}</div>
+      <div class="dir-hours">
+        <span class="dir-status ${d.open?'open':'closed'}"></span>
+        ${d.hours} &nbsp;·&nbsp; ${d.open?'<span style="color:#2a7a2a">Open now</span>':'<span style="color:#c84a00">Closed</span>'}
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterDir() {
+  const q = document.getElementById('dir-search').value.toLowerCase().trim();
+  const filtered = DIR_DATA.filter(d =>
+    (currentFilter === 'all' || d.cat === currentFilter) &&
+    (!q || d.name.toLowerCase().includes(q) || d.loc.toLowerCase().includes(q) || d.hours.toLowerCase().includes(q))
+  );
+  renderDir(filtered);
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filterDir();
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  const tabNames = ['chat', 'map', 'dir'];
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', tabNames[i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(tab + '-panel').classList.add('active');
+}
+
+// ─── MAP ──────────────────────────────────────────────────────────────────────
+function selectBuilding(id, name, desc) {
+  document.querySelectorAll('.map-building').forEach(b => b.classList.remove('selected'));
+  const popup = document.getElementById('building-popup');
+  document.getElementById('popup-title').textContent = name;
+  document.getElementById('popup-desc').textContent = desc || '';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+}
+
+function setFloor(f, el) {
+  document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  // In real app: swap SVG content to show floor plan
+}
+
+function drawRoute() {
+  const from = document.getElementById('from-sel').value;
+  const to   = document.getElementById('to-sel').value;
+  if (!from || !to) { alert('Please select both a starting point and a destination.'); return; }
+
+  const key  = from + '_' + to;
+  const alt  = to + '_' + from;
+  const route = ROUTES[key] || ROUTES[alt];
+
+  const a = NODES[from] || [90, 140];
+  const b = NODES[to]   || [440, 105];
+  const pathD = route ? route.path : `M${a[0]},${a[1]} L${b[0]},${b[1]}`;
+  const label = route ? route.label : 'Route calculated';
+
+  document.getElementById('route-path').setAttribute('d', pathD);
+  document.getElementById('route-path').style.display = '';
+
+  const ra = document.getElementById('route-a');
+  ra.setAttribute('cx', a[0]); ra.setAttribute('cy', a[1]); ra.style.display = '';
+  const rb = document.getElementById('route-b');
+  rb.setAttribute('cx', b[0]); rb.setAttribute('cy', b[1]); rb.style.display = '';
+
+  const ral = document.getElementById('route-a-label');
+  ral.setAttribute('x', a[0]); ral.setAttribute('y', a[1] - 16); ral.style.display = '';
+  const rbl = document.getElementById('route-b-label');
+  rbl.setAttribute('x', b[0]); rbl.setAttribute('y', b[1] - 16); rbl.style.display = '';
+
+  const ri = document.getElementById('route-info');
+  document.getElementById('route-info-text').textContent = '🚶 ' + label + ' — ' + from.replace(/-/g,' ') + ' → ' + to.replace(/-/g,' ');
+  ri.style.display = 'block';
+}
+
+function clearRoute() {
+  ['route-path','route-a','route-b','route-a-label','route-b-label'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('route-info').style.display = 'none';
+  document.getElementById('from-sel').value = '';
+  document.getElementById('to-sel').value = '';
+}
+
+// ─── CHAT ─────────────────────────────────────────────────────────────────────
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingImg = ev.target.result;
+    document.getElementById('preview-img').src = pendingImg;
+    document.getElementById('upload-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImg() {
+  pendingImg = null;
+  document.getElementById('upload-preview').style.display = 'none';
+  document.getElementById('file-in').value = '';
+}
+
+function appendMsg(role, html) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const avatarHTML = role === 'bot'
+    ? '<div class="msg-avatar bot-avatar">RSU</div>'
+    : '<div class="msg-avatar user-avatar">👤</div>';
+  div.innerHTML = avatarHTML + '<div class="msg-bubble">' + html + '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function sendMsg() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text && !pendingImg) return;
+
+  const imgHtml = pendingImg ? `<img class="msg-img" src="${pendingImg}" alt="uploaded"/>` : '';
+  appendMsg('user', imgHtml + (text ? `<span>${text}</span>` : ''));
+  clearImg();
+  input.value = '';
+
+  // Show typing indicator
+  const typingDiv = appendMsg('bot', '<div class="typing"><span></span><span></span><span></span></div>');
+
+  setTimeout(() => {
+    typingDiv.remove();
+    const reply = pendingImg || text.toLowerCase().includes('building')
+      ? `I've received your query about <strong>${text || 'the uploaded image'}</strong>.<br><br>
+         In the full production system, the image would be sent to the <strong>Vision AI Service</strong> (LLaVA / BLIP-2), the building would be classified, and I'd return complete info: building name, available services, clubs, facilities, opening hours, and rules — all pulled live from the <strong>Campus Data API</strong>. 📸`
+      : `Thanks for your question about <strong>${text}</strong>.<br><br>
+         In production, I connect to the <strong>Campus Data Service</strong> to answer questions about rooms, clubs, services, and staff. You can also search the <strong>Directory tab</strong> right now!`;
+    appendMsg('bot', reply);
+  }, 1800);
+}
+
+function startNewChat() {
+  document.getElementById('messages').innerHTML = '';
+  appendMsg('bot', 'New conversation started! Upload a campus building photo or type your question. I\'m here to help 🎓');
+  document.getElementById('active-building-tag').textContent = 'Campus';
+}
+
+function chatAbout(name) {
+  switchTab('chat');
+  document.getElementById('msg-input').value = 'Tell me about ' + name;
+  document.getElementById('msg-input').focus();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderDir(DIR_DATA);
+</script>
+</body>
+</html>
