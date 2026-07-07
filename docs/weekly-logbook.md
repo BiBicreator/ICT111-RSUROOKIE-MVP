@@ -101,3 +101,58 @@ The team decided to focus the MVP on the most important user needs, including bu
 
 ### Plan for Lab 04
 The team will define the customer segments and create user personas based on the collected evidence. We will then develop user stories and identify the core features that should be included in the MVP design and prototype.
+
+# Weekly Logbook - Lab 05
+
+## Group Name
+
+RSUROOKIE
+
+## Project Title
+
+RSU Campus Buddy (Smart Campus Chatbot for Student Services with Image Recognition)
+
+## Lab 05 Focus
+
+Product Concept and UI/UX Wireframe
+
+## What We Completed Today
+
+- [x] Reviewed Lab 04 requirements
+- [x] Defined product concept
+- [x] Mapped features to requirements
+- [x] Created required wireframe screens
+- [x] Created user flow diagram
+- [x] Built clickable prototype draft or screen navigation plan
+- [x] Updated GitHub repository
+
+## Member Contributions
+
+| Member Name | Contribution | Evidence / Commit Link |
+|---|---|---|
+| Member 1 | Defined the product concept, MVP scope, and system requirements. | GitHub Commit |
+| Member 2 | Designed wireframes and user flow diagram. | GitHub Commit |
+| Member 3 | Updated GitHub documentation, README, and feature mapping. | GitHub Commit |
+
+## Decisions Made
+
+| Decision | Reason | Related Requirement |
+|---|---|---|
+| Use Google Teachable Machine for image recognition. | Easy to integrate and suitable for a semester MVP. | FR-03, FR-04 |
+| Store campus information in a custom database instead of the official RSU database. | Official university databases are not accessible for this project. | FR-07, FR-08 |
+| Exclude real-time GPS navigation from the MVP. | Beyond the project scope and not required for the first prototype. | FR-12 |
+| Include an admin page to manage campus information. | Allows manual updating of building information in the custom database. | FR-11 |
+
+## Problems Found
+
+- Some wireframes required several revisions to better match the functional requirements.
+- It was challenging to organize all required screens while keeping the interface simple and user-friendly.
+- The team needed to ensure every screen could be traced back to the corresponding functional requirements.
+
+## Next Steps Before Lab 06
+
+- Finalize all wireframes based on team feedback.
+- Develop the HTML/CSS interface from the approved wireframes.
+- Integrate the Google Teachable Machine image recognition model.
+- Connect the frontend with the Flask backend (`app.py`) and the custom database.
+- Begin implementing the core MVP features.
