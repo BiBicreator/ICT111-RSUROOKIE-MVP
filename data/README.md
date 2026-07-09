@@ -148,3 +148,26 @@ All team members contributed to the same GitHub repository throughout Lab 05.
 - **Documentation Lead:** Updated the README, documentation, and weekly logbook.
 - **Validation Lead:** Ensured the wireframes and features aligned with the validated user requirements collected during customer discovery.
 
+# Lab 06 Update - Business Model Canvas and Technical Architecture
+
+## Lab 06 Summary
+
+In Lab 06, our group developed the business model and technical design for **RSU Campus Buddy**. We completed the Business Model Canvas, Feature-Value Mapping, Technical Architecture, Data Structure, System Architecture Diagram, and User Flow Diagram. These documents define the product's value, technical implementation, and data organization, providing a clear foundation for developing the final prototype.
+
+## Files Added or Updated
+
+- [Business Model Canvas](docs/business-model-canvas.md)
+- [Feature-Value Mapping](docs/feature-value-mapping.md)
+- [Technical Architecture](docs/technical-architecture.md)
+- [Data Structure](docs/data-structure.md)
+- [System Architecture Diagram](diagrams/system-architecture.png)
+- [Data Flow Diagram](diagrams/data-flow.mmd)
+- [Weekly Logbook](docs/weekly-logbook.md)
+
+## Technical Direction
+
+The prototype uses a **backend-based architecture** with **Flask (Python)** as the backend, **HTML/CSS/JavaScript** for the frontend, **JSON** as the data storage, and **Google Teachable Machine** for AI image recognition. This architecture is suitable for our team's skills and supports the planned MVP features without requiring a complex database or official university system integration.
+
+## Final Prototype Connection
+
+The outputs from Lab 06 provide the technical foundation for the final prototype. The Business Model Canvas defines the product strategy, the Feature-Value Mapping ensures every feature delivers value to users, the Technical Architecture guides system development, the Data Structure organizes the prototype data, and the System Architecture and User Flow Diagrams define how users interact with the system. These documents will guide the implementation, testing, and refinement of the final RSU Campus Buddy prototype.
