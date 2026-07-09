@@ -62,7 +62,21 @@ The current prototype does not use record status values (such as Pending or Comp
 
 ## 4. Sample Records
 
-Sample data is stored in the `/data/` folder as JSON files. The dataset includes campus information, building details, navigation data, and Google Teachable Machine configuration.
+The prototype uses JSON files as the sample dataset.
+
+Dataset location:
+- `/data/campus_data.json`
+
+The dataset contains:
+- Campus information
+- Building information
+- Facilities and services
+- Student clubs
+- Operating hours
+- Navigation data
+- Google Teachable Machine configuration
+
+This JSON dataset is the equivalent sample dataset used by the prototype.
 
 ---
 
