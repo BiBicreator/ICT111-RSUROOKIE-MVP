@@ -1,21 +1,22 @@
-```mermaid
 flowchart TD
-    A[Homepage / Landing Screen] --> B{What does the user want to do?}
+    A[Homepage / Landing Page] --> B{What does the user need?}
 
-    B -->|Upload a building image| C[Image Upload]
-    C --> D[Google Teachable Machine Image Recognition]
-    D --> E[Building Detail View]
+    B -->|Recognize Building| C[Upload Building Image]
+    C --> D[AI Recognition (Google Teachable Machine)]
+    D --> E[Building Information Page]
 
-    B -->|Search for a building| F[Building Search / List]
+    B -->|Search Building| F[Search Building]
     F --> E
 
-    E --> G[View Building Information]
-    G --> H[Facilities, Services, Operating Hours, Clubs, Regulations]
+    B -->|Ask Chatbot| G[Enter Question]
+    G --> H[Chatbot Response]
 
-    E --> I[Ask Campus Chatbot]
-    I --> J[Chatbot Response]
+    E --> I[View Facilities]
+    E --> J[View Services]
+    E --> K[View Student Clubs]
+    E --> L[View Floor Plan]
+    E --> M[View Static Directions]
 
-    K[Admin View] --> L[Add, Edit, Delete Building Information]
-    L --> M[(Custom Database)]
-    M --> E
-```
+    N[Admin Login] --> O[Admin Management]
+    O --> P[Add / Edit / Delete Building Information]
+    P --> Q[Update JSON Data]
