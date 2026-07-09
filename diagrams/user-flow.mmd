@@ -1,9 +1,9 @@
 flowchart TD
-    A[Homepage / Landing Page] --> B{What does the user need?}
+    A[Homepage] --> B{Choose Action}
 
-    B -->|Recognize Building| C[Upload Building Image]
-    C --> D[AI Recognition (Google Teachable Machine)]
-    D --> E[Building Information Page]
+    B -->|Upload Building Image| C[Upload Image]
+    C --> D[AI Recognition]
+    D --> E[Building Information]
 
     B -->|Search Building| F[Search Building]
     F --> E
@@ -15,8 +15,8 @@ flowchart TD
     E --> J[View Services]
     E --> K[View Student Clubs]
     E --> L[View Floor Plan]
-    E --> M[View Static Directions]
+    E --> M[View Directions]
 
     N[Admin Login] --> O[Admin Management]
-    O --> P[Add / Edit / Delete Building Information]
+    O --> P[Add Edit Delete Building Information]
     P --> Q[Update JSON Data]
