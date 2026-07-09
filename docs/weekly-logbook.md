@@ -156,3 +156,68 @@ Product Concept and UI/UX Wireframe
 - Integrate the Google Teachable Machine image recognition model.
 - Connect the frontend with the Flask backend (`app.py`) and the custom database.
 - Begin implementing the core MVP features.
+
+# Weekly Logbook - Lab 06
+
+## Group Name
+
+RSUROOKIE
+
+## Project Title
+
+RSU Campus Buddy (Smart Campus Chatbot for Student Services with Image Recognition)
+
+## Date
+
+(Write your lab date)
+
+## Members Present
+
+| Member Name | Contribution Today | GitHub Evidence / Commit / File Updated |
+|---|---|---|
+|Khin Zu Zu Oo | Completed the Business Model Canvas, Feature-Value Mapping, Technical Architecture, Data Structure, System Architecture Diagram, User Flow Diagram, updated project documentation, and uploaded the JSON dataset. | Multiple commits, `/docs/`, `/data/`, `/diagrams/` |
+|Min Khant Zaw | Created GitHub issues, created project files and folders, and organized the repository structure. | GitHub Issues, repository setup commits |
+
+---
+
+## Decisions Made Today
+
+### 1. Business model decision
+
+The team agreed to focus on RSU students, especially freshmen and international students. The MVP will provide campus building recognition, campus information, and a chatbot to improve access to university services.
+
+### 2. Technical architecture decision
+
+The team selected **Flask (Python)** for the backend, **HTML/CSS/JavaScript** for the frontend, **Google Teachable Machine** for image recognition, and **JSON** as the data storage method because these technologies match our team's skills and are feasible within one semester.
+
+### 3. Data structure decision
+
+The team decided to use a JSON-based dataset containing campus information, building details, navigation data, and Teachable Machine configuration instead of an official university database.
+
+### 4. Diagram decision
+
+The team completed the System Architecture Diagram and User Flow Diagram. Both diagrams were updated to match the actual prototype and technologies used in the project.
+
+---
+
+## Problems or Risks Found
+
+- Google Teachable Machine recognition accuracy depends on the quality and variety of training images.
+- Campus information must be manually maintained because the prototype does not connect to the official Rangsit University database.
+- Real-time navigation is outside the MVP scope and will be simulated using static directions.
+
+---
+
+## Next Actions Before Lab 07
+
+- Finalize the System Architecture and User Flow diagrams.
+- Improve the UI design and screen navigation.
+- Continue implementing the Flask backend and frontend integration.
+- Test Google Teachable Machine image recognition with additional building images.
+- Verify that the JSON dataset matches the prototype requirements.
+
+---
+
+## Lecturer / TA Notes
+
+(To be completed during or after the lab.)
