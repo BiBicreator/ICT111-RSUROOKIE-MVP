@@ -2,627 +2,1581 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>RSU Smart Campus Chatbot</title>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RSU Campus Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<!-- React + Babel (no build step needed) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<!-- Teachable Machine (loaded dynamically when enabled) -->
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --rsu-red: #C8102E;
-    --rsu-dark: #1a0a0e;
-    --rsu-gold: #F5A623;
-    --rsu-blue: #1A4A8A;
-    --rsu-surface: #fff;
-    --rsu-bg: #f8f6f4;
-    --rsu-border: rgba(0,0,0,0.1);
-    --rsu-text: #1a1a1a;
-    --rsu-muted: #6b6b6b;
-    --rsu-tag: #fff0f3;
-    --rsu-tag-text: #C8102E;
-    --sidebar-w: 220px;
-    --tab-h: 52px;
-    font-family: 'DM Sans', sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --rsu-surface: #1e1014;
-      --rsu-bg: #140810;
-      --rsu-border: rgba(255,255,255,0.1);
-      --rsu-text: #f0eae8;
-      --rsu-muted: #9e8e8a;
-      --rsu-tag: #2a0f14;
-      --rsu-tag-text: #ff6b7a;
-    }
-  }
-  body { background: #f0ece8; display: flex; justify-content: center; padding: 24px 16px; min-height: 100vh; }
-  #app { width: 100%; max-width: 960px; min-height: 640px; background: var(--rsu-bg); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rsu-red:#E91E63; --rsu-navy:#0033A0; --rsu-gold:#FF8A80;
+  --bg:#ffffff; --s1:#ffffff; --s2:#f6f8ff; --s3:#edf2ff;
+  --border:#d8e1f2; --border2:#bfd0ee;
+  --teal:#E91E63; --teal-d:rgba(233,30,99,0.12);
+  --coral:#c2185b; --blue:#0033A0;
+  --text:#16233f; --muted:#6b7a99; --dim:#405173;
+  --user-bg:#0033A0; --user-b:#2954bd;
+  --shadow-sm:0 8px 20px rgba(0,51,160,.08);
+  --shadow-md:0 18px 45px rgba(0,51,160,.12);
+  --r:18px; --fh:'Poppins',sans-serif; --fb:'Inter',sans-serif;
+}
+html,body,#root{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--fb)}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(0,51,160,.12), transparent 32%),
+    radial-gradient(circle at 100% 0%, rgba(233,30,99,.14), transparent 28%),
+    linear-gradient(180deg,#ffffff 0%,#f8faff 50%,#fdf7fb 100%)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+button{cursor:pointer;font-family:var(--fb)}
+a{color:var(--blue);text-decoration:none}
 
-  /* Tab Bar */
-  #tabs { display: flex; background: var(--rsu-red); height: var(--tab-h); align-items: stretch; }
-  .tab-btn { flex: 1; border: none; background: none; color: rgba(255,255,255,0.6); font-family: 'Kanit', sans-serif; font-size: 15px; font-weight: 500; letter-spacing: 0.3px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: color 0.2s, background 0.2s; position: relative; }
-  .tab-btn.active { color: #fff; }
-  .tab-btn.active::after { content:''; position:absolute; bottom:0; left:10%; width:80%; height:3px; background:var(--rsu-gold); border-radius:3px 3px 0 0; }
-  .tab-btn:hover:not(.active) { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
-  .tab-icon { font-size: 17px; }
+/* ── App Shell ── */
+.app-shell{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
 
-  /* Content area */
-  #content { flex: 1; display: flex; min-height: 588px; }
-  .tab-panel { display: none; flex: 1; }
-  .tab-panel.active { display: flex; }
+/* ── Top Bar ── */
+.topbar{display:flex;align-items:center;gap:12px;padding:14px 18px;
+  background:linear-gradient(135deg,#0033A0,#1d56d7);border-bottom:1px solid rgba(0,51,160,.15);
+  box-shadow:0 10px 30px rgba(0,51,160,.18);flex-shrink:0;z-index:50;color:#fff}
+.topbar-logo{display:flex;align-items:center;gap:10px}
+.logo-badge{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#ff4f8b,#E91E63);font-size:18px;
+  box-shadow:0 10px 24px rgba(233,30,99,.28);flex-shrink:0}
+.logo-text{font-family:var(--fh);font-size:15px;font-weight:700;letter-spacing:-.2px;color:#fff}
+.logo-sub{font-size:10.5px;color:rgba(255,255,255,.8);margin-top:1px}
+.tab-bar{display:flex;gap:4px;margin-left:auto;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px}
+.tab-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;font-size:12.5px;font-weight:500;
+  color:rgba(255,255,255,.84);background:none;border:none;border-radius:999px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:#ff4f8b;background:rgba(255,255,255,.16);transform:translateY(-1px)}
+.tab-btn.active{color:#fff;background:linear-gradient(135deg,#ff4f8b,#E91E63);
+  box-shadow:0 10px 22px rgba(233,30,99,.32)}
+.status-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);padding:5px 11px;border-radius:999px}
+.status-dot{width:6px;height:6px;background:#ff80ab;border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 
-  /* ===== CHAT TAB ===== */
-  #chat-panel { flex-direction: row; }
-  #sidebar { width: var(--sidebar-w); background: var(--rsu-surface); border-right: 1px solid var(--rsu-border); display: flex; flex-direction: column; }
-  #sidebar-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--rsu-border); }
-  #sidebar-header h3 { font-family: 'Kanit', sans-serif; font-size: 13px; font-weight: 600; color: var(--rsu-muted); text-transform: uppercase; letter-spacing: 1px; }
-  #chat-history { flex: 1; overflow-y: auto; padding: 10px 8px; }
-  .hist-item { padding: 9px 10px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; transition: background 0.15s; }
-  .hist-item:hover { background: var(--rsu-bg); }
-  .hist-item.active-hist { background: #fff0f3; }
-  .hist-title { font-size: 13px; font-weight: 500; color: var(--rsu-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hist-sub { font-size: 11px; color: var(--rsu-muted); margin-top: 2px; }
-  #new-chat-btn { margin: 10px 8px; padding: 9px; border: 1px dashed var(--rsu-border); border-radius: 8px; background: none; color: var(--rsu-muted); font-size: 13px; cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-  #new-chat-btn:hover { border-color: var(--rsu-red); color: var(--rsu-red); background: #fff0f3; }
+/* ── Tab content area ── */
+.tab-content{display:flex;flex:1;overflow:hidden;position:relative}
 
-  /* Chat main */
-  #chat-main { flex: 1; display: flex; flex-direction: column; }
-  #chat-topbar { padding: 12px 16px; border-bottom: 1px solid var(--rsu-border); display: flex; align-items: center; gap: 10px; background: var(--rsu-surface); }
-  #chat-topbar .building-tag { background: var(--rsu-tag); color: var(--rsu-tag-text); font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
-  #chat-topbar h2 { font-family: 'Kanit', sans-serif; font-size: 15px; font-weight: 600; color: var(--rsu-text); flex:1; }
-  #back-btn { padding: 5px 12px; border: 1px solid var(--rsu-border); border-radius: 8px; background: none; color: var(--rsu-muted); font-size: 12px; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-  #back-btn:hover { background: var(--rsu-bg); }
-  #messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--rsu-bg); }
-  .msg { display: flex; gap: 10px; max-width: 85%; }
-  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
-  .msg-bubble { padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.55; }
-  .msg.bot .msg-bubble { background: var(--rsu-surface); color: var(--rsu-text); border-radius: 4px 14px 14px 14px; border: 1px solid var(--rsu-border); }
-  .msg.user .msg-bubble { background: var(--rsu-red); color: #fff; border-radius: 14px 4px 14px 14px; }
-  .msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-  .bot-avatar { background: linear-gradient(135deg, var(--rsu-red), #a00020); color: #fff; font-weight: 600; font-size: 11px; font-family: 'Kanit',sans-serif; }
-  .user-avatar { background: var(--rsu-gold); color: #fff; font-size: 12px; }
-  .msg-img { width: 100%; max-width: 200px; border-radius: 10px; margin-bottom: 8px; border: 2px solid rgba(200,16,46,0.2); display: block; }
-  .info-card { background: var(--rsu-tag); border: 1px solid rgba(200,16,46,0.15); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
-  .info-card h4 { color: var(--rsu-red); font-family: 'Kanit',sans-serif; font-size: 13px; margin-bottom: 6px; }
-  .info-row { display: flex; gap: 6px; font-size: 12px; color: var(--rsu-muted); margin: 3px 0; flex-wrap: wrap; }
-  .info-row strong { color: var(--rsu-text); }
-  .typing { display: flex; gap: 4px; align-items: center; padding: 8px 14px; }
-  .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--rsu-muted); animation: bounce 1s infinite; }
-  .typing span:nth-child(2) { animation-delay: 0.15s; }
-  .typing span:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-  #chat-input-area { padding: 12px 16px; border-top: 1px solid var(--rsu-border); background: var(--rsu-surface); }
-  #input-box { display: flex; align-items: center; gap: 8px; border: 1.5px solid var(--rsu-border); border-radius: 12px; padding: 8px 12px; background: var(--rsu-bg); transition: border-color 0.2s; }
-  #input-box:focus-within { border-color: var(--rsu-red); }
-  #msg-input { flex: 1; border: none; background: none; outline: none; font-size: 14px; color: var(--rsu-text); font-family: 'DM Sans', sans-serif; }
-  #msg-input::placeholder { color: var(--rsu-muted); }
-  #upload-btn, #send-btn { border: none; background: none; cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-  #send-btn { background: var(--rsu-red); color: #fff; border-radius: 8px; width: 34px; height: 34px; font-size: 16px; }
-  #send-btn:hover { background: #a00020; }
-  #upload-btn { color: var(--rsu-muted); font-size: 18px; }
-  #upload-btn:hover { background: var(--rsu-bg); color: var(--rsu-red); }
-  #upload-preview { display: none; margin-bottom: 8px; position: relative; width: fit-content; }
-  #upload-preview img { height: 60px; border-radius: 8px; border: 2px solid rgba(200,16,46,0.3); }
-  #clear-img { position: absolute; top: -5px; right: -5px; background: var(--rsu-red); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+/* ════════════════════════════════════
+   CHAT TAB
+   ════════════════════════════════════ */
+.chat-layout{display:flex;width:100%;height:100%;overflow:hidden}
 
-  /* ===== MAP TAB ===== */
-  #map-panel { flex-direction: column; }
-  #map-controls { padding: 12px 16px; background: var(--rsu-surface); border-bottom: 1px solid var(--rsu-border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  #map-controls h3 { font-family: 'Kanit',sans-serif; font-size: 15px; font-weight: 600; color: var(--rsu-text); margin-right: 4px; }
-  .floor-btn { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--rsu-border); background: none; cursor: pointer; font-size: 13px; color: var(--rsu-muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-  .floor-btn.active, .floor-btn:hover { background: var(--rsu-red); color: #fff; border-color: var(--rsu-red); }
-  .route-input { border: 1px solid var(--rsu-border); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-family: 'DM Sans',sans-serif; background: var(--rsu-bg); color: var(--rsu-text); outline: none; }
-  .route-input:focus { border-color: var(--rsu-red); }
-  #find-route { background: var(--rsu-red); color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-family: 'Kanit',sans-serif; transition: background 0.15s; }
-  #find-route:hover { background: #a00020; }
-  #map-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #e8e4de; }
-  #map-svg { width: 100%; height: 100%; }
-  .map-building { fill: #fff; stroke: #c8102e; stroke-width: 2; cursor: pointer; transition: fill 0.2s; }
-  .map-building:hover { fill: #fff5f7; }
-  .map-building.selected { fill: #fff0f3; stroke-width: 3; }
-  .map-label { font-family: 'Kanit',sans-serif; font-size: 11px; fill: #1a1a1a; font-weight: 600; text-anchor: middle; pointer-events: none; }
-  .map-sub { font-size: 9px; fill: #6b6b6b; text-anchor: middle; font-family: 'DM Sans',sans-serif; pointer-events: none; }
-  .map-road { fill: none; stroke: #d4cfc8; stroke-width: 6; stroke-linecap: round; }
-  .route-path { fill: none; stroke: #C8102E; stroke-width: 3; stroke-dasharray: 8 5; stroke-linecap: round; animation: dash-anim 0.6s linear infinite; }
-  @keyframes dash-anim { to { stroke-dashoffset: -13; } }
-  .route-node { fill: #C8102E; stroke: #fff; stroke-width: 2; }
-  .node-label { font-size: 10px; fill: #C8102E; font-family:'Kanit',sans-serif; font-weight:600; text-anchor:middle; }
-  #map-legend { position:absolute; bottom:10px; right:10px; background: var(--rsu-surface); border-radius: 10px; padding: 10px 14px; font-size: 12px; border: 1px solid var(--rsu-border); }
-  .legend-row { display:flex; align-items:center; gap:6px; margin:3px 0; color:var(--rsu-muted); }
-  .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-  #building-popup { display:none; position:absolute; top:10px; left:50%; transform:translateX(-50%); background:var(--rsu-surface); border:1.5px solid var(--rsu-red); border-radius:12px; padding:10px 16px; font-size:13px; color:var(--rsu-text); box-shadow:0 4px 20px rgba(200,16,46,0.15); white-space:nowrap; z-index:10; }
-  #route-info { display:none; position:absolute; bottom:10px; left:10px; background:var(--rsu-surface); border-radius:10px; padding:10px 14px; font-size:12px; border:1px solid var(--rsu-border); color:var(--rsu-text); }
+/* Sidebar */
+.sidebar{width:280px;background:rgba(255,255,255,.88);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;transition:all .25s;overflow:hidden;backdrop-filter:blur(12px)}
+.sidebar.collapsed{width:0;border-right-width:0}
+.sb-header{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 14px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-title{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--blue)}
+.sb-close{background:#fff;border:1px solid var(--border2);color:var(--muted);
+  border-radius:6px;width:26px;height:26px;font-size:13px;display:flex;align-items:center;justify-content:center}
+.sb-close:hover{color:var(--coral);border-color:rgba(233,30,99,.35)}
+.new-chat-btn{margin:10px 12px;padding:11px;background:linear-gradient(135deg,#0033A0,#1d56d7);
+  border:1px solid rgba(0,51,160,.2);border-radius:14px;color:#fff;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;flex-shrink:0;box-shadow:var(--shadow-sm)}
+.new-chat-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.sb-section{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);padding:8px 14px 5px;flex-shrink:0}
+.history-list{flex:1;overflow-y:auto;padding:0 7px}
+.hist-item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:9px;
+  cursor:pointer;transition:all .15s;margin-bottom:2px}
+.hist-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 9px;
+  border-radius: 12px;
 
-  /* ===== DIRECTORY TAB ===== */
-  #dir-panel { flex-direction: column; }
-  #dir-header { padding: 14px 20px; background: var(--rsu-surface); border-bottom: 1px solid var(--rsu-border); display: flex; align-items: center; gap: 12px; }
-  #dir-search { flex: 1; border: 1.5px solid var(--rsu-border); border-radius: 10px; padding: 8px 14px; font-size: 14px; font-family: 'DM Sans',sans-serif; background: var(--rsu-bg); color: var(--rsu-text); outline: none; }
-  #dir-search:focus { border-color: var(--rsu-red); }
-  #dir-filter { display: flex; gap: 6px; padding: 10px 16px; background: var(--rsu-bg); border-bottom: 1px solid var(--rsu-border); flex-wrap: wrap; }
-  .filter-chip { padding: 4px 14px; border-radius: 20px; border: 1px solid var(--rsu-border); background: var(--rsu-surface); font-size: 12px; cursor: pointer; color: var(--rsu-muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-  .filter-chip.active { background: var(--rsu-red); color: #fff; border-color: var(--rsu-red); }
-  #dir-list { flex: 1; overflow-y: auto; padding: 12px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; align-content: start; }
-  .dir-card { background: var(--rsu-surface); border: 1px solid var(--rsu-border); border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s; }
-  .dir-card:hover { border-color: var(--rsu-red); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(200,16,46,0.1); }
-  .dir-cat { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; font-family: 'Kanit', sans-serif; }
-  .cat-service { color: #1A4A8A; }
-  .cat-club { color: #C8102E; }
-  .cat-facility { color: #2a7a2a; }
-  .cat-staff { color: #8a4a00; }
-  .dir-name { font-family: 'Kanit',sans-serif; font-size: 15px; font-weight: 600; color: var(--rsu-text); margin-bottom: 4px; }
-  .dir-loc { font-size: 12px; color: var(--rsu-muted); }
-  .dir-hours { font-size: 11px; color: var(--rsu-muted); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
-  .dir-status { display:inline-block; width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .open { background:#2a7a2a; }
-  .closed { background:#c84a00; }
-  .no-results { grid-column: 1/-1; text-align: center; color: var(--rsu-muted); padding: 40px; font-size: 14px; }
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  cursor: pointer;
+  margin-bottom: 6px;
+
+  /* Smooth animation */
+  transition: all 0.25s ease;
+}
+.hist-item.active {
+  transform: translateY(-2px);
+
+  /* blue glass tint */
+  background: rgba(29, 86, 215, 0.18);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* subtle blue border */
+  border: 1px solid rgba(29, 86, 215, 0.35);
+
+  /* soft blue glow */
+  box-shadow:
+    0 6px 18px rgba(40, 41, 42, 0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.25);
+
+  color: #0033A0;
+}
+.hist-icon{width:28px;height:28px;background:#fff;border:1px solid var(--border2);
+  border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+
+
+.hist-item:hover {
+  transform: translateY(-4px) scale(1.02);
+
+  background: rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.08);
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.hist-item:hover .hist-icon {
+  background: rgba(255,255,255,0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.hist-title{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.hist-time{font-size:10px;color:var(--muted);margin-top:1px}
+.hist-del{background:none;border:none;color:transparent;font-size:12px;padding:0 3px;
+  border-radius:4px;flex-shrink:0;transition:all .15s}
+.hist-item:hover .hist-del{color:var(--muted)}
+.hist-del:hover{color:var(--coral)!important;background:rgba(255,95,109,.12)}
+.hist-empty{text-align:center;padding:30px 14px;color:var(--muted);font-size:13px}
+.sb-footer{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between}
+.sb-status{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--teal)}
+.clear-btn{background:none;border:1px solid var(--border2);color:var(--muted);
+  font-size:11px;padding:4px 9px;border-radius:5px;transition:all .15s}
+.clear-btn:hover{color:var(--coral);border-color:var(--coral)}
+
+/* Chat main */
+.chat-main{display:flex;flex-direction:column;flex:1;overflow:hidden}
+
+/* Back/Exit button row */
+.chat-controls{display:flex;align-items:center;gap:8px;padding:10px 16px;
+  background:rgba(255,255,255,.78);border-bottom:1px solid var(--border);flex-shrink:0;backdrop-filter:blur(10px)}
+.ctrl-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;
+  background:#fff;border:1px solid var(--border2);color:var(--blue);
+  border-radius:7px;font-size:12px;transition:all .15s}
+.ctrl-btn:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-1px)}
+.ctrl-btn.danger:hover{border-color:var(--coral);color:var(--coral)}
+.sb-toggle{background:#fff;border:1px solid var(--border2);color:var(--blue);
+  border-radius:7px;padding:5px 10px;font-size:14px;transition:all .15s}
+.sb-toggle:hover{border-color:var(--teal);color:var(--teal)}
+
+/* Messages */
+.messages{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+.welcome{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 20px;animation:fadeUp .5s ease}
+.w-icon{width:88px;height:88px;border-radius:28px;margin-bottom:18px;
+  background:linear-gradient(135deg,#edf2ff,#fff0f7);
+  border:1px solid rgba(0,51,160,.12);display:flex;align-items:center;justify-content:center;
+  font-size:38px;box-shadow:var(--shadow-sm)}
+.w-title{font-family:var(--fh);font-size:22px;font-weight:700;margin-bottom:9px;
+  background:linear-gradient(90deg,var(--blue),var(--rsu-red));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.w-sub{font-size:13.5px;color:var(--muted);max-width:400px;line-height:1.75;margin-bottom:22px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:500px}
+.chip{font-size:12px;padding:8px 14px;background:#fff;border:1px solid var(--border2);
+  border-radius:999px;color:var(--dim);transition:all .15s;font-weight:600;box-shadow:var(--shadow-sm)}
+.chip:hover{border-color:var(--rsu-red);color:var(--rsu-red);background:#fff5fa;transform:translateY(-2px)}
+.msg-row{display:flex;gap:9px;animation:fadeUp .22s ease}
+.msg-row.user{flex-direction:row-reverse}
+@keyframes fadeUp{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.av{width:32px;height:32px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:15px;align-self:flex-end}
+.av.bot{background:linear-gradient(135deg,#fff6fb,#fff0f7);border:1px solid rgba(233,30,99,.16)}
+.av.user{background:var(--user-bg);border:1px solid var(--user-b)}
+.bubble{max-width:min(75%,580px);padding:14px 16px;border-radius:22px;font-size:13.5px;line-height:1.7;box-shadow:var(--shadow-sm)}
+.bubble.bot{background:linear-gradient(180deg,#fffafd 0%,#fff4f9 100%);border:1px solid rgba(233,30,99,.18);border-bottom-left-radius:6px}
+.bubble.user{background:linear-gradient(135deg,#0033A0,#2856c7);border:1px solid var(--user-b);border-bottom-right-radius:6px;color:#eef4ff}
+.bubble img.thumb{max-width:100%;max-height:180px;border-radius:8px;display:block;margin-bottom:8px;object-fit:cover}
+
+/* Info Card inside bubble */
+.info-card{background:#fff;border:1px solid var(--border2);border-radius:20px;overflow:hidden;margin-top:6px;box-shadow:var(--shadow-sm)}
+.ic-head{padding:13px 16px;background:linear-gradient(135deg,#edf2ff,#fff4f9);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.ic-emoji{font-size:22px}
+.ic-name{font-family:var(--fh);font-size:14px;font-weight:700;
+  background:linear-gradient(90deg,var(--blue),var(--rsu-red));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ic-cat{margin-left:auto;font-size:10px;color:var(--blue);background:#fff;
+  border:1px solid var(--border);padding:2px 8px;border-radius:4px}
+.conf{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.4px}
+.conf-High{background:rgba(0,212,180,.15);color:#00d4b4;border:1px solid rgba(0,212,180,.25)}
+.conf-Medium{background:rgba(245,166,35,.15);color:#f5a623;border:1px solid rgba(245,166,35,.25)}
+.conf-Low{background:rgba(255,95,109,.12);color:#ff7a85;border:1px solid rgba(255,95,109,.2)}
+.ic-body{padding:12px 14px;display:flex;flex-direction:column;gap:11px}
+.ic-desc{font-size:12.5px;color:var(--dim);line-height:1.6}
+.sec-lbl{font-size:9.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:5px}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:11.5px;padding:3px 9px;border-radius:20px}
+.tag.s{background:rgba(61,158,255,.12);color:#7ab8ff;border:1px solid rgba(61,158,255,.2)}
+.tag.f{background:rgba(0,212,180,.1);color:#5de0c0;border:1px solid rgba(0,212,180,.18)}
+.tag.c{background:rgba(245,166,35,.1);color:#fbc85a;border:1px solid rgba(245,166,35,.2)}
+.hrs-block{background:#f8faff;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--border)}
+.hr-row{display:grid;grid-template-columns:92px 1fr;font-size:12px;gap:10px;align-items:start}
+.hr-day{color:var(--muted)}.hr-val{color:var(--text);font-weight:500}
+.card-actions{display:flex;gap:7px;flex-wrap:wrap}
+.cta{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;
+  padding:6px 13px;border-radius:8px;transition:all .15s;border:none}
+.cta.primary{background:linear-gradient(135deg,var(--blue),#2759d1);color:#fff;
+  box-shadow:var(--shadow-sm)}
+.cta.primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.cta.secondary{background:#fff;color:var(--rsu-red);border:1px solid rgba(233,30,99,.22)}
+.cta.secondary:hover{border-color:var(--teal);color:var(--teal);background:#fff5fa}
+.vpills{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.vpill{font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(0,212,180,.1);
+  color:var(--teal);border:1px solid rgba(0,212,180,.2);font-family:monospace}
+.err-box{background:#fff5f8;border:1px solid rgba(233,30,99,.18);
+  color:#9d174d;border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.6}
+.err-box code{font-family:monospace;background:#ffe5f0;padding:1px 5px;border-radius:6px}
+
+/* Nav result card */
+.nav-card{background:#fff;border:1px solid var(--border2);border-radius:20px;overflow:hidden;margin-top:6px;box-shadow:var(--shadow-sm)}
+.nav-head{padding:13px 16px;background:linear-gradient(135deg,#edf2ff,#fef2f7);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.nav-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--blue)}
+.nav-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.nav-route{display:flex;align-items:center;gap:8px;font-size:13px}
+.nav-pt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav-pt-lbl{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.nav-pt-name{font-size:13px;font-weight:600;color:var(--text);text-align:center}
+.nav-arr{flex:1;color:var(--teal);font-size:20px;text-align:center}
+.nav-steps{display:flex;flex-direction:column;gap:7px}
+.nav-step{display:flex;align-items:flex-start;gap:10px}
+.step-num{width:22px;height:22px;background:var(--teal-d);border:1px solid rgba(0,212,180,.3);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10.5px;font-weight:700;color:var(--teal);flex-shrink:0}
+.step-txt{font-size:12.5px;color:var(--dim);line-height:1.6;padding-top:2px}
+.step-lift{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;
+  color:var(--rsu-gold);background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.2);
+  padding:2px 7px;border-radius:4px;margin-left:5px}
+
+/* Typing indicator */
+.typing-row{display:flex;gap:9px;align-items:flex-end;animation:fadeUp .22s ease}
+.typing-bub{background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  border-bottom-left-radius:3px;padding:12px 15px;display:flex;gap:5px;align-items:center}
+.tdot{width:7px;height:7px;background:var(--muted);border-radius:50%;animation:tdot 1.3s ease infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+.prog-row{display:flex;gap:9px;align-items:flex-end;animation:fadeUp .22s ease}
+.prog-bub{background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  border-bottom-left-radius:3px;padding:11px 14px;font-size:13px;color:var(--dim);
+  display:flex;align-items:center;gap:9px}
+.spin{width:15px;height:15px;border:2px solid var(--border2);border-top-color:var(--teal);
+  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Input area */
+.input-area{padding:14px 16px;background:rgba(255,255,255,.92);border-top:1px solid var(--border);
+  backdrop-filter:blur(14px);flex-shrink:0}
+.preview-bar{display:flex;align-items:center;gap:9px;margin-bottom:8px;padding:7px 11px;
+  background:#fff;border:1px solid rgba(233,30,99,.18);border-radius:14px;animation:fadeUp .2s ease;box-shadow:var(--shadow-sm)}
+.preview-bar img{width:44px;height:34px;object-fit:cover;border-radius:5px}
+.prev-name{font-size:12px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prev-badge{font-size:11px;color:var(--teal);background:#fff1f7;
+  border:1px solid rgba(233,30,99,.18);padding:2px 8px;border-radius:20px;flex-shrink:0}
+.rm-prev{background:none;border:none;color:var(--muted);font-size:15px;padding:2px 5px;
+  border-radius:4px;transition:all .15s}
+.rm-prev:hover{color:var(--coral)}
+.input-row{display:flex;align-items:flex-end;gap:7px;background:#fff;
+  border:1px solid var(--border2);border-radius:18px;padding:7px 8px 7px 14px;transition:border-color .2s,box-shadow .2s;box-shadow:var(--shadow-sm)}
+.input-row:focus-within{border-color:var(--rsu-red);box-shadow:0 0 0 4px rgba(233,30,99,.1)}
+textarea{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--fb);
+  font-size:13.5px;line-height:1.55;resize:none;max-height:100px;padding:4px 0}
+textarea::placeholder{color:var(--muted)}
+.ibtn{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;font-size:16px;transition:all .2s;flex-shrink:0}
+.ibtn.up{background:#eef3ff;color:var(--blue);border:1px solid rgba(0,51,160,.12)}
+.ibtn.up:hover{background:#e1ebff;transform:translateY(-1px)}
+.ibtn.snd{background:linear-gradient(135deg,#ff4f8b,#E91E63);color:#fff;
+  box-shadow:0 10px 24px rgba(233,30,99,.26)}
+.ibtn.snd:hover{transform:translateY(-1px) scale(1.03);box-shadow:0 14px 28px rgba(233,30,99,.33)}
+.ibtn.snd:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.input-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:7px}
+
+
+
+/* ════════════════════════════════════
+   MAP TAB
+   ════════════════════════════════════ */
+.map-tab{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.map-toolbar{display:flex;align-items:center;gap:10px;padding:14px 18px;
+  background:#fff;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.map-title{font-family:var(--fh);font-size:16px;font-weight:700}
+.map-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.floor-tabs{display:flex;gap:4px;margin-left:auto}
+.floor-tab{padding:5px 12px;font-size:12px;font-weight:500;color:var(--muted);
+  background:#fff;border:1px solid var(--border2);border-radius:999px;transition:all .15s}
+.floor-tab:hover{border-color:var(--teal);color:var(--teal);background:#fff5fa}
+.floor-tab.active{background:#fff1f7;border-color:var(--teal);color:var(--teal)}
+.map-body{flex:1;display:flex;overflow:hidden}
+.map-svg-wrap{flex:1;overflow:hidden;position:relative;background:#f8faff}
+.map-svg-wrap svg{width:100%;height:100%}
+.map-panel{width:300px;background:#fff;border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.map-panel-head{padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.map-panel-title{font-family:var(--fh);font-size:14px;font-weight:700}
+.map-panel-body{flex:1;overflow-y:auto;padding:12px}
+.route-form{display:flex;flex-direction:column;gap:9px}
+.rform-label{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:4px}
+.rform-select{width:100%;background:#fff;border:1px solid var(--border2);
+  color:var(--text);border-radius:8px;padding:8px 10px;font-family:var(--fb);font-size:12.5px;
+  outline:none;transition:border-color .15s}
+.rform-select:focus{border-color:var(--teal)}
+.route-btn{padding:10px;background:linear-gradient(135deg,var(--blue),#2759d1);
+  color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;
+  transition:all .2s;font-family:var(--fb);box-shadow:var(--shadow-sm)}
+.route-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.route-steps{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.rs-step{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--dim);line-height:1.6}
+.rs-num{width:20px;height:20px;border-radius:50%;background:var(--teal-d);
+  border:1px solid rgba(0,212,180,.3);display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:var(--teal);flex-shrink:0}
+.map-bldg-list{display:flex;flex-direction:column;gap:6px}
+.map-bldg-btn{display:flex;align-items:center;gap:9px;padding:10px 11px;
+  background:#fff;border:1px solid var(--border2);border-radius:14px;
+  text-align:left;transition:all .15s;width:100%}
+.map-bldg-btn:hover{border-color:var(--teal);transform:translateX(2px);box-shadow:var(--shadow-sm)}
+.map-bldg-btn.active{border-color:var(--rsu-red);background:#fff4f9}
+.mbb-emoji{font-size:20px}
+.mbb-info{flex:1;min-width:0}
+.mbb-name{font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mbb-cat{font-size:11px;color:var(--muted);margin-top:1px}
+.map-legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;
+  border-top:1px solid var(--border);flex-shrink:0}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ════════════════════════════════════
+   DIRECTORY TAB
+   ════════════════════════════════════ */
+.dir-tab{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.dir-toolbar{display:flex;align-items:center;gap:10px;padding:14px 18px;
+  background:#fff;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.dir-title-txt{font-family:var(--fh);font-size:17px;font-weight:700;flex:1}
+.search-box{display:flex;align-items:center;gap:7px;background:#fff;
+  border:1px solid var(--border2);border-radius:9px;padding:7px 12px;
+  flex:1;min-width:180px;max-width:320px;transition:border-color .15s,box-shadow .15s;box-shadow:var(--shadow-sm)}
+.search-box:focus-within{border-color:var(--teal);box-shadow:0 0 0 4px rgba(233,30,99,.08)}
+.search-box input{background:none;border:none;outline:none;color:var(--text);
+  font-family:var(--fb);font-size:13px;flex:1}
+.search-box input::placeholder{color:var(--muted)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;
+  background:#fff;border-bottom:1px solid var(--border);flex-shrink:0}
+.ftab{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border2);
+  color:var(--muted);background:#fff;transition:all .15s;font-weight:600}
+.ftab:hover{border-color:var(--teal);color:var(--teal);background:#fff5fa}
+.ftab.on{background:#fff1f7;border-color:var(--teal);color:var(--teal)}
+.dir-list{flex:1;overflow-y:auto;padding:14px 14px;display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.dir-card{background:#fff;border:1px solid var(--border2);border-radius:20px;overflow:hidden;transition:border-color .15s,transform .15s,box-shadow .15s;box-shadow:var(--shadow-sm);flex:0 0 auto;min-height:max-content}
+.dir-card:hover{border-color:rgba(0,51,160,.18);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.dc-head{padding:14px 16px;background:linear-gradient(135deg,#edf2ff,#fff4f9);
+  border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.dc-emoji{font-size:26px;flex-shrink:0;margin-top:2px}
+.dc-info{flex:1;min-width:0}
+.dc-name{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+.dc-cat-badge{font-size:11px;color:var(--teal);background:#fff1f7;
+  border:1px solid rgba(233,30,99,.16);padding:2px 8px;border-radius:999px;
+  display:inline-block;margin-bottom:6px}
+.dc-desc{font-size:12.5px;color:var(--dim);line-height:1.6}
+.dc-acts{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+.dc-dir{background:linear-gradient(135deg,var(--blue),#2759d1);color:#fff;border:none;
+  border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;
+  transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.dc-dir:hover{transform:scale(1.03);box-shadow:var(--shadow-md)}
+.dc-floor{background:#fff;color:var(--teal);border:1px solid rgba(233,30,99,.2);
+  border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;
+  transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.dc-floor:hover{background:#fff5fa;transform:scale(1.03)}
+.dc-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:visible}
+.dc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dc-sec-title{font-size:9.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+.dc-tag-list{display:flex;flex-wrap:wrap;gap:4px}
+.dc-tag{font-size:11.5px;padding:3px 9px;border-radius:20px}
+.dc-tag.s{background:rgba(61,158,255,.12);color:#7ab8ff;border:1px solid rgba(61,158,255,.2)}
+.dc-tag.f{background:rgba(0,212,180,.1);color:#5de0c0;border:1px solid rgba(0,212,180,.18)}
+.dc-hrs{background:#f8faff;border-radius:12px;padding:9px 12px;
+  display:flex;flex-direction:column;gap:4px}
+.dc-hr{display:grid;grid-template-columns:92px 1fr;font-size:12px;gap:10px;align-items:start}
+.dc-hr-d{color:var(--muted)}.dc-hr-v{color:var(--text);font-weight:500}
+.dc-rule{display:flex;align-items:baseline;gap:6px;font-size:12.5px;color:var(--dim);line-height:1.55}
+.dc-rule::before{content:'•';color:var(--rsu-red);flex-shrink:0}
+.dc-club{padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.dc-club:last-child{border-bottom:none}
+.dc-club-name{font-weight:600;color:var(--text)}
+.dc-club-desc{color:var(--muted);font-size:12px}
+.dc-club-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.expand-tog{background:#fff;border:1px solid var(--border2);color:var(--blue);
+  border-radius:8px;padding:6px 14px;font-size:12.5px;cursor:pointer;
+  transition:all .15s;font-family:var(--fb);width:100%;text-align:center}
+.expand-tog:hover{border-color:var(--teal);color:var(--teal);background:#fff5fa}
+.dc-extra{display:none}.dc-extra.open{display:flex;flex-direction:column;gap:12px;
+  padding-top:12px;border-top:1px solid var(--border);animation:fadeUp .22s ease}
+.no-res{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+
+/* Floor Map Modal */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(16,27,60,.24);
+  backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;
+  padding:20px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:#fff;border:1px solid var(--border2);border-radius:24px;
+  width:100%;max-width:680px;max-height:88vh;overflow:hidden;display:flex;
+  flex-direction:column;box-shadow:0 30px 80px rgba(0,51,160,.18);animation:scaleIn .2s ease}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-family:var(--fh);font-size:15px;font-weight:700}
+.modal-close{width:28px;height:28px;background:#fff;border:1px solid var(--border2);
+  color:var(--muted);border-radius:6px;font-size:14px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{border-color:var(--coral);color:var(--coral);background:#fff5fa}
+.modal-ftabs{display:flex;gap:4px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.mftab{padding:5px 13px;font-size:12px;font-weight:500;color:var(--muted);
+  background:#fff;border:1px solid var(--border2);border-radius:20px;transition:all .15s}
+.mftab:hover{border-color:var(--teal);color:var(--teal);background:#fff5fa}
+.mftab.active{background:#fff1f7;border-color:var(--teal);color:var(--teal)}
+.modal-body{flex:1;overflow-y:auto;padding:14px}
+.floor-svg-wrap{width:100%;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border2);background:#f8faff}
+.floor-svg-wrap svg{width:100%;display:block}
+.room-type-legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.rtl-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.rtl-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+
+@media(max-width:768px){
+  .topbar-logo .logo-sub{display:none}
+  .tab-bar .tab-btn span:last-child{display:none}
+  .sidebar{position:fixed;left:0;top:67px;bottom:0;z-index:80;transform:translateX(-100%);transition:transform .25s}
+  .sidebar.open{transform:translateX(0);box-shadow:0 14px 40px rgba(0,51,160,.16)}
+  .map-panel{display:none}
+  .dc-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .bubble{max-width:90%;font-size:13px}
+  .topbar{padding:12px}
+  .messages{padding:12px 10px}
+}
 </style>
 </head>
 <body>
-<div id="app">
+<div id="root"></div>
 
-  <!-- Tab Bar -->
-  <div id="tabs">
-    <button class="tab-btn active" onclick="switchTab('chat')">
-      <span class="tab-icon">💬</span> Image Chat
-    </button>
-    <button class="tab-btn" onclick="switchTab('map')">
-      <span class="tab-icon">🗺</span> Uni Map
-    </button>
-    <button class="tab-btn" onclick="switchTab('dir')">
-      <span class="tab-icon">📋</span> Directory
-    </button>
-  </div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
 
-  <!-- Content -->
-  <div id="content">
+// ── Config ───────────────────────────────────────────────────────
+const API = 'http://localhost:5000';
 
-    <!-- ===== CHAT PANEL ===== -->
-    <div id="chat-panel" class="tab-panel active">
-      <div id="sidebar">
-        <div id="sidebar-header"><h3>Chat History</h3></div>
-        <div id="chat-history">
-          <div class="hist-item active-hist">
-            <div class="hist-title">Building 11 Inquiry</div>
-            <div class="hist-sub">Today, 10:24 AM</div>
-          </div>
-          <div class="hist-item">
-            <div class="hist-title">Library Hours</div>
-            <div class="hist-sub">Yesterday, 2:11 PM</div>
-          </div>
-          <div class="hist-item">
-            <div class="hist-title">Swimming Pool Location</div>
-            <div class="hist-sub">Mon, 9:05 AM</div>
-          </div>
-          <div class="hist-item">
-            <div class="hist-title">Table Tennis Club</div>
-            <div class="hist-sub">Sun, 4:55 PM</div>
+// ── Storage helpers ──────────────────────────────────────────────
+const SESS_KEY = 'rsu_sessions';
+const MAX_PERSISTED_THUMB_LEN = 120000;
+const sanitizeMessageForStorage = msg => {
+  if (!msg || typeof msg !== 'object') return msg;
+  const clean = {...msg, jsx:null};
+  if (typeof clean.imageThumb === 'string' && clean.imageThumb.length > MAX_PERSISTED_THUMB_LEN) {
+    clean.imageThumb = null;
+  }
+  return clean;
+};
+const sanitizeSessionsForStorage = sessions => (sessions || []).map(session => ({
+  ...session,
+  messages: (session.messages || []).map(sanitizeMessageForStorage)
+}));
+const loadSessions = () => {
+  try { return sanitizeSessionsForStorage(JSON.parse(localStorage.getItem(SESS_KEY)||'[]')); }
+  catch { return []; }
+};
+const saveSessions = sessions => {
+  try {
+    localStorage.setItem(SESS_KEY, JSON.stringify(sanitizeSessionsForStorage(sessions)));
+    return true;
+  } catch (err) {
+    console.warn('Failed to persist chat sessions', err);
+    return false;
+  }
+};
+const relTime = ts => {
+  const d = Date.now() - ts;
+  if (d < 60000) return 'Just now';
+  if (d < 3600000) return Math.floor(d/60000)+'m ago';
+  if (d < 86400000) return Math.floor(d/3600000)+'h ago';
+  return new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+};
+
+// ── Dijkstra (client-side fallback) ─────────────────────────────
+function dijkstraClient(startID, endID, nodes, edges) {
+  const adj = {};
+  nodes.forEach(n => adj[n.id] = []);
+  edges.forEach(e => {
+    adj[e.from] && adj[e.from].push({to:e.to,   w:e.weight, e});
+    adj[e.to]   && adj[e.to].push(  {to:e.from, w:e.weight, e});
+  });
+  const dist = {}, prev = {}, visited = new Set();
+  nodes.forEach(n => dist[n.id] = Infinity);
+  dist[startID] = 0;
+  const pq = [[0, startID]];
+  while (pq.length) {
+    pq.sort((a,b)=>a[0]-b[0]);
+    const [cost, cur] = pq.shift();
+    if (visited.has(cur)) continue;
+    visited.add(cur);
+    if (cur === endID) break;
+    (adj[cur]||[]).forEach(({to,w}) => {
+      const nc = cost + w;
+      if (nc < dist[to]) { dist[to]=nc; prev[to]=cur; pq.push([nc,to]); }
+    });
+  }
+  if (dist[endID] === Infinity) return null;
+  const path = []; let c = endID;
+  while (c) { path.unshift(c); c = prev[c]; }
+  return { path, totalWeight: dist[endID] };
+}
+
+// ── Floor Map SVG builder ────────────────────────────────────────
+const TYPE_COLORS = {
+  service:       { fill:'rgba(61,158,255,.18)',  stroke:'#3d9eff', text:'#7ab8ff', icon:'🛎' },
+  study:         { fill:'rgba(0,212,180,.15)',   stroke:'#00d4b4', text:'#00d4b4', icon:'📖' },
+  lab:           { fill:'rgba(180,124,255,.15)', stroke:'#b47cff', text:'#c9a3ff', icon:'🧪' },
+  facility:      { fill:'rgba(34,211,165,.15)',  stroke:'#22d3a5', text:'#5de0c0', icon:'⚙️' },
+  dining:        { fill:'rgba(245,166,35,.15)',  stroke:'#f5a623', text:'#fbc85a', icon:'🍽️' },
+  office:        { fill:'rgba(255,95,109,.13)',  stroke:'#ff5f6d', text:'#ff9a9a', icon:'🗂️' },
+  teaching:      { fill:'rgba(61,158,255,.13)',  stroke:'#3d9eff', text:'#7ab8ff', icon:'🎓' },
+  medical:       { fill:'rgba(255,95,109,.15)',  stroke:'#ff5f6d', text:'#ff9a9a', icon:'⚕️' },
+  amenity:       { fill:'rgba(100,120,150,.15)', stroke:'#506070', text:'#8aa0b5', icon:'🪑' },
+  recreation:    { fill:'rgba(245,166,35,.15)',  stroke:'#f5a623', text:'#fbc85a', icon:'🏓' },
+  seminar:       { fill:'rgba(180,124,255,.15)', stroke:'#b47cff', text:'#c9a3ff', icon:'🎤' },
+  collaboration: { fill:'rgba(0,212,180,.15)',   stroke:'#00d4b4', text:'#00d4b4', icon:'👥' },
+};
+
+function FloorSVG({ building, floor, highlightRoomID }) {
+  const rooms = (building.rooms||[]).filter(r => r.floor === floor);
+  if (!rooms.length) return <div style={{textAlign:'center',padding:'30px',color:'var(--muted)'}}>No room data for this floor.</div>;
+  const W=580, CELL_W=130, CELL_H=68, COLS=4, GAP=8, PAD_X=20, PAD_Y=50;
+  const rows = Math.ceil(rooms.length/COLS);
+  const H = PAD_Y + rows*(CELL_H+GAP) + 60;
+  return (
+    <div className="floor-svg-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
+        <rect width={W} height={H} fill="var(--s2)"/>
+        <defs>
+          <pattern id="fgrid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0L0 0 0 20" fill="none" stroke="rgba(255,255,255,.025)" strokeWidth="0.6"/>
+          </pattern>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect width={W} height={H} fill="url(#fgrid)"/>
+        <text x="14" y="28" fill="var(--rsu-red)" fontSize="12" fontWeight="700"
+          fontFamily="Kanit,sans-serif">{building.shortName} · Floor {floor}</text>
+        <text x={W-14} y="28" textAnchor="end" fill="var(--muted)" fontSize="10"
+          fontFamily="Sarabun,sans-serif">{rooms.length} rooms</text>
+        {rooms.map((room, i) => {
+          const col = i % COLS, row = Math.floor(i/COLS);
+          const x = PAD_X + col*(CELL_W+GAP), y = PAD_Y + row*(CELL_H+GAP);
+          const c = TYPE_COLORS[room.type] || TYPE_COLORS.amenity;
+          const hl = highlightRoomID && room.id === highlightRoomID;
+          return (
+            <g key={room.id}>
+              <rect x={x} y={y} width={CELL_W-2} height={CELL_H-2} rx="7"
+                fill={hl ? 'rgba(0,212,180,.3)' : c.fill}
+                stroke={hl ? '#00d4b4' : c.stroke}
+                strokeWidth={hl ? 2.5 : 1.5}
+                filter={hl ? 'url(#glow)' : undefined}/>
+              {hl && <rect x={x} y={y} width={CELL_W-2} height="4" rx="3" fill="#00d4b4" opacity="0.8"/>}
+              <text x={x+(CELL_W-2)/2} y={y+20} textAnchor="middle"
+                fill={c.text} fontSize="14" fontFamily="Sarabun,sans-serif">{c.icon}</text>
+              <text x={x+(CELL_W-2)/2} y={y+36} textAnchor="middle"
+                fill={hl?'var(--text)':'var(--dim)'} fontSize="9" fontFamily="Sarabun,sans-serif">
+                {room.name.length>18 ? room.name.slice(0,17)+'…' : room.name}
+              </text>
+              <text x={x+(CELL_W-2)/2} y={y+50} textAnchor="middle"
+                fill={c.text} fontSize="8" fontFamily="monospace" opacity="0.7">Rm {room.id.split('-').pop()}</text>
+              {hl && <text x={x+(CELL_W-2)/2} y={y+63} textAnchor="middle"
+                fill="#00d4b4" fontSize="8" fontWeight="700">◀ HERE</text>}
+            </g>
+          );
+        })}
+        {/* Lift indicator */}
+        <rect x={W-42} y={H-52} width="34" height="34" rx="7"
+          fill="rgba(0,212,180,.1)" stroke="rgba(0,212,180,.25)" strokeWidth="1"/>
+        <text x={W-25} y={H-38} textAnchor="middle" fill="var(--teal)" fontSize="14">🛗</text>
+        <text x={W-25} y={H-25} textAnchor="middle" fill="var(--muted)" fontSize="8">Lift</text>
+        {/* Corridor */}
+        <rect x="16" y={H-22} width={W-32} height="12" rx="4"
+          fill="rgba(100,120,150,.1)" stroke="rgba(100,120,150,.2)" strokeWidth="0.8"/>
+        <text x={W/2} y={H-13} textAnchor="middle" fill="var(--muted)" fontSize="8"
+          fontFamily="Sarabun,sans-serif">── CORRIDOR ──</text>
+      </svg>
+    </div>
+  );
+}
+
+function FloorMapModal({ building, onClose, highlightRoomID }) {
+  const [floor, setFloor] = useState(
+    highlightRoomID
+      ? (building.rooms||[]).find(r=>r.id===highlightRoomID)?.floor || (building.floors||1)
+      : (building.floors ? (typeof building.floors==='number' ? 1 : building.floors[0]) : 1)
+  );
+  const totalFloors = typeof building.floors === 'number' ? building.floors : (building.floors||[1]).length;
+  const floorNums = typeof building.floors === 'number'
+    ? Array.from({length:building.floors},(_,i)=>i+1)
+    : (building.floors||[1]);
+  const types = [...new Set((building.rooms||[]).filter(r=>r.floor===floor).map(r=>r.type))];
+
+  return (
+    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal-box">
+        <div className="modal-header">
+          <div className="modal-title">{building.emoji} {building.name} — Floor Plan</div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-ftabs">
+          {floorNums.map(f =>
+            <button key={f} className={`mftab${f===floor?' active':''}`} onClick={()=>setFloor(f)}>Floor {f}</button>
+          )}
+        </div>
+        <div className="modal-body">
+          <FloorSVG building={building} floor={floor} highlightRoomID={highlightRoomID}/>
+          <div className="room-type-legend">
+            {types.map(t => {
+              const c = TYPE_COLORS[t]||TYPE_COLORS.amenity;
+              return <div key={t} className="rtl-item"><div className="rtl-dot" style={{background:c.stroke}}/>{t}</div>;
+            })}
           </div>
         </div>
-        <button id="new-chat-btn" onclick="startNewChat()">+ New Conversation</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Info Card ────────────────────────────────────────────────────
+function InfoCard({ building, confidence, matchedLabels, onFloorMap, onNavigate }) {
+  const b = building;
+  const hrs = b.openHours ? Object.entries(b.openHours) : [];
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${b.lat||0},${b.lng||0}`;
+  return (
+    <div>
+      <div className="info-card">
+        <div className="ic-head">
+          <span className="ic-emoji">{b.emoji}</span>
+          <span className="ic-name">{b.name}</span>
+          {confidence && <span className={`conf conf-${confidence}`}>{confidence}</span>}
+          <span className="ic-cat">{b.category}</span>
+        </div>
+        <div className="ic-body">
+          <div className="ic-desc">{b.description}</div>
+          <div style={{fontSize:13,color:'var(--dim)'}}>📍 {b.location}</div>
+          {b.famousFor?.length > 0 && <div><div className="sec-lbl">⭐ Famous For</div>
+            <div className="tags">{b.famousFor.map((f,i)=><span key={i} className="tag f">{f}</span>)}</div></div>}
+          <div><div className="sec-lbl">🛎 Services</div>
+            <div className="tags">{(b.services||[]).map((s,i)=><span key={i} className="tag s">{s}</span>)}</div></div>
+          <div><div className="sec-lbl">🔧 Facilities</div>
+            <div className="tags">{(b.facilities||[]).map((f,i)=><span key={i} className="tag f">{f}</span>)}</div></div>
+          {b.clubs?.length > 0 && <div><div className="sec-lbl">🎓 Clubs</div>
+            <div className="tags">{b.clubs.map((c,i)=><span key={i} className="tag c">{c.name}</span>)}</div></div>}
+          <div><div className="sec-lbl">🕐 Opening Hours</div>
+            <div className="hrs-block">{hrs.map(([d,h],i)=>
+              <div key={i} className="hr-row"><span className="hr-day">{d}</span><span className="hr-val">{h}</span></div>
+            )}</div></div>
+          <div className="card-actions">
+            <button className="cta primary" onClick={()=>onNavigate(b)}>🧭 Get Directions</button>
+            <button className="cta secondary" onClick={()=>onFloorMap(b)}>🏗️ Floor Map</button>
+            <a href={mapUrl} target="_blank" rel="noreferrer" className="cta secondary">🗺️ Open Map</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Nav Result Card ──────────────────────────────────────────────
+function NavCard({ result, fromLabel, toLabel, fromBuilding, toBuilding, onFloorMap }) {
+  return (
+    <div className="nav-card">
+      <div className="nav-head">
+        <span style={{fontSize:22}}>🧭</span>
+        <div>
+          <div className="nav-title">Campus Directions</div>
+          {result.estimatedMinutes > 0 && <div style={{fontSize:11,color:'var(--muted)'}}>~{result.estimatedMinutes} min walk</div>}
+        </div>
+      </div>
+      <div className="nav-body">
+        <div className="nav-route">
+          <div className="nav-pt"><span className="nav-pt-lbl">📍 From</span><span className="nav-pt-name">{fromLabel}</span></div>
+          <div className="nav-arr">→→</div>
+          <div className="nav-pt"><span className="nav-pt-lbl">🎯 To</span><span className="nav-pt-name">{toLabel}</span></div>
+        </div>
+        <div><div className="sec-lbl">Step-by-step</div>
+          <div className="nav-steps">
+            {result.steps.map((s,i) => (
+              <div key={i} className="nav-step">
+                <div className="step-num">{s.step}</div>
+                <div className="step-txt" dangerouslySetInnerHTML={{__html: s.instruction}}/>
+                {s.type==='lift' && <span className="step-lift">🛗 Lift</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+        {toBuilding && <button className="cta secondary" style={{width:'100%'}} onClick={()=>onFloorMap(toBuilding)}>🏗️ View Floor Plan of Destination</button>}
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MAIN APP
+// ════════════════════════════════════════════════════════════════
+function App() {
+  const [tab,     setTab]     = useState('chat');
+  const [dbData,  setDbData]  = useState(null);
+  const [navData, setNavData] = useState(null);
+  const [tmConfig,setTmConfig]= useState(null);
+  const [tmLoaded,setTmLoaded]= useState(false);
+  const [tmModel, setTmModel] = useState(null);
+
+  // Chat state
+  const [sessions,    setSessions]    = useState(loadSessions);
+  const [activeID,    setActiveID]    = useState(() => loadSessions()[0]?.id || null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [messages,    setMessages]    = useState([]);
+  const [busy,        setBusy]        = useState(false);
+  const [imgB64,      setImgB64]      = useState(null);
+  const [imgMime,     setImgMime]     = useState(null);
+  const [imgThumb,    setImgThumb]    = useState(null);
+  const [imgName,     setImgName]     = useState('');
+  const [textVal,     setTextVal]     = useState('');
+  const [loaderText,  setLoaderText]  = useState(null);
+  const [floorMapBld, setFloorMapBld] = useState(null);
+  const [hlRoomID,    setHlRoomID]    = useState(null);
+
+  // Map / Directory state
+  const [mapBuilding,  setMapBuilding]  = useState(null);
+  const [mapFloor,     setMapFloor]     = useState(1);
+  const [routeFrom,    setRouteFrom]    = useState('');
+  const [routeTo,      setRouteTo]      = useState('');
+  const [routeResult,  setRouteResult]  = useState(null);
+  const [dirSearch,    setDirSearch]    = useState('');
+  const [dirFilter,    setDirFilter]    = useState('All');
+  const [expandedCard, setExpandedCard] = useState({});
+
+  const messagesEndRef = useRef(null);
+  const textareaRef    = useRef(null);
+  const initTeachableMachineFromConfig = useCallback((db) => {
+    const tm = db?.teachable_machine || db;
+    if (!tm?.model_url || tm.model_url.includes('YOUR_MODEL_ID')) return;
+    if (tm.enabled === false) return;
+    loadTeachableMachine(tm.model_url);
+  }, []);
+
+  // ── Load DB + TM ───────────────────────────────────────────────
+  useEffect(() => {
+    fetch(`${API}/api/bootstrap`).then(r=>r.json()).then(d => {
+      if (!d.success) return;
+      setDbData({ success:true, campus:d.campus, buildings:d.buildings });
+      setNavData(d.navigation);
+      setTmConfig(d.teachable_machine || {});
+      initTeachableMachineFromConfig(d);
+    }).catch(() => {});
+  }, [initTeachableMachineFromConfig]);
+
+  async function loadTeachableMachine(modelUrl) {
+    // Dynamically load TM scripts
+    if (window.tmImage) { initTM(modelUrl); return; }
+    const s1 = document.createElement('script');
+    s1.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js';
+    s1.onload = () => {
+      const s2 = document.createElement('script');
+      s2.src = 'https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js';
+      s2.onload = () => initTM(modelUrl);
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s1);
+  }
+
+  async function initTM(modelUrl) {
+    try {
+      const model = await window.tmImage.load(modelUrl+'model.json', modelUrl+'metadata.json');
+      setTmModel(model);
+      setTmLoaded(true);
+    } catch(e) { console.warn('TM model failed to load', e); }
+  }
+
+  // ── Session management ─────────────────────────────────────────
+  const createSession = useCallback(() => {
+    const s = { id:'s_'+Date.now(), title:'New Conversation', icon:'💬',
+                createdAt:Date.now(), updatedAt:Date.now(), messages:[] };
+    const updated = [s, ...sessions].slice(0,50);
+    setSessions(updated); saveSessions(updated);
+    setActiveID(s.id); setMessages([]);
+    return s;
+  }, [sessions]);
+
+  const loadSession = useCallback((id) => {
+    const s = sessions.find(x=>x.id===id);
+    if (!s) return;
+    setActiveID(id);
+    setMessages(s.messages||[]);
+  }, [sessions]);
+
+  const saveMessage = useCallback((sessionID, msg) => {
+    setSessions(prev => {
+      const updated = prev.map(s => {
+        if (s.id !== sessionID) return s;
+        const msgs = [...(s.messages||[]), msg];
+        const title = msgs.find(m=>m.role==='user')?.content?.slice(0,50)||'Conversation';
+        return {...s, messages:msgs, title, updatedAt:Date.now()};
+      });
+      const sorted = [...updated].sort((a,b)=>b.updatedAt-a.updatedAt);
+      saveSessions(sorted); return sorted;
+    });
+  }, []);
+
+  const deleteSession = (id) => {
+    const updated = sessions.filter(s=>s.id!==id);
+    setSessions(updated); saveSessions(updated);
+    if (activeID === id) {
+      if (updated.length > 0) loadSession(updated[0].id);
+      else { setActiveID(null); setMessages([]); }
+    }
+  };
+
+  useEffect(() => {
+    if (!activeID && sessions.length===0) createSession();
+    else if (!activeID && sessions.length>0) loadSession(sessions[0].id);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({behavior:'smooth'}), 60);
+  }, [messages]);
+
+  // ── Message helpers ────────────────────────────────────────────
+  const describeBuilding = b => {
+    if (!b) return '';
+    const services = (b.services||[]).slice(0,4).join(', ');
+    return `<strong>${b.name}</strong><br>${b.description||''}${services ? `<br><br><strong>Services:</strong> ${services}` : ''}`;
+  };
+
+  const addMsg = (role, contentNode, imgThumbSrc=null, persistedContent=null) => {
+    const m = { role, content: typeof contentNode==='string' ? contentNode : (persistedContent || '[Rich message]'),
+                jsx: typeof contentNode!=='string' ? contentNode : null,
+                imageThumb: imgThumbSrc, ts: Date.now() };
+    setMessages(prev => [...prev, m]);
+    if (activeID) saveMessage(activeID, sanitizeMessageForStorage(m));
+  };
+
+  const showLoader = (txt=null) => setLoaderText(txt || true);
+  const hideLoader = () => setLoaderText(null);
+
+  // ── File select ────────────────────────────────────────────────
+  const onFileSelect = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setImgMime(file.type||'image/jpeg');
+    setImgName(file.name);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const full = ev.target.result;
+      setImgB64(full.split(',')[1]);
+      setImgThumb(full);
+    };
+    reader.readAsDataURL(file);
+    e.target.value='';
+  };
+
+  const clearImage = () => { setImgB64(null); setImgMime(null); setImgThumb(null); setImgName(''); };
+
+  // ── Run Teachable Machine ──────────────────────────────────────
+  const runTeachableMachine = async (imgSrc) => {
+    if (!tmModel) return null;
+    const img = new Image(); img.src = imgSrc;
+    await new Promise(r => { img.onload=r; img.onerror=r; });
+    const preds = await tmModel.predict(img);
+    return preds.map(p => ({ label: p.className, confidence: p.probability }))
+                .sort((a,b) => b.confidence-a.confidence);
+  };
+
+  // ── Send ───────────────────────────────────────────────────────
+  const send = async () => {
+    if (busy) return;
+    const text = textVal.trim();
+    const hasImg = !!imgB64;
+    if (!text && !hasImg) return;
+
+    let sid = activeID;
+    if (!sid) { const s = createSession(); sid = s.id; }
+
+    setBusy(true);
+    const thumb = imgThumb;
+    const b64=imgB64, mime=imgMime;
+    const userText = text||(hasImg?'📸 Photo uploaded for recognition':'');
+    addMsg('user', userText, thumb);
+    setTextVal(''); clearImage();
+    if (textareaRef.current) textareaRef.current.style.height='auto';
+
+    try {
+      // ── Navigation query ──
+      if (/direction|how (do i|to) get|from .+ to|navigate|route|go to/i.test(text)) {
+        showLoader('Calculating route…');
+        const nav = await handleNavigation(text);
+        hideLoader();
+        addMsg('bot', nav, null, '<strong>Navigation result</strong><br>Your route has been prepared.');
+        setBusy(false); return;
+      }
+
+      // ── Image ──
+      if (hasImg) {
+        showLoader('Analysing image…');
+        let tmLabels = null;
+        if (tmModel) {
+          showLoader('Running Teachable Machine model…');
+          tmLabels = await runTeachableMachine(thumb);
+        }
+        showLoader('Identifying campus location…');
+        try {
+          const body = { image: b64, mimeType: mime };
+          if (tmLabels) body.teachable_labels = tmLabels;
+          const res  = await fetch(`${API}/api/recognize`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+          const data = await res.json();
+          hideLoader();
+          if (!data.success) { addMsg('bot', <div className="err-box">⚠️ {data.error}</div>, null, `⚠️ ${data.error}`); }
+          else {
+            const r = data.result;
+            if (r.type==='recognized') {
+              addMsg('bot',
+                <div>
+                  <div style={{marginBottom:7}}>✅ <strong>Location identified!</strong></div>
+                  <InfoCard building={r.building} confidence={r.confidence} matchedLabels={r.matchedLabels}
+                    onFloorMap={b=>{setFloorMapBld(b);setHlRoomID(null);}}
+                    onNavigate={openDirections}/>
+                </div>,
+                null,
+                `<strong>Location identified!</strong><br>${describeBuilding(r.building)}`
+              );
+            } else {
+              const pills = (r.detectedLabels||[]).slice(0,10).map((l,i)=><span key={i} className="vpill">{l}</span>);
+              addMsg('bot', <div className="err-box">🔍 {r.message}{pills.length>0&&<div className="vpills">{pills}</div>}</div>, null, `🔍 ${r.message}`);
+            }
+          }
+        } catch {
+          hideLoader();
+          addMsg('bot', <div className="err-box">⚠️ Backend offline. Make sure <code>python app.py</code> is running.</div>, null, '⚠️ Backend offline. Make sure python app.py is running.');
+        }
+        setBusy(false); return;
+      }
+
+      // ── Text chat ──
+      showLoader();
+      try {
+        const res  = await fetch(`${API}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:text}) });
+        const data = await res.json();
+        hideLoader();
+        if (!data.success) { addMsg('bot', <div className="err-box">⚠️ {data.error}</div>, null, `⚠️ ${data.error}`); }
+        else {
+          const r = data.result;
+          if (r.type==='building') {
+            addMsg('bot', <InfoCard building={r.building} confidence={null} matchedLabels={null}
+              onFloorMap={b=>{setFloorMapBld(b);setHlRoomID(null);}}
+              onNavigate={openDirections}/>, null, describeBuilding(r.building));
+          } else {
+            addMsg('bot', <div dangerouslySetInnerHTML={{__html:r.content}}/>, null, r.content);
+          }
+        }
+      } catch {
+        hideLoader();
+        addMsg('bot', offlineFallback(text), null, 'I could not reach the backend, so I used an offline fallback response.');
+      }
+    } catch(err) {
+      hideLoader();
+      addMsg('bot', <div className="err-box">⚠️ Error: {err.message}</div>, null, `⚠️ Error: ${err.message}`);
+    }
+    setBusy(false);
+  };
+
+  // ── Offline text fallback ──────────────────────────────────────
+  const offlineFallback = (text) => {
+    const t = text.toLowerCase();
+    const buildings = dbData?.buildings||[];
+    for (const b of buildings) {
+      if (b.name.toLowerCase().includes(t.split(' ')[0]) ||
+          (b.shortName||'').toLowerCase().includes(t)) {
+        return <InfoCard building={b} confidence={null} matchedLabels={null}
+          onFloorMap={x=>{setFloorMapBld(x);setHlRoomID(null);}}
+          onNavigate={openDirections}/>;
+      }
+    }
+    return <div>👋 Ask me about any RSU building or club — or upload a campus photo!</div>;
+  };
+
+  // ── Navigation ────────────────────────────────────────────────
+  const handleNavigation = async (text) => {
+    try {
+      const nodes  = navData?.nodes || [];
+      const edges  = navData?.edges || [];
+      const buildings = Object.fromEntries((dbData?.buildings||[]).map(b => [b.id||b.buildingID, b]));
+
+      // Parse from/to building
+      let fromBld=null, toBld=null, toRoomID=null;
+      const bkeys = Object.keys(buildings);
+      const t = text.toLowerCase();
+      for (const k of bkeys) {
+        const b = buildings[k];
+        const kws = (b.keywords||[]).concat([b.shortName.toLowerCase(), b.id.toLowerCase(), 'building '+b.number]);
+        if (kws.some(kw=>t.startsWith(kw)||t.includes('from '+kw)||t.includes('at '+kw))) fromBld=k;
+        if (kws.some(kw=>t.includes('to '+kw)||t.includes(kw+' building')||t.endsWith(kw))) toBld=k;
+      }
+      // Search club/room in text
+      for (const k of bkeys) {
+        const b = buildings[k];
+        for (const c of (b.clubs||[])) {
+          if (t.includes(c.name.toLowerCase().split(' ').slice(0,2).join(' '))) {
+            toBld=k;
+            const loc = c.meetingLocation||'';
+            const fl  = parseInt(loc.match(/Floor (\d)/)?.[1]||'0');
+            if (fl) {
+              const room = (b.rooms||[]).find(r=>r.floor===fl && r.type==='recreation');
+              if (room) toRoomID = room.id;
+            }
+          }
+        }
+      }
+
+      if (!toBld) return <div className="err-box">🧭 Please mention a destination building name. Example: "How do I get from Building 6 Canteen to Table Tennis Club in Building 11?"</div>;
+
+      const fromNode = fromBld ? nodes.find(n=>n.building===fromBld&&n.type==='entrance')?.id : 'N_CAMPUS_HUB';
+      const toNode   = toRoomID ? nodes.find(n=>n.roomID===toRoomID)?.id
+                                : nodes.find(n=>n.building===toBld&&n.type==='entrance')?.id;
+      if (!fromNode||!toNode) return <div className="err-box">🧭 Could not find start or end point. Please be more specific.</div>;
+
+      let res = null;
+      try {
+        const resp = await fetch(`${API}/api/navigate`,{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({from_node:fromNode,to_node:toNode})});
+        const d = await resp.json();
+        if (d.success) res = d.result;
+      } catch { res = dijkstraClient(fromNode, toNode, nodes, edges); }
+
+      if (!res||!res.steps) return <div className="err-box">🧭 No route found. Check that both locations are on campus.</div>;
+
+      const fB = fromBld ? buildings[fromBld] : null;
+      const tB = toBld   ? buildings[toBld]   : null;
+      return <NavCard result={res}
+        fromLabel={fB ? fB.shortName : 'Campus Entrance'}
+        toLabel={tB ? (toRoomID ? tB.rooms?.find(r=>r.id===toRoomID)?.name||tB.shortName : tB.shortName) : 'Destination'}
+        fromBuilding={fB} toBuilding={tB}
+        onFloorMap={b=>{setFloorMapBld(b);setHlRoomID(toRoomID);setTab('chat');}}/>;
+    } catch(e) {
+      return <div className="err-box">🧭 Navigation error: {e.message}</div>;
+    }
+  };
+
+  const onKey = (e) => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} };
+  const autoH = (e) => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,100)+'px'; };
+  const quick = (t) => { setTextVal(t); setTimeout(()=>send(),50); };
+
+  // ── Campus SVG Map ─────────────────────────────────────────────
+  const renderCampusSVG = () => {
+    const W=860, H=500;
+    const bldgs = dbData?.buildings||[];
+    const BPOS = {
+      B1:  {x:226, y:276, w:72, h:64, fill:'rgba(61,158,255,.12)', stroke:'#3d9eff'},
+      B2:  {x:92,  y:304, w:86, h:122,fill:'rgba(61,158,255,.12)', stroke:'#3d9eff'},
+      B3:  {x:92,  y:226, w:78, h:70, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B4:  {x:118, y:162, w:90, h:70, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B5:  {x:198, y:194, w:98, h:52, fill:'rgba(200,16,46,.10)',  stroke:'#C8102E'},
+      B6:  {x:182, y:260, w:76, h:50, fill:'rgba(0,212,180,.12)',  stroke:'#22d3a5'},
+      B7:  {x:320, y:260, w:70, h:42, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B8:  {x:304, y:182, w:72, h:42, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B9:  {x:388, y:194, w:90, h:48, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B10: {x:362, y:244, w:66, h:36, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B11: {x:334, y:302, w:64, h:58, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B12: {x:432, y:258, w:108,h:48, fill:'rgba(180,124,255,.11)',stroke:'#b47cff'},
+      B13: {x:470, y:162, w:88, h:42, fill:'rgba(200,16,46,.10)',  stroke:'#C8102E'},
+      B14: {x:556, y:388, w:108,h:36, fill:'rgba(180,124,255,.11)',stroke:'#b47cff'},
+      B15: {x:580, y:218, w:88, h:102,fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B16: {x:332, y:78,  w:76, h:54, fill:'rgba(200,16,46,.10)',  stroke:'#C8102E'},
+      B17: {x:418, y:76,  w:164,h:54, fill:'rgba(180,124,255,.11)',stroke:'#b47cff'},
+      B18: {x:632, y:120, w:88, h:30, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B19: {x:666, y:178, w:56, h:52, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+    };
+    const getB = id => bldgs.find(b=>b.id===id||b.buildingID===id);
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'100%'}}>
+        <rect width={W} height={H} fill="var(--s1)"/>
+        <defs>
+          <pattern id="cg" width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M25 0L0 0 0 25" fill="none" stroke="rgba(255,255,255,.02)" strokeWidth="0.7"/>
+          </pattern>
+        </defs>
+        <rect width={W} height={H} fill="url(#cg)"/>
+        {/* Roads and water inspired by RSU campus map */}
+        <rect x="70" y="34" width="12" height="430" rx="6" fill="rgba(80,90,100,.7)"/>
+        <rect x="755" y="34" width="12" height="430" rx="6" fill="rgba(80,90,100,.7)"/>
+        <rect x="18" y="404" width="820" height="12" rx="6" fill="rgba(80,90,100,.7)"/>
+        <rect x="16" y="150" width="74" height="10" rx="5" fill="rgba(80,90,100,.7)"/>
+        <path d="M82 156 L184 176 L250 34" fill="none" stroke="rgba(80,90,100,.7)" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="68" cy="156" r="22" fill="#fff" stroke="rgba(80,90,100,.75)" strokeWidth="10"/>
+        <circle cx="68" cy="156" r="8" fill="rgba(80,90,100,.75)"/>
+        <path d="M316 84 L555 84 L592 146 L533 146" fill="none" stroke="rgba(80,90,100,.7)" strokeWidth="8" strokeLinejoin="round"/>
+        <circle cx="592" cy="194" r="12" fill="#fff" stroke="rgba(80,90,100,.75)" strokeWidth="6"/>
+        <path d="M592 194 L720 194" fill="none" stroke="rgba(80,90,100,.75)" strokeWidth="8" strokeLinecap="round"/>
+        <path d="M716 84 L716 124 L778 124" fill="none" stroke="rgba(80,90,100,.75)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M724 204 L724 352 L620 352" fill="none" stroke="rgba(80,90,100,.65)" strokeWidth="8" strokeLinejoin="round"/>
+        <path d="M470 204 L436 352 L182 352 L182 252 L236 252 L236 404" fill="none" stroke="rgba(80,90,100,.62)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M300 214 L300 322 L236 322" fill="none" stroke="rgba(80,90,100,.6)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M300 214 L470 214" fill="none" stroke="rgba(80,90,100,.6)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M528 336 L528 404" fill="none" stroke="rgba(80,90,100,.6)" strokeWidth="7" strokeLinejoin="round"/>
+        <circle cx="510" cy="380" r="10" fill="#fff" stroke="rgba(80,90,100,.75)" strokeWidth="6"/>
+        <path d="M686 160 L686 378 L744 378" fill="none" stroke="rgba(80,90,100,.55)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M300 120 L592 120" fill="none" stroke="rgba(80,90,100,.45)" strokeWidth="4" strokeDasharray="3 5"/>
+        <path d="M744 156 L744 414 L686 414 Q694 350 676 300 Q654 240 744 156Z" fill="rgba(63,164,230,.18)" stroke="rgba(63,164,230,.35)" strokeWidth="2"/>
+        <text x="428" y="414" fill="rgba(80,90,100,.35)" fontSize="8" textAnchor="middle">PHAHONYOTHIN ROAD</text>
+        {Object.entries(BPOS).map(([id,p]) => {
+          const b = getB(id); if (!b) return null;
+          return (
+            <g key={id} style={{cursor:'pointer'}}
+               onClick={()=>{setMapBuilding(b);setMapFloor(1);}}>
+              <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="9"
+                fill={mapBuilding?.id===id||mapBuilding?.buildingID===id?'rgba(200,16,46,.18)':p.fill}
+                stroke={mapBuilding?.id===id||mapBuilding?.buildingID===id?'var(--rsu-red)':p.stroke}
+                strokeWidth={mapBuilding?.id===id||mapBuilding?.buildingID===id?2.5:1.5}/>
+              <rect x={p.x} y={p.y} width={p.w} height="5" rx="4" fill={p.stroke} opacity="0.5"/>
+              <text x={p.x+p.w/2} y={p.y+32} textAnchor="middle" fontSize="22">{b.emoji||'🏛️'}</text>
+              <text x={p.x+p.w/2} y={p.y+Math.min(32,p.h/2)} textAnchor="middle" fill="var(--text)" fontSize="9.5"
+                fontWeight="700" fontFamily="Kanit,sans-serif">{b.number || (b.id||'').replace('B','')}</text>
+              <text x={p.x+p.w/2} y={p.y+p.h-10} textAnchor="middle" fill="var(--muted)" fontSize="8.2">
+                {b.shortName.length>14 ? b.shortName.slice(0,13)+'…' : b.shortName}
+              </text>
+            </g>
+          );
+        })}
+        <g transform="translate(815,36)">
+          <circle r="17" fill="rgba(200,16,46,.09)" stroke="rgba(200,16,46,.25)" strokeWidth="1"/>
+          <text x="0" y="-4" fill="var(--rsu-red)" fontSize="10" fontWeight="700" textAnchor="middle">N</text>
+          <text x="0" y="14" fill="var(--muted)" fontSize="7.5" textAnchor="middle">S</text>
+          <text x="-11" y="5" fill="var(--muted)" fontSize="7.5" textAnchor="middle">W</text>
+          <text x="11"  y="5" fill="var(--muted)" fontSize="7.5" textAnchor="middle">E</text>
+          <line x1="0" y1="-12" x2="0" y2="-4" stroke="var(--rsu-red)" strokeWidth="2.5" strokeLinecap="round"/>
+        </g>
+      </svg>
+    );
+  };
+
+  // ── Route planner ──────────────────────────────────────────────
+  const planRoute = async () => {
+    if (!routeFrom||!routeTo) return;
+    setRouteResult(null);
+    try {
+      const res = await fetch(`${API}/api/navigate`,{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({from_building:routeFrom,to_building:routeTo})});
+      const d = await res.json();
+      if (d.success) setRouteResult(d.result);
+    } catch {
+      const fN = navData?.nodes?.find(n=>n.building===routeFrom&&n.type==='entrance')?.id;
+      const tN = navData?.nodes?.find(n=>n.building===routeTo&&n.type==='entrance')?.id;
+      if (fN&&tN) {
+        const res = dijkstraClient(fN,tN,navData.nodes,navData.edges);
+        if (res) {
+          const steps = res.path.map((nid,i)=>{
+            const n = navData.nodes.find(x=>x.id===nid);
+            return {step:i+1,instruction:i===0?`Start at <strong>${n?.label||nid}</strong>`:i===res.path.length-1?`Arrive at <strong>${n?.label||nid}</strong>`:`Go to <strong>${n?.label||nid}</strong>`,type:i===0?'start':i===res.path.length-1?'end':'walk'};
+          });
+          setRouteResult({steps,totalWeight:res.totalWeight,estimatedMinutes:Math.max(1,Math.round(res.totalWeight/80))});
+        }
+      }
+    }
+  };
+
+  const openDirections = async (building) => {
+    const bid = building?.id || building?.buildingID;
+    if (!bid) return;
+
+    setTab('map');
+    setMapBuilding(null);
+    setMapFloor(1);
+    setRouteFrom('');
+    setRouteTo(bid);
+    setRouteResult(null);
+
+    try {
+      const res = await fetch(`${API}/api/navigate`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({from_node:'N_CAMPUS_HUB',to_building:bid})
+      });
+      const d = await res.json();
+      if (d.success) {
+        setRouteResult(d.result);
+        return;
+      }
+    } catch {}
+
+    try {
+      const tN = navData?.nodes?.find(n=>n.building===bid&&n.type==='entrance')?.id;
+      if (!tN) return;
+      const res = dijkstraClient('N_CAMPUS_HUB', tN, navData.nodes, navData.edges);
+      if (res) {
+        const steps = res.path.map((nid,i)=>{
+          const n = navData.nodes.find(x=>x.id===nid);
+          return {
+            step:i+1,
+            instruction:i===0
+              ? `Start at <strong>${n?.label||nid}</strong>`
+              : i===res.path.length-1
+                ? `Arrive at <strong>${n?.label||nid}</strong>`
+                : `Go to <strong>${n?.label||nid}</strong>`,
+            type:i===0?'start':i===res.path.length-1?'end':'walk'
+          };
+        });
+        setRouteResult({steps,totalWeight:res.totalWeight,estimatedMinutes:Math.max(1,Math.round(res.totalWeight/80))});
+      }
+    } catch {}
+  };
+
+  // ── Directory helpers ──────────────────────────────────────────
+  const cats = ['All', ...Array.from(new Set((dbData?.buildings||[]).map(b => b.category).filter(Boolean)))];
+  const filteredBuildings = (dbData?.buildings||[]).filter(b => {
+    const catOk = dirFilter==='All'||(b.category||'')=== dirFilter;
+    const q = dirSearch.toLowerCase();
+    const qOk = !q || b.name.toLowerCase().includes(q) ||
+      (b.description||'').toLowerCase().includes(q) ||
+      (b.services||[]).some(s=>s.toLowerCase().includes(q)) ||
+      (b.clubs||[]).some(c=>c.name.toLowerCase().includes(q));
+    return catOk && qOk;
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  RENDER
+  // ════════════════════════════════════════════════════════════════
+  return (
+    <div className="app-shell">
+      {/* Floor Map Modal */}
+      {floorMapBld && <FloorMapModal building={floorMapBld} highlightRoomID={hlRoomID} onClose={()=>{setFloorMapBld(null);setHlRoomID(null);}}/>}
+
+      {/* Top Bar */}
+      <div className="topbar">
+        <div className="topbar-logo">
+          <div className="logo-badge">🎓</div>
+          <div>
+            <div className="logo-text">RSU Campus Buddy</div>
+            <div className="logo-sub">Rangsit University · Smart Campus</div>
+          </div>
+        </div>
+        <div className="tab-bar">
+          {[['chat','💬','Chat'],['map','🗺️','Uni Map'],['dir','📋','Directory']].map(([id,icon,label])=>
+            <button key={id} className={`tab-btn${tab===id?' active':''}`} onClick={()=>setTab(id)}>
+              <span>{icon}</span><span>{label}</span>
+            </button>
+          )}
+        </div>
+        <div className="status-pill"><span className="status-dot"/><span>Online</span></div>
       </div>
 
-      <div id="chat-main">
-        <div id="chat-topbar">
-          <h2>RSU Campus Assistant</h2>
-          <span class="building-tag" id="active-building-tag">Building 11</span>
-          <button id="back-btn" onclick="switchTab('map')">View on Map ↗</button>
-        </div>
+      {/* Pages */}
+      <div className="tab-content">
 
-        <div id="messages">
-          <div class="msg bot">
-            <div class="msg-avatar bot-avatar">RSU</div>
-            <div class="msg-bubble">
-              Hi! I'm your Rangsit University campus guide 🎓<br><br>
-              Upload a photo of any campus building and I'll identify it and tell you all about it — services, clubs, facilities, hours, and rules.<br><br>
-              Or just type a question below!
+        {/* ══ CHAT TAB ══ */}
+        {tab==='chat' && (
+          <div className="chat-layout">
+            {/* Sidebar */}
+            <div className={`sidebar${sidebarOpen?'':' collapsed'}`}>
+              <div className="sb-header">
+                <div className="sb-title">💬 Chat History</div>
+                <button className="sb-close" onClick={()=>setSidebarOpen(false)}>✕</button>
+              </div>
+              <button className="new-chat-btn" onClick={()=>{createSession();setMessages([]);}}>
+                <span>✦</span> New Conversation
+              </button>
+              <div className="sb-section">Recent</div>
+              <div className="history-list">
+                {sessions.length===0 ? (
+                  <div className="hist-empty">🗂️ No conversations yet</div>
+                ) : sessions.map(s => (
+                  <div key={s.id} className={`hist-item${s.id===activeID?' active':''}`}
+                       onClick={()=>loadSession(s.id)}>
+                    <div className="hist-icon">{s.icon||'💬'}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="hist-title">{s.title}</div>
+                      <div className="hist-time">{relTime(s.updatedAt)}</div>
+                    </div>
+                    <button className="hist-del" onClick={e=>{e.stopPropagation();deleteSession(s.id);}}>🗑</button>
+                  </div>
+                ))}
+              </div>
+              <div className="sb-footer">
+                <div className="sb-status"><span className="status-dot"/>AI Ready</div>
+                <button className="clear-btn" onClick={()=>{setSessions([]);saveSessions([]);setMessages([]);setActiveID(null);createSession();}}>Clear all</button>
+              </div>
             </div>
-          </div>
-          <div class="msg user">
-            <div class="msg-avatar user-avatar">👤</div>
-            <div class="msg-bubble">
-              <img class="msg-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e8e4de'/%3E%3Crect x='30' y='20' width='140' height='80' fill='%23d4cfc8' rx='4'/%3E%3Crect x='45' y='30' width='110' height='55' fill='%23c0bab2' rx='2'/%3E%3Ctext x='100' y='62' font-family='sans-serif' font-size='11' fill='%23666' text-anchor='middle'%3EBuilding Photo%3C/text%3E%3C/svg%3E" alt="uploaded building photo"/>
-              What is this building?
-            </div>
-          </div>
-          <div class="msg bot">
-            <div class="msg-avatar bot-avatar">RSU</div>
-            <div class="msg-bubble">
-              I've identified this as <strong>Building 11 (Henry Dunant)</strong> 🏛
-              <div class="info-card">
-                <h4>📍 Building 11 — Henry Dunant</h4>
-                <div class="info-row"><strong>Services:</strong> <span>Registrar, Student Affairs, IT Help Desk</span></div>
-                <div class="info-row"><strong>Facilities:</strong> <span>Lecture halls, Computer labs (Floors 5–6)</span></div>
-                <div class="info-row"><strong>Clubs:</strong> <span>Table Tennis Club (Floor 5), Chess Club (Floor 3, Room 302)</span></div>
-                <div class="info-row"><strong>Hours:</strong> <span>Mon–Fri 8:00–20:00, Sat 9:00–17:00</span></div>
-                <div class="info-row"><strong>Rules:</strong> <span>No food in computer labs. RSU ID required after 18:00.</span></div>
+
+            {/* Chat Main */}
+            <div className="chat-main">
+              {/* Controls */}
+              <div className="chat-controls">
+                <button className="sb-toggle" onClick={()=>setSidebarOpen(!sidebarOpen)}>☰</button>
+                <button className="ctrl-btn" onClick={()=>{createSession();setMessages([]);}}>✦ New Chat</button>
+                <button className="ctrl-btn" onClick={()=>setMessages([])}>↩ Clear Messages</button>
+                <button className="ctrl-btn danger" onClick={()=>setTab('map')}>🗺️ Open Map</button>
+              </div>
+
+
+              {/* Messages */}
+              <div className="messages">
+                {messages.length===0 && (
+                  <div className="welcome">
+                    <div className="w-icon">🤖</div>
+                    <div className="w-title">RSU Campus AI Guide</div>
+                    <p className="w-sub">Upload a photo of any campus building — inside or outside — and I'll identify it. Or ask about buildings, services, clubs, or directions.</p>
+                    <div className="chips">
+                      {['Tell me about the Library','Where can I eat on campus?',
+                        'How do I get from Building 6 to Table Tennis Club in Building 11?',
+                        'Show me all student clubs','Building 11 opening hours',
+                        'List all campus buildings'].map((t,i)=>(
+                        <button key={i} className="chip" onClick={()=>quick(t)}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {messages.map((m,i) => (
+                  <div key={i} className={`msg-row ${m.role}`}>
+                    <div className={`av ${m.role}`}>{m.role==='bot'?'🤖':'👤'}</div>
+                    <div className={`bubble ${m.role}`}>
+                      {m.imageThumb && <img src={m.imageThumb} className="thumb" alt="uploaded"/>}
+                      {m.jsx ? m.jsx : <div dangerouslySetInnerHTML={{__html: typeof m.content==='string' ? m.content.replace(/\n/g,'<br>') : ''}}/>}
+                    </div>
+                  </div>
+                ))}
+                {loaderText && (
+                  loaderText===true
+                    ? <div className="typing-row"><div className="av bot">🤖</div>
+                        <div className="typing-bub"><div className="tdot"/><div className="tdot"/><div className="tdot"/></div></div>
+                    : <div className="prog-row"><div className="av bot">🤖</div>
+                        <div className="prog-bub"><div className="spin"/>{loaderText}</div></div>
+                )}
+                <div ref={messagesEndRef}/>
+              </div>
+
+              {/* Input */}
+              <div className="input-area">
+                {imgThumb && (
+                  <div className="preview-bar">
+                    <img src={imgThumb} alt="preview"/>
+                    <span className="prev-name">{imgName}</span>
+                    <span className="prev-badge">{tmLoaded?'🧠 Teachable Machine':'📷 Vision AI'}</span>
+                    <button className="rm-prev" onClick={clearImage}>✕</button>
+                  </div>
+                )}
+                <div className="input-row">
+                  <textarea ref={textareaRef} rows="1" placeholder="Ask about campus, upload a photo, or get directions…"
+                    value={textVal} onChange={e=>setTextVal(e.target.value)}
+                    onKeyDown={onKey} onInput={autoH}/>
+                  <button className="ibtn up" onClick={()=>document.getElementById('file-inp').click()} title="Upload photo">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  </button>
+                  <button className="ibtn snd" id="send-btn" onClick={send} disabled={busy}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+                <div className="input-hint">📸 Upload inside or outside building photos · 🧭 Type "How do I get from X to Y?" for directions</div>
+                <input type="file" id="file-inp" accept="image/*" style={{display:'none'}} onChange={onFileSelect}/>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <div id="chat-input-area">
-          <div id="upload-preview">
-            <img id="preview-img" src="" alt="preview"/>
-            <button id="clear-img" onclick="clearImg()">✕</button>
+        {/* ══ MAP TAB ══ */}
+        {tab==='map' && (
+          <div className="map-tab">
+            <div className="map-toolbar">
+              <div><div className="map-title">🗺️ RSU Campus Map</div>
+                <div className="map-sub">Rangsit University · Click a building · Pan and zoom to explore</div></div>
+              {mapBuilding && (
+                <div className="floor-tabs">
+                  {Array.from({length: typeof mapBuilding.floors==='number' ? mapBuilding.floors : (mapBuilding.floors||[]).length}, (_,i)=>i+1).map(f=>
+                    <button key={f} className={`floor-tab${mapFloor===f?' active':''}`} onClick={()=>setMapFloor(f)}>Floor {f}</button>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="map-body">
+              {/* SVG Map */}
+              <div className="map-svg-wrap">{renderCampusSVG()}</div>
+              {/* Side panel */}
+              <div className="map-panel">
+                <div className="map-panel-head">
+                  <div className="map-panel-title">{mapBuilding ? `${mapBuilding.emoji} ${mapBuilding.shortName}` : '🏛️ Campus Buildings'}</div>
+                </div>
+                <div className="map-panel-body">
+                  {!mapBuilding ? (
+                    <div>
+                      <div className="route-form" style={{marginBottom:16}}>
+                        <div className="rform-label">🧭 Route Planner</div>
+                        <div>
+                          <div style={{fontSize:11,color:'var(--muted)',marginBottom:4}}>From</div>
+                          <select className="rform-select" value={routeFrom} onChange={e=>setRouteFrom(e.target.value)}>
+                            <option value="">Select start…</option>
+                            {(dbData?.buildings||[]).map(b=><option key={b.id||b.buildingID} value={b.id||b.buildingID}>{b.shortName}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <div style={{fontSize:11,color:'var(--muted)',marginBottom:4}}>To</div>
+                          <select className="rform-select" value={routeTo} onChange={e=>setRouteTo(e.target.value)}>
+                            <option value="">Select destination…</option>
+                            {(dbData?.buildings||[]).map(b=><option key={b.id||b.buildingID} value={b.id||b.buildingID}>{b.shortName}</option>)}
+                          </select>
+                        </div>
+                        <button className="route-btn" onClick={planRoute}>Calculate Route →</button>
+                        {routeResult && (
+                          <div className="route-steps">
+                            <div style={{fontSize:11,color:'var(--teal)',fontWeight:600,marginBottom:4}}>
+                              ⏱ ~{routeResult.estimatedMinutes} min walk
+                            </div>
+                            {routeResult.steps.map((s,i)=>(
+                              <div key={i} className="rs-step">
+                                <div className="rs-num">{s.step}</div>
+                                <div dangerouslySetInnerHTML={{__html:s.instruction}}/>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{fontSize:10,fontWeight:700,letterSpacing:'.8px',textTransform:'uppercase',color:'var(--muted)',marginBottom:8}}>Buildings</div>
+                      <div className="map-bldg-list">
+                        {(dbData?.buildings||[]).map(b=>(
+                          <button key={b.id||b.buildingID} className={`map-bldg-btn${mapBuilding?.id===b.id?' active':''}`}
+                                  onClick={()=>{setMapBuilding(b);setMapFloor(1);}}>
+                            <span className="mbb-emoji">{b.emoji}</span>
+                            <div className="mbb-info">
+                              <div className="mbb-name">{b.shortName}</div>
+                              <div className="mbb-cat">{b.category}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <button className="ctrl-btn" style={{width:'100%',marginBottom:10}} onClick={()=>setMapBuilding(null)}>← All Buildings</button>
+                      <p style={{fontSize:13,color:'var(--dim)',lineHeight:1.6,marginBottom:12}}>{mapBuilding.description}</p>
+                      <div style={{marginBottom:10}}>
+                        <FloorSVG building={mapBuilding} floor={mapFloor} highlightRoomID={null}/>
+                      </div>
+                      <button className="cta primary" style={{width:'100%'}}
+                        onClick={()=>{setFloorMapBld(mapBuilding);setHlRoomID(null);}}>🏗️ Full Floor Plan</button>
+                    </div>
+                  )}
+                </div>
+                <div className="map-legend">
+                  {[['#3d9eff','Administration / Academic'],['#f5a623','Faculty'],['#22d3a5','Dining'],['#C8102E','Student / Campus Services'],['#b47cff','Residential / Culture / Recreation']].map(([c,l])=>
+                    <div key={l} className="leg-item"><div className="leg-dot" style={{background:c}}/>{l}</div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <div id="input-box">
-            <button id="upload-btn" onclick="document.getElementById('file-in').click()" title="Upload building photo">📷</button>
-            <input type="file" id="file-in" accept="image/*" style="display:none" onchange="handleFile(event)"/>
-            <input id="msg-input" placeholder="Ask about any building, room, club, or service..." onkeydown="if(event.key==='Enter')sendMsg()"/>
-            <button id="send-btn" onclick="sendMsg()">➤</button>
+        )}
+
+        {/* ══ DIRECTORY TAB ══ */}
+        {tab==='dir' && (
+          <div className="dir-tab">
+            <div className="dir-toolbar">
+              <div className="dir-title-txt">📋 Campus Directory</div>
+              <div className="search-box">
+                <span>🔍</span>
+                <input placeholder="Search buildings, services, clubs…" value={dirSearch} onChange={e=>setDirSearch(e.target.value)}/>
+              </div>
+            </div>
+            <div className="filter-row">
+              {cats.map(c=><button key={c} className={`ftab${dirFilter===c?' on':''}`} onClick={()=>setDirFilter(c)}>{c}</button>)}
+            </div>
+            <div className="dir-list">
+              {filteredBuildings.length===0 && <div className="no-res">😕 No results found.</div>}
+              {filteredBuildings.map(b => {
+                const bid = b.id||b.buildingID;
+                const open = expandedCard[bid];
+                const hrs = b.openHours ? Object.entries(b.openHours) : [];
+                const mapUrl=`https://www.google.com/maps/search/?api=1&query=${b.lat||0},${b.lng||0}`;
+                return (
+                  <div key={bid} className="dir-card" id={`dc-${bid}`}>
+                    <div className="dc-head">
+                      <div className="dc-emoji">{b.emoji}</div>
+                      <div className="dc-info">
+                        <div className="dc-name">{b.name}</div>
+                        <span className="dc-cat-badge">{b.category}</span>
+                        <div className="dc-desc">{b.description}</div>
+                      </div>
+                      <div className="dc-acts">
+                        <button className="dc-dir" onClick={()=>openDirections(b)}>🧭 Get Directions</button>
+                        <button className="dc-floor" onClick={()=>{setFloorMapBld(b);setHlRoomID(null);}}>🏗️ Floor Map</button>
+                      </div>
+                    </div>
+                    <div className="dc-body">
+                      <div style={{fontSize:13,color:'var(--dim)'}}>📍 {b.location}</div>
+                      <div className="dc-grid">
+                        <div>
+                          <div className="dc-sec-title">🛎 Services</div>
+                          <div className="dc-tag-list">{(b.services||[]).slice(0,5).map((s,i)=><span key={i} className="dc-tag s">{s}</span>)}</div>
+                        </div>
+                        <div>
+                          <div className="dc-sec-title">🔧 Facilities</div>
+                          <div className="dc-tag-list">{(b.facilities||[]).slice(0,5).map((f,i)=><span key={i} className="dc-tag f">{f}</span>)}</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="dc-sec-title">🕐 Opening Hours</div>
+                        <div className="dc-hrs">{hrs.map(([d,h],i)=><div key={i} className="dc-hr"><span className="dc-hr-d">{d}</span><span className="dc-hr-v">{h}</span></div>)}</div>
+                      </div>
+                      <button className="expand-tog" onClick={()=>setExpandedCard(p=>({...p,[bid]:!p[bid]}))}>
+                        {open?'▲ Show less':'▼ Show clubs, rules & more'}
+                      </button>
+                      <div className={`dc-extra${open?' open':''}`}>
+                        {b.clubs?.length>0 && <div>
+                          <div className="dc-sec-title">🎓 Student Clubs</div>
+                          {b.clubs.map((c,i)=>(
+                            <div key={i} className="dc-club">
+                              <div className="dc-club-name">{c.name}</div>
+                              <div className="dc-club-desc">{c.description||''}</div>
+                              <div className="dc-club-meta">📅 {c.schedule} &nbsp;📍 {c.meetingLocation}</div>
+                            </div>
+                          ))}
+                        </div>}
+                        {b.rules?.length>0 && <div>
+                          <div className="dc-sec-title">📌 Rules</div>
+                          {b.rules.map((r,i)=><div key={i} className="dc-rule">{r}</div>)}
+                        </div>}
+                        <div style={{display:'flex',gap:8,flexWrap:'wrap',paddingTop:4}}>
+                          <button className="dc-dir" onClick={()=>{setTextVal(`Tell me more about ${b.shortName}`);setTab('chat');}}>💬 Ask AI</button>
+                          <button className="dc-floor" onClick={()=>openDirections(b)}>🧭 Get Directions</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+
       </div>
     </div>
-
-    <!-- ===== MAP PANEL ===== -->
-    <div id="map-panel" class="tab-panel">
-      <div id="map-controls">
-        <h3>Campus Map</h3>
-        <button class="floor-btn active" onclick="setFloor(0,this)">Outdoor</button>
-        <button class="floor-btn" onclick="setFloor(1,this)">Floor 1</button>
-        <button class="floor-btn" onclick="setFloor(2,this)">Floor 2</button>
-        <button class="floor-btn" onclick="setFloor(3,this)">Floor 3</button>
-        <button class="floor-btn" onclick="setFloor(5,this)">Floor 5</button>
-        <div style="flex:1"></div>
-        <select class="route-input" id="from-sel">
-          <option value="">From…</option>
-          <option value="B6-Canteen">B6 Canteen</option>
-          <option value="B11-Entrance">B11 Entrance</option>
-          <option value="Library">RSU Library</option>
-          <option value="Sports">Sports Complex</option>
-          <option value="Admin">Administration</option>
-        </select>
-        <select class="route-input" id="to-sel">
-          <option value="">To…</option>
-          <option value="B11-TT">B11 F5 Table Tennis</option>
-          <option value="B11-Entrance">B11 Entrance</option>
-          <option value="Library">RSU Library</option>
-          <option value="Canteen">B6 Canteen</option>
-          <option value="Sports">Sports Complex</option>
-        </select>
-        <button id="find-route" onclick="drawRoute()">Find Route</button>
-        <button id="clear-route-btn" onclick="clearRoute()" style="padding:6px 10px;border:1px solid var(--rsu-border);border-radius:8px;background:none;color:var(--rsu-muted);font-size:13px;cursor:pointer;">Clear</button>
-      </div>
-
-      <div id="map-canvas-wrap">
-        <svg id="map-svg" viewBox="0 0 680 490" xmlns="http://www.w3.org/2000/svg">
-          <!-- Roads / paths -->
-          <path class="map-road" d="M0 245 H680"/>
-          <path class="map-road" d="M340 0 V490"/>
-          <path class="map-road" d="M0 370 H680"/>
-          <path class="map-road" d="M170 0 V490"/>
-
-          <!-- Buildings -->
-          <g onclick="selectBuilding('B6','Building 6 — Science & Canteen','B6 houses the Science faculty and the main ground-floor canteen.')">
-            <rect class="map-building" x="30" y="60" width="120" height="80" rx="8"/>
-            <text class="map-label" x="90" y="96">B6</text>
-            <text class="map-sub" x="90" y="111">Science + Canteen</text>
-          </g>
-          <g onclick="selectBuilding('B7','Building 7 — Engineering','Engineering faculty, robotics lab, and maker space.')">
-            <rect class="map-building" x="30" y="165" width="120" height="70" rx="8"/>
-            <text class="map-label" x="90" y="197">B7</text>
-            <text class="map-sub" x="90" y="212">Engineering</text>
-          </g>
-          <g onclick="selectBuilding('Library','RSU Main Library','Open Mon–Sat 8:00–21:00. 6 floors, 500+ study seats, silent zone on Floor 5.')">
-            <rect class="map-building" x="200" y="60" width="130" height="80" rx="8"/>
-            <text class="map-label" x="265" y="96">Library</text>
-            <text class="map-sub" x="265" y="111">Learning Center</text>
-          </g>
-          <g onclick="selectBuilding('B9','Building 9 — Medical Sciences','Medical and health science faculty. Health Center on Floor 1.')">
-            <rect class="map-building" x="200" y="165" width="130" height="70" rx="8"/>
-            <text class="map-label" x="265" y="197">B9</text>
-            <text class="map-sub" x="265" y="212">Medical Sciences</text>
-          </g>
-          <g onclick="selectBuilding('B11','Building 11 — Henry Dunant','Registrar, Student Affairs, IT Help Desk, Table Tennis Club (F5), Chess Club (F3).')">
-            <rect class="map-building selected" id="b11-rect" x="370" y="60" width="140" height="90" rx="8"/>
-            <text class="map-label" x="440" y="100">B11</text>
-            <text class="map-sub" x="440" y="116">Henry Dunant</text>
-          </g>
-          <g onclick="selectBuilding('B12','Building 12 — Business Administration','Business, Marketing, Finance departments. Finance office on Floor 2.')">
-            <rect class="map-building" x="530" y="60" width="130" height="80" rx="8"/>
-            <text class="map-label" x="595" y="96">B12</text>
-            <text class="map-sub" x="595" y="111">Business Admin</text>
-          </g>
-          <g onclick="selectBuilding('Sports','Sports &amp; Recreation Complex','Olympic pool, fitness center, basketball courts, badminton hall.')">
-            <rect class="map-building" x="370" y="175" width="290" height="60" rx="8"/>
-            <text class="map-label" x="515" y="202">Sports Complex</text>
-            <text class="map-sub" x="515" y="217">Pool · Courts · Gym</text>
-          </g>
-          <g onclick="selectBuilding('Admin','Administration Building','President\'s Office, Finance & Bursar, International Affairs, HR.')">
-            <rect class="map-building" x="200" y="265" width="460" height="70" rx="8"/>
-            <text class="map-label" x="430" y="297">Administration</text>
-            <text class="map-sub" x="430" y="312">President · Finance · HR · International</text>
-          </g>
-          <g onclick="selectBuilding('Gate','Main Gate &amp; Security','24/7 manned security checkpoint. RSU ID required after 21:00.')">
-            <rect class="map-building" x="30" y="390" width="120" height="50" rx="8"/>
-            <text class="map-label" x="90" y="413">Main Gate</text>
-            <text class="map-sub" x="90" y="428">Security</text>
-          </g>
-          <g onclick="selectBuilding('Parking','Parking Complex','P1 (Staff) and P2 (Student) multi-storey carparks. Motorbike parking on B1.')">
-            <rect class="map-building" x="530" y="390" width="130" height="50" rx="8"/>
-            <text class="map-label" x="595" y="413">Parking</text>
-            <text class="map-sub" x="595" y="428">P1 · P2</text>
-          </g>
-
-          <!-- Route path (hidden by default) -->
-          <path id="route-path" class="route-path" d="" style="display:none"/>
-          <circle id="route-a" class="route-node" cx="0" cy="0" r="7" style="display:none"/>
-          <circle id="route-b" class="route-node" cx="0" cy="0" r="7" style="display:none"/>
-          <text id="route-a-label" class="node-label" x="0" y="0" style="display:none">A</text>
-          <text id="route-b-label" class="node-label" x="0" y="0" style="display:none">B</text>
-
-          <!-- You-are-here marker B11 -->
-          <circle cx="440" cy="80" r="9" fill="#C8102E" opacity="0.9"/>
-          <circle cx="440" cy="80" r="16" fill="none" stroke="#C8102E" stroke-width="2" opacity="0.35"/>
-          <text x="440" y="84" font-size="9" fill="#fff" text-anchor="middle" font-family="Kanit" font-weight="700">YOU</text>
-        </svg>
-
-        <div id="map-legend">
-          <div class="legend-row"><div class="legend-dot" style="background:#C8102E"></div>You are here</div>
-          <div class="legend-row"><div class="legend-dot" style="background:#C8102E;border-radius:2px;width:20px;height:3px"></div>Route</div>
-          <div class="legend-row"><div class="legend-dot" style="background:#bbb"></div>Building</div>
-        </div>
-
-        <div id="route-info">
-          <strong id="route-info-text"></strong>
-        </div>
-
-        <div id="building-popup">
-          <div>
-            <strong id="popup-title"></strong><br>
-            <span id="popup-desc" style="font-size:11px;color:var(--rsu-muted)"></span>
-          </div>
-          <button onclick="document.getElementById('building-popup').style.display='none'" style="margin-left:14px;background:none;border:none;cursor:pointer;color:var(--rsu-muted);font-size:18px;line-height:1;flex-shrink:0;">✕</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== DIRECTORY PANEL ===== -->
-    <div id="dir-panel" class="tab-panel">
-      <div id="dir-header">
-        <span style="font-size:22px">🔍</span>
-        <input id="dir-search" placeholder="Search services, clubs, facilities, staff..." oninput="filterDir()"/>
-      </div>
-      <div id="dir-filter">
-        <span class="filter-chip active" onclick="setFilter('all',this)">All</span>
-        <span class="filter-chip" onclick="setFilter('service',this)">Services</span>
-        <span class="filter-chip" onclick="setFilter('club',this)">Clubs</span>
-        <span class="filter-chip" onclick="setFilter('facility',this)">Facilities</span>
-        <span class="filter-chip" onclick="setFilter('staff',this)">Staff</span>
-      </div>
-      <div id="dir-list"></div>
-    </div>
-
-  </div><!-- end #content -->
-</div><!-- end #app -->
-
-<script>
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const DIR_DATA = [
-  {cat:'service', name:'Student Affairs Office',    loc:'B11, Floor 2',           hours:'Mon–Fri 8:00–17:00',           open:true},
-  {cat:'service', name:'Registrar Office',          loc:'Admin Building, Floor 1', hours:'Mon–Fri 8:00–16:30',          open:true},
-  {cat:'service', name:'IT Help Desk',              loc:'B11, Floor 1',            hours:'Mon–Fri 8:00–20:00',          open:true},
-  {cat:'service', name:'Health Center',             loc:'B9, Floor 1',             hours:'Mon–Fri 8:00–17:00',          open:true},
-  {cat:'service', name:'Finance & Bursar',          loc:'Admin, Floor 3',          hours:'Mon–Fri 8:30–16:00',          open:false},
-  {cat:'service', name:'International Affairs',     loc:'Admin, Floor 2',          hours:'Mon–Fri 9:00–16:00',          open:true},
-  {cat:'service', name:'Counselling Center',        loc:'B9, Floor 2',             hours:'Mon–Fri 9:00–17:00',          open:true},
-  {cat:'club',    name:'Table Tennis Club',         loc:'B11, Floor 5',            hours:'Mon/Wed/Fri 16:00–20:00',     open:false},
-  {cat:'club',    name:'Chess Club',                loc:'B11, Floor 3, Room 302',  hours:'Tue/Thu 17:00–19:00',         open:false},
-  {cat:'club',    name:'Photography Club',          loc:'B12, Floor 2',            hours:'Sat 10:00–14:00',             open:false},
-  {cat:'club',    name:'Engineering Society',       loc:'B7, Floor 4',             hours:'Wed 15:00–18:00',             open:false},
-  {cat:'club',    name:'RSU Music Band',            loc:'B6, Basement',            hours:'Daily 18:00–21:00',           open:false},
-  {cat:'club',    name:'Debate Club',               loc:'Library, Floor 3',        hours:'Tue 17:00–19:00',             open:false},
-  {cat:'club',    name:'E-Sports Club',             loc:'B11, Floor 6',            hours:'Mon–Fri 17:00–21:00',         open:false},
-  {cat:'facility',name:'RSU Main Library',          loc:'Library Building',        hours:'Mon–Sat 8:00–21:00',          open:true},
-  {cat:'facility',name:'Swimming Pool',             loc:'Sports Complex',          hours:'Daily 6:00–20:00',            open:true},
-  {cat:'facility',name:'Fitness Center',            loc:'Sports Complex, Floor 2', hours:'Daily 6:00–22:00',            open:true},
-  {cat:'facility',name:'B6 Canteen',                loc:'Building 6, Ground Floor',hours:'Mon–Fri 7:00–19:00',          open:true},
-  {cat:'facility',name:'Computer Lab B11',          loc:'B11, Floors 5–6',         hours:'Mon–Fri 8:00–20:00',          open:true},
-  {cat:'facility',name:'Basketball Courts',         loc:'Sports Complex',          hours:'Daily 6:00–21:00',            open:true},
-  {cat:'staff',   name:'Dean of Students',          loc:'Admin Building, Floor 4', hours:'By appointment',              open:true},
-  {cat:'staff',   name:'IT Department',             loc:'B11, Floor 1',            hours:'Mon–Fri 8:00–17:00',          open:true},
-  {cat:'staff',   name:'Security Office',           loc:'Main Gate',               hours:'24 hours',                    open:true},
-];
-
-const ROUTES = {
-  'B6-Canteen_B11-TT':      { path:'M90,140 L90,245 L440,245 L440,155 L440,105', label:'~8 min walk via main road' },
-  'B6-Canteen_B11-Entrance':{ path:'M90,140 L90,245 L370,245 L370,150', label:'~6 min walk' },
-  'B11-Entrance_Library':   { path:'M370,105 L265,105', label:'~2 min walk' },
-  'Library_Sports':         { path:'M265,140 L265,245 L515,245 L515,205', label:'~5 min walk' },
-  'Sports_Canteen':         { path:'M515,235 L515,245 L90,245 L90,140', label:'~9 min walk' },
-  'B11-Entrance_Sports':    { path:'M440,150 L440,205', label:'~2 min walk' },
-  'Library_Admin':          { path:'M265,140 L265,300', label:'~3 min walk' },
-  'Admin_Sports':           { path:'M430,265 L430,235 L515,235', label:'~4 min walk' },
-};
-
-const NODES = {
-  'B6-Canteen':    [90,  140],
-  'B11-TT':        [440, 105],
-  'B11-Entrance':  [370, 150],
-  'Library':       [265, 105],
-  'Sports':        [515, 205],
-  'Canteen':       [90,  140],
-  'Admin':         [430, 265],
-};
-
-let currentFilter = 'all';
-let pendingImg = null;
-
-// ─── DIRECTORY ────────────────────────────────────────────────────────────────
-function renderDir(data) {
-  const cats = { service:'Service', club:'Club', facility:'Facility', staff:'Staff Office' };
-  const el = document.getElementById('dir-list');
-  if (data.length === 0) {
-    el.innerHTML = '<div class="no-results">No results found. Try a different search term or filter.</div>';
-    return;
-  }
-  el.innerHTML = data.map(d => `
-    <div class="dir-card" onclick="chatAbout('${d.name.replace(/'/g,"\\'")}')">
-      <div class="dir-cat cat-${d.cat}">${cats[d.cat]}</div>
-      <div class="dir-name">${d.name}</div>
-      <div class="dir-loc">📍 ${d.loc}</div>
-      <div class="dir-hours">
-        <span class="dir-status ${d.open?'open':'closed'}"></span>
-        ${d.hours} &nbsp;·&nbsp; ${d.open?'<span style="color:#2a7a2a">Open now</span>':'<span style="color:#c84a00">Closed</span>'}
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterDir() {
-  const q = document.getElementById('dir-search').value.toLowerCase().trim();
-  const filtered = DIR_DATA.filter(d =>
-    (currentFilter === 'all' || d.cat === currentFilter) &&
-    (!q || d.name.toLowerCase().includes(q) || d.loc.toLowerCase().includes(q) || d.hours.toLowerCase().includes(q))
   );
-  renderDir(filtered);
 }
 
-function setFilter(f, el) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  filterDir();
-}
-
-// ─── TABS ─────────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  const tabNames = ['chat', 'map', 'dir'];
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', tabNames[i] === tab);
-  });
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(tab + '-panel').classList.add('active');
-}
-
-// ─── MAP ──────────────────────────────────────────────────────────────────────
-function selectBuilding(id, name, desc) {
-  document.querySelectorAll('.map-building').forEach(b => b.classList.remove('selected'));
-  const popup = document.getElementById('building-popup');
-  document.getElementById('popup-title').textContent = name;
-  document.getElementById('popup-desc').textContent = desc || '';
-  popup.style.display = 'flex';
-  popup.style.alignItems = 'center';
-}
-
-function setFloor(f, el) {
-  document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  // In real app: swap SVG content to show floor plan
-}
-
-function drawRoute() {
-  const from = document.getElementById('from-sel').value;
-  const to   = document.getElementById('to-sel').value;
-  if (!from || !to) { alert('Please select both a starting point and a destination.'); return; }
-
-  const key  = from + '_' + to;
-  const alt  = to + '_' + from;
-  const route = ROUTES[key] || ROUTES[alt];
-
-  const a = NODES[from] || [90, 140];
-  const b = NODES[to]   || [440, 105];
-  const pathD = route ? route.path : `M${a[0]},${a[1]} L${b[0]},${b[1]}`;
-  const label = route ? route.label : 'Route calculated';
-
-  document.getElementById('route-path').setAttribute('d', pathD);
-  document.getElementById('route-path').style.display = '';
-
-  const ra = document.getElementById('route-a');
-  ra.setAttribute('cx', a[0]); ra.setAttribute('cy', a[1]); ra.style.display = '';
-  const rb = document.getElementById('route-b');
-  rb.setAttribute('cx', b[0]); rb.setAttribute('cy', b[1]); rb.style.display = '';
-
-  const ral = document.getElementById('route-a-label');
-  ral.setAttribute('x', a[0]); ral.setAttribute('y', a[1] - 16); ral.style.display = '';
-  const rbl = document.getElementById('route-b-label');
-  rbl.setAttribute('x', b[0]); rbl.setAttribute('y', b[1] - 16); rbl.style.display = '';
-
-  const ri = document.getElementById('route-info');
-  document.getElementById('route-info-text').textContent = '🚶 ' + label + ' — ' + from.replace(/-/g,' ') + ' → ' + to.replace(/-/g,' ');
-  ri.style.display = 'block';
-}
-
-function clearRoute() {
-  ['route-path','route-a','route-b','route-a-label','route-b-label'].forEach(id => {
-    document.getElementById(id).style.display = 'none';
-  });
-  document.getElementById('route-info').style.display = 'none';
-  document.getElementById('from-sel').value = '';
-  document.getElementById('to-sel').value = '';
-}
-
-// ─── CHAT ─────────────────────────────────────────────────────────────────────
-function handleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    pendingImg = ev.target.result;
-    document.getElementById('preview-img').src = pendingImg;
-    document.getElementById('upload-preview').style.display = 'block';
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearImg() {
-  pendingImg = null;
-  document.getElementById('upload-preview').style.display = 'none';
-  document.getElementById('file-in').value = '';
-}
-
-function appendMsg(role, html) {
-  const msgs = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  const avatarHTML = role === 'bot'
-    ? '<div class="msg-avatar bot-avatar">RSU</div>'
-    : '<div class="msg-avatar user-avatar">👤</div>';
-  div.innerHTML = avatarHTML + '<div class="msg-bubble">' + html + '</div>';
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-  return div;
-}
-
-function sendMsg() {
-  const input = document.getElementById('msg-input');
-  const text = input.value.trim();
-  if (!text && !pendingImg) return;
-
-  const imgHtml = pendingImg ? `<img class="msg-img" src="${pendingImg}" alt="uploaded"/>` : '';
-  appendMsg('user', imgHtml + (text ? `<span>${text}</span>` : ''));
-  clearImg();
-  input.value = '';
-
-  // Show typing indicator
-  const typingDiv = appendMsg('bot', '<div class="typing"><span></span><span></span><span></span></div>');
-
-  setTimeout(() => {
-    typingDiv.remove();
-    const reply = pendingImg || text.toLowerCase().includes('building')
-      ? `I've received your query about <strong>${text || 'the uploaded image'}</strong>.<br><br>
-         In the full production system, the image would be sent to the <strong>Vision AI Service</strong> (LLaVA / BLIP-2), the building would be classified, and I'd return complete info: building name, available services, clubs, facilities, opening hours, and rules — all pulled live from the <strong>Campus Data API</strong>. 📸`
-      : `Thanks for your question about <strong>${text}</strong>.<br><br>
-         In production, I connect to the <strong>Campus Data Service</strong> to answer questions about rooms, clubs, services, and staff. You can also search the <strong>Directory tab</strong> right now!`;
-    appendMsg('bot', reply);
-  }, 1800);
-}
-
-function startNewChat() {
-  document.getElementById('messages').innerHTML = '';
-  appendMsg('bot', 'New conversation started! Upload a campus building photo or type your question. I\'m here to help 🎓');
-  document.getElementById('active-building-tag').textContent = 'Campus';
-}
-
-function chatAbout(name) {
-  switchTab('chat');
-  document.getElementById('msg-input').value = 'Tell me about ' + name;
-  document.getElementById('msg-input').focus();
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-renderDir(DIR_DATA);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
