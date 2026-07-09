@@ -1,1 +1,17 @@
+flowchart TD
+    A[Student opens RSU Campus Buddy] --> B{Choose an option}
 
+    B -->|Upload Building Image| C[Upload Image]
+    C --> D[Flask receives image]
+    D --> E[Google Teachable Machine recognizes building]
+    E --> F[Retrieve building information from JSON]
+    F --> G[Generate response]
+    G --> H[Display building information]
+
+    B -->|Search or Chat| I[Enter keyword or question]
+    I --> J[Flask processes request]
+    J --> K[Search JSON data]
+    K --> G
+
+    L[Admin Login] --> M[Manage Building Information]
+    M --> N[Update JSON Data]
