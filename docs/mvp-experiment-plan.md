@@ -1,7 +1,7 @@
 # MVP Experiment Plan
 
 ## 1. Group and Project Information
-- Group name:
+- Group name: RSUROOKIE
 - Project title:
 - Repository link:
 - Main target user:
