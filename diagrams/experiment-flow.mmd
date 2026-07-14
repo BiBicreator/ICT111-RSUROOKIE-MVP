@@ -1,9 +1,32 @@
 
 flowchart TD
-    A[Review Lab 04 Requirements] --> B[Identify Critical Assumptions]
-    B --> C[Select MVP Experiment Type]
-    C --> D[Define Test Users]
-    D --> E[Prepare Experiment Script]
-    E --> F[Run MVP Test]
-    F --> G[Collect Feedback and Metrics]
-    G --> H[Decide: Build, Revise, or Revisit Requirements]
+    A([Start]) --> B[Identify User Problem]
+    B --> C[Define Critical Assumptions]
+
+    C --> D[Design Prototype]
+    D --> E[Prepare Test Scenarios]
+
+    E --> F[Recruit Participants]
+    F --> G[Conduct User Testing]
+
+    G --> H{Image Provided?}
+
+    H -->|Yes| I[Image Recognition]
+    I --> J[Analyze Image]
+
+    H -->|No| K[Text-based Chatbot]
+
+    J --> L[Generate Student Service Response]
+    K --> L
+
+    L --> M[Collect User Feedback]
+
+    M --> N[Measure Success Metrics]
+    N --> O{Prototype Meets Goals?}
+
+    O -->|Yes| P[Document Results]
+    O -->|No| Q[Improve Prototype]
+    Q --> D
+
+    P --> R([End])
+```
