@@ -3,9 +3,9 @@
 ## 1. Group and Project Information
 - Group name: RSUROOKIE
 - Project title:
-- Repository link:
-- Main target user:
-- Prototype platform:
+- Repository link: https://github.com/BiBicreator/ICT111-RSUROOKIE-MVP
+- Main target user: students
+- Prototype platform: HTML
 
 ## 2. Experiment Objective
 Write one clear sentence explaining what your team wants to learn before deeper implementation.
