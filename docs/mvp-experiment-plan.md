@@ -2,7 +2,7 @@
 
 ## 1. Group and Project Information
 - Group name: RSUROOKIE
-- Project title:
+- Project title: Campus Buddy (Smart Campus Chatbot for Student Services with Image Recognition)
 - Repository link: https://github.com/BiBicreator/ICT111-RSUROOKIE-MVP
 - Main target user: students
 - Prototype platform: HTML
