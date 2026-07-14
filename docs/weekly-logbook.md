@@ -221,3 +221,33 @@ The team completed the System Architecture Diagram and User Flow Diagram. Both d
 ## Lecturer / TA Notes
 
 (To be completed during or after the lab.)
+# Weekly Logbook - Lab 07
+
+## Group Information
+- Group name:
+- Project title:
+- Date:
+- Repository link:
+
+## What We Completed Today
+- [ ] Reviewed requirements, user stories, MVP features, architecture, and wireframes
+- [ ] Identified critical assumptions
+- [ ] Selected MVP experiment type
+- [ ] Defined test users and success metrics
+- [ ] Prepared experiment script and feedback form
+- [ ] Updated GitHub repository and README
+
+## Member Contributions
+| Member Name | Contribution | Evidence/Commit/Issue Link |
+|---|---|---|
+| | | |
+
+## Key Decisions
+| Decision | Reason | Evidence/Requirement Link |
+|---|---|---|
+| | | |
+
+## Problems and Next Action
+| Problem | Next Action | Responsible Member |
+|---|---|---|
+| | | |
