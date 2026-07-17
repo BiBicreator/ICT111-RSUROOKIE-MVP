@@ -211,6 +211,7 @@ The team decided to **continue with minor revisions**. Validation results showed
 ### Files Added
 
 - `/data/validation-results.xlsx`
+- `/data/Analytics-Dashboard.xlsx`
 - `/data/validation-results.csv`
 - `/docs/customer-validation-summary.md`
 - `/docs/analytics-insights.md`
