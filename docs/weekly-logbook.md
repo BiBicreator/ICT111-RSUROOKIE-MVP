@@ -251,3 +251,53 @@ The team completed the System Architecture Diagram and User Flow Diagram. Both d
 | Problem | Next Action | Responsible Member |
 |---|---|---|
 | | | |
+
+# Weekly Logbook - Lab 08
+
+## Group Information
+
+- **Group name:** RSUROOKIE
+- **Project title:** RSU Campus Buddy (Smart Campus Chatbot for Student Services with Image Recognition)
+- **Repository link:** (Paste your GitHub repository URL)
+- **Lab date:** (Enter your lab date)
+
+---
+
+## Work Completed Today
+
+- [x] Reviewed Lab 07 MVP experiment plan
+- [x] Prepared validation dataset structure
+- [x] Created or updated analytics sheet
+- [x] Wrote customer validation summary
+- [x] Wrote analytics insights
+- [x] Wrote MVP decision
+- [x] Updated README
+- [x] Created GitHub issues for prototype improvements
+
+---
+
+## Member Contributions
+
+| Member Name | Contribution | GitHub Evidence |
+|---|---|---|
+| Khin Zu Zu Oo | Prepared validation dataset, wrote Customer Validation Summary, Analytics Insights, MVP Decision, updated README, updated weekly logbook,Created GitHub Issues, reviewed documentation, organized repository files,supported validation planning and managed GitHub documentation. | Commits for Lab 08 documentation,GitHub Issues and repository updates |
+---
+
+## Problems Found
+
+- AI building recognition accuracy decreases when uploaded images are blurry or taken from unusual angles.
+- The chatbot could not answer some campus-related questions due to limited keywords.
+- The building search feature should support abbreviations and partial building names.
+- The admin interface layout can be improved for easier management of campus information.
+- Additional building images are needed to improve the Google Teachable Machine model.
+
+---
+
+## Next Actions
+
+- Improve the AI model by training it with additional campus building images.
+- Expand the chatbot knowledge base with more campus-related questions and responses.
+- Improve the building search function by supporting abbreviations and partial keywords.
+- Enhance the admin interface and overall user experience.
+- Conduct another round of user testing after implementing the improvements.
+- Continue developing the final prototype and prepare for the final presentation.
