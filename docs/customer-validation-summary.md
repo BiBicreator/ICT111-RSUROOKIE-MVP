@@ -59,10 +59,10 @@ The team tested the first MVP version of **RSU Campus Buddy**, a web-based campu
 - Individual usability testing using the working prototype.
 
 **Date/time:**
-- (Add your testing date)
+- (15.07.2026)
 
 **Location or online platform:**
-- Rangsit University / Online demonstration
+- Rangsit University / Inperson demonstration
 
 **Number of testers:**
 - 12
