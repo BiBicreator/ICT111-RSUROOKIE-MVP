@@ -171,3 +171,50 @@ The prototype uses a **backend-based architecture** with **Flask (Python)** as t
 ## Final Prototype Connection
 
 The outputs from Lab 06 provide the technical foundation for the final prototype. The Business Model Canvas defines the product strategy, the Feature-Value Mapping ensures every feature delivers value to users, the Technical Architecture guides system development, the Data Structure organizes the prototype data, and the System Architecture and User Flow Diagrams define how users interact with the system. These documents will guide the implementation, testing, and refinement of the final RSU Campus Buddy prototype.
+
+# README Update - Lab 08
+
+## Lab 08: Customer Validation and Analytics Sheet
+
+### Validation Objective
+
+The objective of this validation was to evaluate whether users could successfully use the main features of **RSU Campus Buddy**. The team tested AI building recognition, campus building search, chatbot interaction, building information pages, and the admin management functions to identify usability issues and collect feedback for improving the MVP.
+
+---
+
+### Prototype Version Tested
+
+- **Version:** v1.0 (MVP)
+- **Link:** `/prototype/`
+- **Screenshots:** `/screenshots/validation-test-screens.png`
+
+---
+
+### Analytics Summary
+
+| Metric | Result |
+|---|---:|
+| Total test users | **12** |
+| Task success rate | **91.7% (11/12)** |
+| Average feedback score | **4.3 / 5** |
+| Average interest level | **4.6 / 5** |
+| Main confusion point | AI image recognition with unclear images, chatbot responses, and search keywords |
+
+---
+
+### MVP Decision
+
+The team decided to **continue with minor revisions**. Validation results showed that most users successfully completed the main tasks and found the prototype useful. Improvements will focus on increasing AI recognition accuracy, expanding chatbot responses, improving the search function, and enhancing the admin interface before the final prototype.
+
+---
+
+### Files Added
+
+- `/data/validation-results.xlsx`
+- `/data/validation-results.csv`
+- `/docs/customer-validation-summary.md`
+- `/docs/analytics-insights.md`
+- `/docs/mvp-decision.md`
+- `/docs/test-user-notes.md`
+- `/screenshots/validation-test-screens.png`
+- `/docs/weekly-logbook.md`
