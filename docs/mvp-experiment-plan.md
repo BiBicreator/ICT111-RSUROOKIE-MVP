@@ -4,7 +4,7 @@
 
 - **Group name:** RSUROOKIE
 - **Project title:** RSU Campus Buddy (Smart Campus Chatbot for Student Services with Image Recognition)
-- **Repository link:** (Paste your GitHub repository URL)
+- **Repository link:** (https://github.com/BiBicreator/ICT111-RSUROOKIE-MVP.git)
 - **Main target user:** RSU students, especially freshmen and international students
 - **Prototype platform:** Flask (Python), HTML/CSS/JavaScript, JSON, Google Teachable Machine
 
