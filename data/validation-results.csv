@@ -1,0 +1,13 @@
+Test_User_ID,User_Role,Prototype_Version,Main_Task,Task_Completed,Time_Seconds,Confusion_Point,Feature_Most_Useful,Feedback_Score_1_5,Interest_Level_1_5,Comment,Requirement_Affected
+TU-01,Student,v0.1,Upload building image,Yes,105,No confusion,AI Building Recognition,5,5,The AI recognized the building quickly and correctly.,"FR-02, FR-03, FR-11"
+TU-02,Student,v0.1,Search for a building,Yes,92,Search function,Building Search,4,4,Search works well but abbreviations should also be supported.,"FR-06, FR-07"
+TU-03,Student,v0.1,Ask chatbot about campus services,Yes,115,Chatbot response,Campus Chatbot,4,5,The chatbot answered most questions clearly but needs more keywords.,FR-03
+TU-04,Student,v0.1,View building information,Yes,85,No confusion,Building Information Page,5,5,The building information is clear and easy to understand.,"FR-05, FR-07"
+TU-05,Student,v0.1,Upload building image,No,138,Image recognition,AI Recognition,3,4,The building was not recognized because the image quality was poor.,"FR-02, FR-08"
+TU-06,International Student,v0.1,Search for student services,Yes,98,Search keywords,Search Feature,4,5,Searching helped me find campus services much faster.,"FR-05, FR-06"
+TU-07,Student,v0.1,View floor plan and facilities,Yes,102,Floor plan layout,Building Details,4,4,The floor plan is useful but could be displayed more clearly.,FR-07
+TU-08,Student,v0.1,Ask chatbot for building location,Yes,90,No confusion,Chatbot,5,5,The chatbot provided the correct building location quickly.,FR-03
+TU-09,Admin,v0.1,Update building information,Yes,145,Admin interface,Admin Management,4,4,Updating building information was easy but the layout could be improved.,FR-09
+TU-10,Admin,v0.1,Add a new building record,Yes,158,Input form,Building Management,4,4,Adding new building information worked correctly.,FR-09
+TU-11,Student,v0.1,Upload invalid image,Yes,72,No confusion,Validation Message,5,5,The system clearly explained why the uploaded image could not be processed.,"FR-10, FR-11"
+TU-12,Student,v0.1,Browse campus buildings,Yes,95,No confusion,Campus Information List,5,5,The list of campus buildings is helpful for new students.,"FR-05, FR-12" create excel file for that
