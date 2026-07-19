@@ -14,16 +14,16 @@
 | Search Keyword | Allow users to search campus information | No | No | Keep | Used only during the current session. |
 | Chatbot Question | Process user requests and provide answers | No | No | Keep | Questions are not permanently stored in the prototype. |
 | Admin Login Username | Authenticate administrators | Yes | No | Keep | Accessible only by authorized administrators. |
-| Admin Password | Secure administrator access | Yes | Yes | Keep | Passwords should be protected and never displayed publicly. |
+| Admin Passwords | Secure administrator access | Yes | Yes | Keep | Passwords should be protected and never displayed publicly. |
 | Student ID | Not required for the prototype | Yes | No | Remove | The system does not require student identification. |
-| Phone Number | Not required for the prototype | Yes | Yes | Remove | Avoid collecting unnecessary contact information. |
+| Phone Numbers | Not required for the prototype | Yes | Yes | Remove | Avoid collecting unnecessary contact information. |
 | Email Address | Not required for the prototype | Yes | No | Remove | Not needed for the MVP. |
 
 ---
 
 ## Privacy Rule for Prototype
 
-The RSU Campus Buddy prototype only collects the minimum data necessary to provide campus building recognition and information services. Users upload a building image or enter a text question, and the system returns building information such as the building name, location, facilities, student clubs, opening hours, and floor maps.
+The RSU Campus Buddy prototype only collects the minimum data necessary to provide campus building recognition and information services. Users upload a building image or enter a text question, and the system returns building information such as the building names, location, facilities, student clubs, opening hours, and floor maps.
 
 The prototype does not collect unnecessary personal information such as student ID numbers, phone numbers, home addresses, or email addresses. Uploaded images are used only for building recognition and are not intended for long-term storage. Administrative functions are restricted to authorized users, and only administrators can modify campus information stored in the JSON database.
 
