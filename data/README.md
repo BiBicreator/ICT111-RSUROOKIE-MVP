@@ -23,7 +23,7 @@ RSUROOKIE
 
 ## Initial Problem Area
 
-Students, especially freshmen, international students, and campus visitors, often struggle to identify campus buildings and find information about services, facilities, student clubs, operating hours, and university regulations. Information is often scattered across multiple sources, making it difficult to access quickly and efficiently.
+Students, especially freshmen, international students, and campus visitors, oftens struggle to identify campus buildings and find information about services, facilities, student clubs, operating hours, and university regulations. Information is often scattered across multiple sources, making it difficult to access quickly and efficiently.
 
 ## Target Users
 
