@@ -24,7 +24,7 @@ The collected information will be used only for:
 - Analyzing customer validation results for the ICT105 project
 - Preparing the final project report and presentation
 
-The collected data will **not** be shared with third parties, sold, or used for commercial purposes. Any screenshots or reports included in project documentation will use anonymous or non-identifiable participant information whenever possible.
+The collected data will **not** be shared with third parties, sold, or used for commercial purposes. Any screenshots or reports included in project documentations will use anonymous or non-identifiable participant information whenever possibles.
 
 ## Consent
 
@@ -32,5 +32,5 @@ By participating in the prototype evaluation, you confirm that:
 
 - You understand the purpose of the prototype testing.
 - Your participation is voluntary.
-- You will not provide unnecessary personal or sensitive information.
+- You will not provide unnecessary personal or sensitives information.
 - You agree that your anonymous feedback may be used to improve the prototype and for academic reporting within the ICT105 course.
