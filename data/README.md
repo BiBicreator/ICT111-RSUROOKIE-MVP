@@ -219,3 +219,43 @@ The team decided to **continue with minor revisions**. Validation results showed
 - `/docs/test-user-notes.md`
 - `/screenshots/validation-test-screens.png`
 - `/docs/weekly-logbook.md`
+
+## Lab 09 - Responsible IT Check
+
+### Responsible Design Summary
+
+During Lab 09, our team reviewed the RSU Campus Buddy prototype from the perspectives of privacy, ethics, intellectual property (IP), security, and responsible data handling.
+
+The main findings were:
+
+- **Privacy:** The prototype only collects the minimum data required for AI building recognition and avoids collecting unnecessary personal information such as student IDs, phone numbers, or email addresses.
+- **Ethics:** The AI building recognition model may occasionally produce incorrect results, so users are informed that recognition accuracy depends on image quality.
+- **Intellectual Property (IP):** All third-party resources, including Google Teachable Machine, Bootstrap, Font Awesome, Google Fonts, and ChatGPT, were documented and properly acknowledged.
+- **Security:** Administrator functions are separated from student functions, input validation is implemented, and image uploads are restricted to supported formats. Additional administrator authentication will be implemented before the final prototype.
+- **Risk Management:** A project risk register was created to identify privacy, ethical, legal, security, IP, and data quality risks, together with mitigation strategies.
+
+### Files Added
+
+- `docs/legal-ethical-checklist.md`
+- `docs/privacy-and-data-protection.md`
+- `docs/ip-and-third-party-assets.md`
+- `docs/security-risk-check.md`
+- `docs/risk-register.md`
+- `docs/updated-requirements-note.md`
+- `docs/weekly-logbook.md`
+- `docs/user-consent-statement.md`
+- `docs/data-handling-policy.md`
+- `data/data-inventory.csv`
+- `data/ip-and-third-party-assets.csv`
+- `data/risk-register.csv`
+
+### Requirement Update
+
+After reviewing the prototype during Lab 09, the team confirmed that **no functional changes were required** to `system-requirements.md`. The responsible design review resulted in implementation improvements related to privacy, security, ethics, and data handling, while the original functional requirements remain valid.
+
+### Team Contributions
+
+| Member | Contribution |
+|---|---|
+| Min Khant Zaw | Prepared the Data Inventory, Privacy and Data Protection Review, Legal & Ethical Checklist, Security Risk Check, Risk Register, Data Handling Policy. |
+| Khin Zu Zu Oo | Created GitHub Issues for Lab 09, organized repository files and folders, IP and Third-Party Assets Register,User Consent Statement, Updated Requirements Note, and supporting CSV documentation. updated the README, maintained project documentation, and assisted with repository management. |
