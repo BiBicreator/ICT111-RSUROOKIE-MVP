@@ -13,7 +13,7 @@ RSU Campus Buddy – Smart Campus Chatbot for Student Services with Image Recogn
 | The prototype does not collect unnecessary sensitive data. | Yes | The prototype only accepts uploaded building images and does not collect personal information such as student ID, phone numbers, or email. | Continue limiting data collection to information required for the prototype. | Member 1 | Issue #2 |
 | Users can understand what happens after submission. | Yes | After uploading an image, the system displays the recognition result, building details, facilities, opening hours, and chatbot response. | Maintain clear confirmation and feedback messages after each upload. | Member 1 | Issue #2 |
 | Admin or manager actions are clearly separated from user actions. | Yes | Only administrators can add, edit, or update campus building information through the admin page. Students can only use the chatbot and search features. | Keep the admin interface separated and protect it with authentication. | Member 2 | Issue #5 |
-| The prototype avoids unfair or harmful treatment of users. | Yes | The chatbot provides the same campus information to all users without discrimination. The AI model is trained using campus building images only. | Continue improving the AI models with diverse training images to reduce recognition errors. | Member 1 | Issue #3 |
+| The prototype avoids unfair or harmful treatment of users. | Yes | The chatbot provides the same campus information to all users without discrimination. The AI model is trained using campus building images only. | Continue improving the AI models with diverse training images to reduce recognition errors. | Member 3 | Issue #3 |
 
 ## Summary Decision
 
