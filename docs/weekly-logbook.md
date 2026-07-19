@@ -301,3 +301,56 @@ The team completed the System Architecture Diagram and User Flow Diagram. Both d
 - Enhance the admin interface and overall user experience.
 - Conduct another round of user testing after implementing the improvements.
 - Continue developing the final prototype and prepare for the final presentation.
+
+# Weekly Logbook - Lab 09
+
+## Group Name
+
+RSUROOKIE
+
+## Date
+
+19 July 2026
+
+## Members Present
+
+- Member 1
+- Member 2
+
+## Work Completed Today
+
+- **Data inventory:** Created data inventory documenting all prototype data fields and their classifications.
+- **Privacy review:** Completed privacy and data protection review, including data minimization and responsible data handling.
+- **Ethical review:** Completed the legal and ethical checklist for the AI-powered campus chatbot.
+- **IP review:** Documented all third-party assets, licenses, and intellectual property used in the project.
+- **Security review:** Identified security risks and proposed mitigation strategies for the prototype.
+- **Risk register:** Created the project risk register covering privacy, ethical, legal, security, IP, and data quality risks.
+- **Requirements update note:** Reviewed the system requirements and confirmed that no functional changes were required after the responsible design review.
+
+## Member Contributions
+
+| Member | Contribution | GitHub Evidence |
+|---|---|---|
+| Min Khant Zaw | Created the Data Inventory, Privacy Review, Legal & Ethical Checklist, Security Risk Check, Risk Register, Updated Requirements Note, Data Handling Policy,  | Multiple commits for Lab 09 documentation |
+| Khin Zu Zu Oo | Created GitHub Issues for Lab 09, organized repository foldersUser Consent Statement,supporting CSV files, and updated project files and documentation. | GitHub Issues and documentation commits |
+
+## Decisions Made
+
+- The project will continue using **HTML/CSS/JavaScript, Flask, Google Teachable Machine, and a JSON database**.
+- No functional requirements need to be changed after the responsible design review.
+- The prototype will continue following privacy, security, and ethical design principles.
+- Administrator functions will remain separate from student functions to improve security.
+
+## Issues / Blockers
+
+- The AI model may incorrectly recognize buildings when uploaded images are unclear.
+- Additional campus building images are needed to improve AI recognition accuracy.
+- Administrator authentication should be strengthened before the final prototype.
+
+## Next Action Before Lab 10
+
+- Improve the Google Teachable Machine model with additional training images.
+- Implement stronger input validation and file upload restrictions.
+- Complete administrator authentication.
+- Continue frontend and backend development based on the reviewed documentation.
+- Test the improved prototype before the next lab.
