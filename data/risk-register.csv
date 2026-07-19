@@ -1,4 +1,4 @@
-Risk_ID,Category,Risk_Description,Affected_Feature_or_Requirement,Severity,Likelihood,Mitigation_Action,Owner,GitHub_Evidence,Status
+Risk_ID,Category,Risk_Description,Affected_Feature_or_Requirement,Severity,Likelihood,Mitigation_Actions,Owner,GitHub_Evidence,Status
 R-01,Privacy,Users may upload images containing personal information or people,"FR-15",Medium,Low,Display a privacy notice and instruct users to upload only building images,Member 1,Issue #6,Open
 R-02,Ethical,AI may incorrectly recognize a campus building and provide inaccurate information,"FR-03, FR-07",Medium,Medium,Train the AI model with more building images and show a confidence disclaimer,Member 1,Issue #6,Open
 R-03,IP,Third-party assets may not be properly credited,"FR-16",Low,Low,Maintain an IP register and provide appropriate attribution,Member 2,Issue #4,Open
