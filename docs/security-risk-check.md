@@ -13,4 +13,4 @@
 
 Continue with mitigation
 
-The current prototype has basic security measures suitable for an educational MVP. Before the final prototype, the team will strengthen administrator authentication, improve input validation, restrict uploaded file types, and continue ensuring that no unnecessary personal information is collected or exposed.
+The current prototype has basic security measures suitable for an educational MVP. Before the final prototype, the team will strengthen administrator authentication, improve input validation, restrict uploaded file types, and continue ensuring that is no unnecessary personal information is collected or exposed.
