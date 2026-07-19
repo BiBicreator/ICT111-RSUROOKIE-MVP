@@ -33,6 +33,8 @@ The MVP includes the minimum set of features required to demonstrate that studen
 - Admin management page
 - Input validation
 - Confirmation message
+- Campus map with navigation
+- Feedback and rating system
 
 ---
 
@@ -41,6 +43,8 @@ The MVP includes the minimum set of features required to demonstrate that studen
 - Campus navigation
 - Campus map browsing
 - Dashboard summary for administrators
+- Multi-language support
+- Search suggestions with auto-complete
 
 ---
 
@@ -52,6 +56,8 @@ The MVP includes the minimum set of features required to demonstrate that studen
 - Push notifications
 - Multi-language chatbot
 - Personalized recommendations
+- Voice chatbot interaction
+- Building occupancy status
 
 ---
 
