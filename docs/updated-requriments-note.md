@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The team reviewed the system requirements during Lab 09 to ensure the prototype follows responsible design principles, including privacy, security, legal, and ethical considerations.
+The team reviewed the system requirements during Lab 09 to ensures the prototype follows responsible design principles, including privacy, security, legal, and ethical considerations.
 
 After the review, **no functional requirements in `system-requirements.md` required changes**. The existing requirements continue to support the project objectives. The team will improve implementation by adding stronger privacy protection, security measures, and responsible AI practices without changing the original requirements.
 
