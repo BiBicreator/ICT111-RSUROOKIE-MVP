@@ -6,7 +6,7 @@ The RSU Campus Buddy prototype collects only the minimum data required to provid
 
 Collected data includes:
 
-- Uploaded building images for AI recognition
+- Uploaded building images for AI recognition.
 - Building search keywords
 - Chatbot questions
 - Campus building information (building name, location, facilities, student clubs, opening hours, floor maps)
@@ -21,9 +21,9 @@ The prototype does **not** collect personal information such as student ID numbe
 The prototype stores and simulates data using:
 
 - **JSON database** for campus building information
-- **HTML/CSS/JavaScript frontend** for the user interface
+- **HTML/CSS/JavaScript frontend** for the user interfaces
 - **Flask (Python)** backend to process requests
-- **Google Teachable Machine** for AI image recognition
+- **Google Teachable Machine** for AI image recognition.
 - Sample datasets for testing and validation
 
 No personal user data is permanently stored during prototype testing.
@@ -35,7 +35,7 @@ No personal user data is permanently stored during prototype testing.
 | User Role | Access Permission |
 |------------|-------------------|
 | Student | Upload building images, search campus information, interact with the chatbot, and view building details. |
-| Administrator | Add, edit, update, and manage campus building information stored in the JSON database. |
+| Administrator | Add, edit, updates, and manage campus building information stored in the JSON database. |
 
 Only authorized administrators can modify campus information.
 
