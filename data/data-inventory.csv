@@ -1,5 +1,5 @@
 Data_Field,Example_Value,Purpose,Personal_Data,Sensitive_Data,Visibility,Keep_Remove_Replace,Responsible_Action
-Building_Image,building_A.jpg,Identify campus building using AI,No,No,User and System,Keep,Accept only JPG/PNG and use only for recognition
+Building_Image,building_A.jpg,Identify campus building using AI,No,No,User and System,Keeps,Accept only JPG/PNG and use only for recognition
 Building_Name,Building 1,Display recognized building information,No,No,Public,Keep,Verify information regularly
 Building_Location,North Campus,Help users located buildings,No,No,Public,Keep,Keep information up to date
 Facilities,Computer Lab; Library; Cafeteria,Show available building facilities,No,No,Public,Keep,Review periodically
