@@ -1,11 +1,11 @@
 Data_Field,Example_Value,Purpose,Personal_Data,Sensitive_Data,Visibility,Keep_Remove_Replace,Responsible_Action
 Building_Image,building_A.jpg,Identify campus building using AI,No,No,User and System,Keep,Accept only JPG/PNG and use only for recognition
 Building_Name,Building 1,Display recognized building information,No,No,Public,Keep,Verify information regularly
-Building_Location,North Campus,Help users locate buildings,No,No,Public,Keep,Keep information up to date
+Building_Location,North Campus,Help users located buildings,No,No,Public,Keep,Keep information up to date
 Facilities,Computer Lab; Library; Cafeteria,Show available building facilities,No,No,Public,Keep,Review periodically
 Student_Clubs,ICT Club,Display clubs located in the building,No,No,Public,Keep,Update when club information changes
 Opening_Hours,08:00-18:00,Inform users of operating hours,No,No,Public,Keep,Review each semester
-Floor_Map,building1_floor1.png,Help users navigate inside buildings,No,No,Public,Keep,Use authorized campus maps only
+Floor_Map,building1_floor1.png,Help users navigate inside of  buildings,No,No,Public,Keep,Use authorized campus maps only
 Search_Keyword,Library,Search campus information,No,No,User Only,Keep,Do not permanently store search history
 Chatbot_Question,Where is Building 4?,Provide AI chatbot responses,No,No,User Only,Keep,Do not store permanently unless required
 Admin_Login,admin,Authenticate administrator access,Yes,No,Admin Only,Keep,Protect with authentication and secure password handling
