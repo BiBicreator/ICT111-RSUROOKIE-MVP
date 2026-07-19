@@ -4,7 +4,7 @@
 
 What did users do, say, and prove when testing the MVP direction?
 
-The validation tested whether users could successfully use the main features of RSU Campus Buddy, including AI building recognition, building search, chatbot assistance, viewing campus information, and admin management. The collected data shows how effectively users completed these tasks and identifies areas that require improvement.
+The validation tested whether users could successfully use the main features of RSU Campus Buddy, including AI building recognition, building searchs, chatbot assistance, viewing campus information, and admin management. The collected data shows how effectively users completed these tasks and identifies areas that require improvement.
 
 ---
 
@@ -44,7 +44,7 @@ The validation results indicate that the current MVP is effective in helping stu
 | FR-02 | Some uploaded images were not recognized successfully. | Retrain Google Teachable Machine using additional building images. |
 | FR-03 | Chatbot could not answer some campus-related questions. | Expand chatbot keywords and response database. |
 | FR-06 | Users wanted more flexible search options. | Support abbreviations and partial keyword matching. |
-| FR-08 | Recognition errors occurred with low-quality images. | Improve error handling and user feedback messages. |
+| FR-08 | Recognition errors occurred with low-quality images. | Improve error handling and user feedbacks messages. |
 | FR-09 | Admin users requested a more organized management interface. | Improve the admin page layout and editing workflow. |
 
 ---
