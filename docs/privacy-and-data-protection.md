@@ -43,9 +43,9 @@ After the privacy review, the team decided to remove all unnecessary personal in
 
 ### Kept Data Fields
 
-- Building image
-- Building name
-- Building location
+- Building images
+- Building names
+- Building locations
 - Campus facilities
 - Student clubs
 - Opening hours
