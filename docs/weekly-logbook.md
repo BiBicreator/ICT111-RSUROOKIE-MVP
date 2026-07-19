@@ -177,7 +177,7 @@ RSU Campus Buddy (Smart Campus Chatbot for Student Services with Image Recogniti
 |---|---|---|
 |Khin Zu Zu Oo | Completed the Business Model Canvas, Feature-Value Mapping, Technical Architecture, Data Structure, System Architecture Diagram, User Flow Diagram, updated project documentation, and uploaded the JSON dataset. | Multiple commits, `/docs/`, `/data/`, `/diagrams/` |
 |Min Khant Zaw | Created GitHub issues, created project files and folders, and organized the repository structure. | GitHub Issues, repository setup commits |
-
+|Phyo Min Khant|Created GitHub issues, created project files and folders, and organized the repository structure.Updated Requirements Notes |repository setup commits|
 ---
 
 ## Decisions Made Today
@@ -316,6 +316,7 @@ RSUROOKIE
 
 - Member 1
 - Member 2
+- Member 3
 
 ## Work Completed Today
 
@@ -333,7 +334,7 @@ RSUROOKIE
 |---|---|---|
 | Min Khant Zaw | Created the Data Inventory, Privacy Review, Legal & Ethical Checklist, Security Risk Check, Risk Register, Updated Requirements Note, Data Handling Policy,  | Multiple commits for Lab 09 documentation |
 | Khin Zu Zu Oo | Created GitHub Issues for Lab 09, organized repository foldersUser Consent Statement,supporting CSV files, and updated project files and documentation. | GitHub Issues and documentation commits |
-
+| Phyo Min Khant |updated project files and documentation,evaluated potential security risks.Risk Register, Updated Requirements Note | Multiple commits for Lab 09 documentation|
 ## Decisions Made
 
 - The project will continue using **HTML/CSS/JavaScript, Flask, Google Teachable Machine, and a JSON database**.
