@@ -1,0 +1,1122 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RSU Campus Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ── Config ───────────────────────────────────────────────────────
+const API = 'http://localhost:5000';
+
+// ── Storage helpers ──────────────────────────────────────────────
+const SESS_KEY = 'rsu_sessions';
+const MAX_PERSISTED_THUMB_LEN = 120000;
+const sanitizeMessageForStorage = msg => {
+  if (!msg || typeof msg !== 'object') return msg;
+  const clean = {...msg, jsx:null};
+  if (typeof clean.imageThumb === 'string' && clean.imageThumb.length > MAX_PERSISTED_THUMB_LEN) {
+    clean.imageThumb = null;
+  }
+  return clean;
+};
+const sanitizeSessionsForStorage = sessions => (sessions || []).map(session => ({
+  ...session,
+  messages: (session.messages || []).map(sanitizeMessageForStorage)
+}));
+const loadSessions = () => {
+  try { return sanitizeSessionsForStorage(JSON.parse(localStorage.getItem(SESS_KEY)||'[]')); }
+  catch { return []; }
+};
+const saveSessions = sessions => {
+  try {
+    localStorage.setItem(SESS_KEY, JSON.stringify(sanitizeSessionsForStorage(sessions)));
+    return true;
+  } catch (err) {
+    console.warn('Failed to persist chat sessions', err);
+    return false;
+  }
+};
+const relTime = ts => {
+  const d = Date.now() - ts;
+  if (d < 60000) return 'Just now';
+  if (d < 3600000) return Math.floor(d/60000)+'m ago';
+  if (d < 86400000) return Math.floor(d/3600000)+'h ago';
+  return new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+};
+
+// ── Dijkstra (client-side fallback) ─────────────────────────────
+function dijkstraClient(startID, endID, nodes, edges) {
+  const adj = {};
+  nodes.forEach(n => adj[n.id] = []);
+  edges.forEach(e => {
+    adj[e.from] && adj[e.from].push({to:e.to,   w:e.weight, e});
+    adj[e.to]   && adj[e.to].push(  {to:e.from, w:e.weight, e});
+  });
+  const dist = {}, prev = {}, visited = new Set();
+  nodes.forEach(n => dist[n.id] = Infinity);
+  dist[startID] = 0;
+  const pq = [[0, startID]];
+  while (pq.length) {
+    pq.sort((a,b)=>a[0]-b[0]);
+    const [cost, cur] = pq.shift();
+    if (visited.has(cur)) continue;
+    visited.add(cur);
+    if (cur === endID) break;
+    (adj[cur]||[]).forEach(({to,w}) => {
+      const nc = cost + w;
+      if (nc < dist[to]) { dist[to]=nc; prev[to]=cur; pq.push([nc,to]); }
+    });
+  }
+  if (dist[endID] === Infinity) return null;
+  const path = []; let c = endID;
+  while (c) { path.unshift(c); c = prev[c]; }
+  return { path, totalWeight: dist[endID] };
+}
+
+// ── Floor Map SVG builder ────────────────────────────────────────
+const TYPE_COLORS = {
+  service:       { fill:'rgba(61,158,255,.18)',  stroke:'#3d9eff', text:'#7ab8ff', icon:'🛎' },
+  study:         { fill:'rgba(0,212,180,.15)',   stroke:'#00d4b4', text:'#00d4b4', icon:'📖' },
+  lab:           { fill:'rgba(180,124,255,.15)', stroke:'#b47cff', text:'#c9a3ff', icon:'🧪' },
+  facility:      { fill:'rgba(34,211,165,.15)',  stroke:'#22d3a5', text:'#5de0c0', icon:'⚙️' },
+  dining:        { fill:'rgba(245,166,35,.15)',  stroke:'#f5a623', text:'#fbc85a', icon:'🍽️' },
+  office:        { fill:'rgba(255,95,109,.13)',  stroke:'#ff5f6d', text:'#ff9a9a', icon:'🗂️' },
+  teaching:      { fill:'rgba(61,158,255,.13)',  stroke:'#3d9eff', text:'#7ab8ff', icon:'🎓' },
+  medical:       { fill:'rgba(255,95,109,.15)',  stroke:'#ff5f6d', text:'#ff9a9a', icon:'⚕️' },
+  amenity:       { fill:'rgba(100,120,150,.15)', stroke:'#506070', text:'#8aa0b5', icon:'🪑' },
+  recreation:    { fill:'rgba(245,166,35,.15)',  stroke:'#f5a623', text:'#fbc85a', icon:'🏓' },
+  seminar:       { fill:'rgba(180,124,255,.15)', stroke:'#b47cff', text:'#c9a3ff', icon:'🎤' },
+  collaboration: { fill:'rgba(0,212,180,.15)',   stroke:'#00d4b4', text:'#00d4b4', icon:'👥' },
+};
+
+function FloorSVG({ building, floor, highlightRoomID }) {
+  const rooms = (building.rooms||[]).filter(r => r.floor === floor);
+  if (!rooms.length) return <div style={{textAlign:'center',padding:'30px',color:'var(--muted)'}}>No room data for this floor.</div>;
+  const W=580, CELL_W=130, CELL_H=68, COLS=4, GAP=8, PAD_X=20, PAD_Y=50;
+  const rows = Math.ceil(rooms.length/COLS);
+  const H = PAD_Y + rows*(CELL_H+GAP) + 60;
+  return (
+    <div className="floor-svg-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
+        <rect width={W} height={H} fill="var(--s2)"/>
+        <defs>
+          <pattern id="fgrid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0L0 0 0 20" fill="none" stroke="rgba(255,255,255,.025)" strokeWidth="0.6"/>
+          </pattern>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect width={W} height={H} fill="url(#fgrid)"/>
+        <text x="14" y="28" fill="var(--rsu-red)" fontSize="12" fontWeight="700"
+          fontFamily="Kanit,sans-serif">{building.shortName} · Floor {floor}</text>
+        <text x={W-14} y="28" textAnchor="end" fill="var(--muted)" fontSize="10"
+          fontFamily="Sarabun,sans-serif">{rooms.length} rooms</text>
+        {rooms.map((room, i) => {
+          const col = i % COLS, row = Math.floor(i/COLS);
+          const x = PAD_X + col*(CELL_W+GAP), y = PAD_Y + row*(CELL_H+GAP);
+          const c = TYPE_COLORS[room.type] || TYPE_COLORS.amenity;
+          const hl = highlightRoomID && room.id === highlightRoomID;
+          return (
+            <g key={room.id}>
+              <rect x={x} y={y} width={CELL_W-2} height={CELL_H-2} rx="7"
+                fill={hl ? 'rgba(0,212,180,.3)' : c.fill}
+                stroke={hl ? '#00d4b4' : c.stroke}
+                strokeWidth={hl ? 2.5 : 1.5}
+                filter={hl ? 'url(#glow)' : undefined}/>
+              {hl && <rect x={x} y={y} width={CELL_W-2} height="4" rx="3" fill="#00d4b4" opacity="0.8"/>}
+              <text x={x+(CELL_W-2)/2} y={y+20} textAnchor="middle"
+                fill={c.text} fontSize="14" fontFamily="Sarabun,sans-serif">{c.icon}</text>
+              <text x={x+(CELL_W-2)/2} y={y+36} textAnchor="middle"
+                fill={hl?'var(--text)':'var(--dim)'} fontSize="9" fontFamily="Sarabun,sans-serif">
+                {room.name.length>18 ? room.name.slice(0,17)+'…' : room.name}
+              </text>
+              <text x={x+(CELL_W-2)/2} y={y+50} textAnchor="middle"
+                fill={c.text} fontSize="8" fontFamily="monospace" opacity="0.7">Rm {room.id.split('-').pop()}</text>
+              {hl && <text x={x+(CELL_W-2)/2} y={y+63} textAnchor="middle"
+                fill="#00d4b4" fontSize="8" fontWeight="700">◀ HERE</text>}
+            </g>
+          );
+        })}
+        {/* Lift indicator */}
+        <rect x={W-42} y={H-52} width="34" height="34" rx="7"
+          fill="rgba(0,212,180,.1)" stroke="rgba(0,212,180,.25)" strokeWidth="1"/>
+        <text x={W-25} y={H-38} textAnchor="middle" fill="var(--teal)" fontSize="14">🛗</text>
+        <text x={W-25} y={H-25} textAnchor="middle" fill="var(--muted)" fontSize="8">Lift</text>
+        {/* Corridor */}
+        <rect x="16" y={H-22} width={W-32} height="12" rx="4"
+          fill="rgba(100,120,150,.1)" stroke="rgba(100,120,150,.2)" strokeWidth="0.8"/>
+        <text x={W/2} y={H-13} textAnchor="middle" fill="var(--muted)" fontSize="8"
+          fontFamily="Sarabun,sans-serif">── CORRIDOR ──</text>
+      </svg>
+    </div>
+  );
+}
+
+function FloorMapModal({ building, onClose, highlightRoomID }) {
+  const [floor, setFloor] = useState(
+    highlightRoomID
+      ? (building.rooms||[]).find(r=>r.id===highlightRoomID)?.floor || (building.floors||1)
+      : (building.floors ? (typeof building.floors==='number' ? 1 : building.floors[0]) : 1)
+  );
+  const totalFloors = typeof building.floors === 'number' ? building.floors : (building.floors||[1]).length;
+  const floorNums = typeof building.floors === 'number'
+    ? Array.from({length:building.floors},(_,i)=>i+1)
+    : (building.floors||[1]);
+  const types = [...new Set((building.rooms||[]).filter(r=>r.floor===floor).map(r=>r.type))];
+
+  return (
+    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal-box">
+        <div className="modal-header">
+          <div className="modal-title">{building.emoji} {building.name} — Floor Plan</div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-ftabs">
+          {floorNums.map(f =>
+            <button key={f} className={`mftab${f===floor?' active':''}`} onClick={()=>setFloor(f)}>Floor {f}</button>
+          )}
+        </div>
+        <div className="modal-body">
+          <FloorSVG building={building} floor={floor} highlightRoomID={highlightRoomID}/>
+          <div className="room-type-legend">
+            {types.map(t => {
+              const c = TYPE_COLORS[t]||TYPE_COLORS.amenity;
+              return <div key={t} className="rtl-item"><div className="rtl-dot" style={{background:c.stroke}}/>{t}</div>;
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Info Card ────────────────────────────────────────────────────
+function InfoCard({ building, confidence, matchedLabels, onFloorMap, onNavigate }) {
+  const b = building;
+  const hrs = b.openHours ? Object.entries(b.openHours) : [];
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${b.lat||0},${b.lng||0}`;
+  return (
+    <div>
+      <div className="info-card">
+        <div className="ic-head">
+          <span className="ic-emoji">{b.emoji}</span>
+          <span className="ic-name">{b.name}</span>
+          {confidence && <span className={`conf conf-${confidence}`}>{confidence}</span>}
+          <span className="ic-cat">{b.category}</span>
+        </div>
+        <div className="ic-body">
+          <div className="ic-desc">{b.description}</div>
+          <div style={{fontSize:13,color:'var(--dim)'}}>📍 {b.location}</div>
+          {b.famousFor?.length > 0 && <div><div className="sec-lbl">⭐ Famous For</div>
+            <div className="tags">{b.famousFor.map((f,i)=><span key={i} className="tag f">{f}</span>)}</div></div>}
+          <div><div className="sec-lbl">🛎 Services</div>
+            <div className="tags">{(b.services||[]).map((s,i)=><span key={i} className="tag s">{s}</span>)}</div></div>
+          <div><div className="sec-lbl">🔧 Facilities</div>
+            <div className="tags">{(b.facilities||[]).map((f,i)=><span key={i} className="tag f">{f}</span>)}</div></div>
+          {b.clubs?.length > 0 && <div><div className="sec-lbl">🎓 Clubs</div>
+            <div className="tags">{b.clubs.map((c,i)=><span key={i} className="tag c">{c.name}</span>)}</div></div>}
+          <div><div className="sec-lbl">🕐 Opening Hours</div>
+            <div className="hrs-block">{hrs.map(([d,h],i)=>
+              <div key={i} className="hr-row"><span className="hr-day">{d}</span><span className="hr-val">{h}</span></div>
+            )}</div></div>
+          <div className="card-actions">
+            <button className="cta primary" onClick={()=>onNavigate(b)}>🧭 Get Directions</button>
+            <button className="cta secondary" onClick={()=>onFloorMap(b)}>🏗️ Floor Map</button>
+            <a href={mapUrl} target="_blank" rel="noreferrer" className="cta secondary">🗺️ Open Map</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Nav Result Card ──────────────────────────────────────────────
+function NavCard({ result, fromLabel, toLabel, fromBuilding, toBuilding, onFloorMap }) {
+  return (
+    <div className="nav-card">
+      <div className="nav-head">
+        <span style={{fontSize:22}}>🧭</span>
+        <div>
+          <div className="nav-title">Campus Directions</div>
+          {result.estimatedMinutes > 0 && <div style={{fontSize:11,color:'var(--muted)'}}>~{result.estimatedMinutes} min walk</div>}
+        </div>
+      </div>
+      <div className="nav-body">
+        <div className="nav-route">
+          <div className="nav-pt"><span className="nav-pt-lbl">📍 From</span><span className="nav-pt-name">{fromLabel}</span></div>
+          <div className="nav-arr">→→</div>
+          <div className="nav-pt"><span className="nav-pt-lbl">🎯 To</span><span className="nav-pt-name">{toLabel}</span></div>
+        </div>
+        <div><div className="sec-lbl">Step-by-step</div>
+          <div className="nav-steps">
+            {result.steps.map((s,i) => (
+              <div key={i} className="nav-step">
+                <div className="step-num">{s.step}</div>
+                <div className="step-txt" dangerouslySetInnerHTML={{__html: s.instruction}}/>
+                {s.type==='lift' && <span className="step-lift">🛗 Lift</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+        {toBuilding && <button className="cta secondary" style={{width:'100%'}} onClick={()=>onFloorMap(toBuilding)}>🏗️ View Floor Plan of Destination</button>}
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MAIN APP
+// ════════════════════════════════════════════════════════════════
+function App() {
+  const [tab,     setTab]     = useState('chat');
+  const [dbData,  setDbData]  = useState(null);
+  const [navData, setNavData] = useState(null);
+  const [tmConfig,setTmConfig]= useState(null);
+  const [tmLoaded,setTmLoaded]= useState(false);
+  const [tmModel, setTmModel] = useState(null);
+
+  // Chat state
+  const [sessions,    setSessions]    = useState(loadSessions);
+  const [activeID,    setActiveID]    = useState(() => loadSessions()[0]?.id || null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [messages,    setMessages]    = useState([]);
+  const [busy,        setBusy]        = useState(false);
+  const [imgB64,      setImgB64]      = useState(null);
+  const [imgMime,     setImgMime]     = useState(null);
+  const [imgThumb,    setImgThumb]    = useState(null);
+  const [imgName,     setImgName]     = useState('');
+  const [textVal,     setTextVal]     = useState('');
+  const [loaderText,  setLoaderText]  = useState(null);
+  const [floorMapBld, setFloorMapBld] = useState(null);
+  const [hlRoomID,    setHlRoomID]    = useState(null);
+
+  // Map / Directory state
+  const [mapBuilding,  setMapBuilding]  = useState(null);
+  const [mapFloor,     setMapFloor]     = useState(1);
+  const [routeFrom,    setRouteFrom]    = useState('');
+  const [routeTo,      setRouteTo]      = useState('');
+  const [routeResult,  setRouteResult]  = useState(null);
+  const [dirSearch,    setDirSearch]    = useState('');
+  const [dirFilter,    setDirFilter]    = useState('All');
+  const [expandedCard, setExpandedCard] = useState({});
+
+  const messagesEndRef = useRef(null);
+  const textareaRef    = useRef(null);
+  const initTeachableMachineFromConfig = useCallback((db) => {
+    const tm = db?.teachable_machine || db;
+    if (!tm?.model_url || tm.model_url.includes('YOUR_MODEL_ID')) return;
+    if (tm.enabled === false) return;
+    loadTeachableMachine(tm.model_url);
+  }, []);
+
+  // ── Load DB + TM ───────────────────────────────────────────────
+  useEffect(() => {
+    fetch(`${API}/api/bootstrap`).then(r=>r.json()).then(d => {
+      if (!d.success) return;
+      setDbData({ success:true, campus:d.campus, buildings:d.buildings });
+      setNavData(d.navigation);
+      setTmConfig(d.teachable_machine || {});
+      initTeachableMachineFromConfig(d);
+    }).catch(() => {});
+  }, [initTeachableMachineFromConfig]);
+
+  async function loadTeachableMachine(modelUrl) {
+    // Dynamically load TM scripts
+    if (window.tmImage) { initTM(modelUrl); return; }
+    const s1 = document.createElement('script');
+    s1.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js';
+    s1.onload = () => {
+      const s2 = document.createElement('script');
+      s2.src = 'https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js';
+      s2.onload = () => initTM(modelUrl);
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s1);
+  }
+
+  async function initTM(modelUrl) {
+    try {
+      const model = await window.tmImage.load(modelUrl+'model.json', modelUrl+'metadata.json');
+      setTmModel(model);
+      setTmLoaded(true);
+    } catch(e) { console.warn('TM model failed to load', e); }
+  }
+
+  // ── Session management ─────────────────────────────────────────
+  const createSession = useCallback(() => {
+    const s = { id:'s_'+Date.now(), title:'New Conversation', icon:'💬',
+                createdAt:Date.now(), updatedAt:Date.now(), messages:[] };
+    const updated = [s, ...sessions].slice(0,50);
+    setSessions(updated); saveSessions(updated);
+    setActiveID(s.id); setMessages([]);
+    return s;
+  }, [sessions]);
+
+  const loadSession = useCallback((id) => {
+    const s = sessions.find(x=>x.id===id);
+    if (!s) return;
+    setActiveID(id);
+    setMessages(s.messages||[]);
+  }, [sessions]);
+
+  const saveMessage = useCallback((sessionID, msg) => {
+    setSessions(prev => {
+      const updated = prev.map(s => {
+        if (s.id !== sessionID) return s;
+        const msgs = [...(s.messages||[]), msg];
+        const title = msgs.find(m=>m.role==='user')?.content?.slice(0,50)||'Conversation';
+        return {...s, messages:msgs, title, updatedAt:Date.now()};
+      });
+      const sorted = [...updated].sort((a,b)=>b.updatedAt-a.updatedAt);
+      saveSessions(sorted); return sorted;
+    });
+  }, []);
+
+  const deleteSession = (id) => {
+    const updated = sessions.filter(s=>s.id!==id);
+    setSessions(updated); saveSessions(updated);
+    if (activeID === id) {
+      if (updated.length > 0) loadSession(updated[0].id);
+      else { setActiveID(null); setMessages([]); }
+    }
+  };
+
+  useEffect(() => {
+    if (!activeID && sessions.length===0) createSession();
+    else if (!activeID && sessions.length>0) loadSession(sessions[0].id);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({behavior:'smooth'}), 60);
+  }, [messages]);
+
+  // ── Message helpers ────────────────────────────────────────────
+  const describeBuilding = b => {
+    if (!b) return '';
+    const services = (b.services||[]).slice(0,4).join(', ');
+    return `<strong>${b.name}</strong><br>${b.description||''}${services ? `<br><br><strong>Services:</strong> ${services}` : ''}`;
+  };
+
+  const addMsg = (role, contentNode, imgThumbSrc=null, persistedContent=null) => {
+    const m = { role, content: typeof contentNode==='string' ? contentNode : (persistedContent || '[Rich message]'),
+                jsx: typeof contentNode!=='string' ? contentNode : null,
+                imageThumb: imgThumbSrc, ts: Date.now() };
+    setMessages(prev => [...prev, m]);
+    if (activeID) saveMessage(activeID, sanitizeMessageForStorage(m));
+  };
+
+  const showLoader = (txt=null) => setLoaderText(txt || true);
+  const hideLoader = () => setLoaderText(null);
+
+  // ── File select ────────────────────────────────────────────────
+  const onFileSelect = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setImgMime(file.type||'image/jpeg');
+    setImgName(file.name);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const full = ev.target.result;
+      setImgB64(full.split(',')[1]);
+      setImgThumb(full);
+    };
+    reader.readAsDataURL(file);
+    e.target.value='';
+  };
+
+  const clearImage = () => { setImgB64(null); setImgMime(null); setImgThumb(null); setImgName(''); };
+
+  // ── Run Teachable Machine ──────────────────────────────────────
+  const runTeachableMachine = async (imgSrc) => {
+    if (!tmModel) return null;
+    const img = new Image(); img.src = imgSrc;
+    await new Promise(r => { img.onload=r; img.onerror=r; });
+    const preds = await tmModel.predict(img);
+    return preds.map(p => ({ label: p.className, confidence: p.probability }))
+                .sort((a,b) => b.confidence-a.confidence);
+  };
+
+  // ── Send ───────────────────────────────────────────────────────
+  const send = async () => {
+    if (busy) return;
+    const text = textVal.trim();
+    const hasImg = !!imgB64;
+    if (!text && !hasImg) return;
+
+    let sid = activeID;
+    if (!sid) { const s = createSession(); sid = s.id; }
+
+    setBusy(true);
+    const thumb = imgThumb;
+    const b64=imgB64, mime=imgMime;
+    const userText = text||(hasImg?'📸 Photo uploaded for recognition':'');
+    addMsg('user', userText, thumb);
+    setTextVal(''); clearImage();
+    if (textareaRef.current) textareaRef.current.style.height='auto';
+
+    try {
+      // ── Navigation query ──
+      if (/direction|how (do i|to) get|from .+ to|navigate|route|go to/i.test(text)) {
+        showLoader('Calculating route…');
+        const nav = await handleNavigation(text);
+        hideLoader();
+        addMsg('bot', nav, null, '<strong>Navigation result</strong><br>Your route has been prepared.');
+        setBusy(false); return;
+      }
+
+      // ── Image ──
+      if (hasImg) {
+        showLoader('Analysing image…');
+        let tmLabels = null;
+        if (tmModel) {
+          showLoader('Running Teachable Machine model…');
+          tmLabels = await runTeachableMachine(thumb);
+        }
+        showLoader('Identifying campus location…');
+        try {
+          const body = { image: b64, mimeType: mime };
+          if (tmLabels) body.teachable_labels = tmLabels;
+          const res  = await fetch(`${API}/api/recognize`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+          const data = await res.json();
+          hideLoader();
+          if (!data.success) { addMsg('bot', <div className="err-box">⚠️ {data.error}</div>, null, `⚠️ ${data.error}`); }
+          else {
+            const r = data.result;
+            if (r.type==='recognized') {
+              addMsg('bot',
+                <div>
+                  <div style={{marginBottom:7}}>✅ <strong>Location identified!</strong></div>
+                  <InfoCard building={r.building} confidence={r.confidence} matchedLabels={r.matchedLabels}
+                    onFloorMap={b=>{setFloorMapBld(b);setHlRoomID(null);}}
+                    onNavigate={openDirections}/>
+                </div>,
+                null,
+                `<strong>Location identified!</strong><br>${describeBuilding(r.building)}`
+              );
+            } else {
+              const pills = (r.detectedLabels||[]).slice(0,10).map((l,i)=><span key={i} className="vpill">{l}</span>);
+              addMsg('bot', <div className="err-box">🔍 {r.message}{pills.length>0&&<div className="vpills">{pills}</div>}</div>, null, `🔍 ${r.message}`);
+            }
+          }
+        } catch {
+          hideLoader();
+          addMsg('bot', <div className="err-box">⚠️ Backend offline. Make sure <code>python app.py</code> is running.</div>, null, '⚠️ Backend offline. Make sure python app.py is running.');
+        }
+        setBusy(false); return;
+      }
+
+      // ── Text chat ──
+      showLoader();
+      try {
+        const res  = await fetch(`${API}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:text}) });
+        const data = await res.json();
+        hideLoader();
+        if (!data.success) { addMsg('bot', <div className="err-box">⚠️ {data.error}</div>, null, `⚠️ ${data.error}`); }
+        else {
+          const r = data.result;
+          if (r.type==='building') {
+            addMsg('bot', <InfoCard building={r.building} confidence={null} matchedLabels={null}
+              onFloorMap={b=>{setFloorMapBld(b);setHlRoomID(null);}}
+              onNavigate={openDirections}/>, null, describeBuilding(r.building));
+          } else {
+            addMsg('bot', <div dangerouslySetInnerHTML={{__html:r.content}}/>, null, r.content);
+          }
+        }
+      } catch {
+        hideLoader();
+        addMsg('bot', offlineFallback(text), null, 'I could not reach the backend, so I used an offline fallback response.');
+      }
+    } catch(err) {
+      hideLoader();
+      addMsg('bot', <div className="err-box">⚠️ Error: {err.message}</div>, null, `⚠️ Error: ${err.message}`);
+    }
+    setBusy(false);
+  };
+
+  // ── Offline text fallback ──────────────────────────────────────
+  const offlineFallback = (text) => {
+    const t = text.toLowerCase();
+    const buildings = dbData?.buildings||[];
+    for (const b of buildings) {
+      if (b.name.toLowerCase().includes(t.split(' ')[0]) ||
+          (b.shortName||'').toLowerCase().includes(t)) {
+        return <InfoCard building={b} confidence={null} matchedLabels={null}
+          onFloorMap={x=>{setFloorMapBld(x);setHlRoomID(null);}}
+          onNavigate={openDirections}/>;
+      }
+    }
+    return <div>👋 Ask me about any RSU building or club — or upload a campus photo!</div>;
+  };
+
+  // ── Navigation ────────────────────────────────────────────────
+  const handleNavigation = async (text) => {
+    try {
+      const nodes  = navData?.nodes || [];
+      const edges  = navData?.edges || [];
+      const buildings = Object.fromEntries((dbData?.buildings||[]).map(b => [b.id||b.buildingID, b]));
+
+      // Parse from/to building
+      let fromBld=null, toBld=null, toRoomID=null;
+      const bkeys = Object.keys(buildings);
+      const t = text.toLowerCase();
+      for (const k of bkeys) {
+        const b = buildings[k];
+        const kws = (b.keywords||[]).concat([b.shortName.toLowerCase(), b.id.toLowerCase(), 'building '+b.number]);
+        if (kws.some(kw=>t.startsWith(kw)||t.includes('from '+kw)||t.includes('at '+kw))) fromBld=k;
+        if (kws.some(kw=>t.includes('to '+kw)||t.includes(kw+' building')||t.endsWith(kw))) toBld=k;
+      }
+      // Search club/room in text
+      for (const k of bkeys) {
+        const b = buildings[k];
+        for (const c of (b.clubs||[])) {
+          if (t.includes(c.name.toLowerCase().split(' ').slice(0,2).join(' '))) {
+            toBld=k;
+            const loc = c.meetingLocation||'';
+            const fl  = parseInt(loc.match(/Floor (\d)/)?.[1]||'0');
+            if (fl) {
+              const room = (b.rooms||[]).find(r=>r.floor===fl && r.type==='recreation');
+              if (room) toRoomID = room.id;
+            }
+          }
+        }
+      }
+
+      if (!toBld) return <div className="err-box">🧭 Please mention a destination building name. Example: "How do I get from Building 6 Canteen to Table Tennis Club in Building 11?"</div>;
+
+      const fromNode = fromBld ? nodes.find(n=>n.building===fromBld&&n.type==='entrance')?.id : 'N_CAMPUS_HUB';
+      const toNode   = toRoomID ? nodes.find(n=>n.roomID===toRoomID)?.id
+                                : nodes.find(n=>n.building===toBld&&n.type==='entrance')?.id;
+      if (!fromNode||!toNode) return <div className="err-box">🧭 Could not find start or end point. Please be more specific.</div>;
+
+      let res = null;
+      try {
+        const resp = await fetch(`${API}/api/navigate`,{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({from_node:fromNode,to_node:toNode})});
+        const d = await resp.json();
+        if (d.success) res = d.result;
+      } catch { res = dijkstraClient(fromNode, toNode, nodes, edges); }
+
+      if (!res||!res.steps) return <div className="err-box">🧭 No route found. Check that both locations are on campus.</div>;
+
+      const fB = fromBld ? buildings[fromBld] : null;
+      const tB = toBld   ? buildings[toBld]   : null;
+      return <NavCard result={res}
+        fromLabel={fB ? fB.shortName : 'Campus Entrance'}
+        toLabel={tB ? (toRoomID ? tB.rooms?.find(r=>r.id===toRoomID)?.name||tB.shortName : tB.shortName) : 'Destination'}
+        fromBuilding={fB} toBuilding={tB}
+        onFloorMap={b=>{setFloorMapBld(b);setHlRoomID(toRoomID);setTab('chat');}}/>;
+    } catch(e) {
+      return <div className="err-box">🧭 Navigation error: {e.message}</div>;
+    }
+  };
+
+  const onKey = (e) => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} };
+  const autoH = (e) => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,100)+'px'; };
+  const quick = (t) => { setTextVal(t); setTimeout(()=>send(),50); };
+
+  // ── Campus SVG Map ─────────────────────────────────────────────
+  const renderCampusSVG = () => {
+    const W=860, H=500;
+    const bldgs = dbData?.buildings||[];
+    const BPOS = {
+      B1:  {x:226, y:276, w:72, h:64, fill:'rgba(61,158,255,.12)', stroke:'#3d9eff'},
+      B2:  {x:92,  y:304, w:86, h:122,fill:'rgba(61,158,255,.12)', stroke:'#3d9eff'},
+      B3:  {x:92,  y:226, w:78, h:70, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B4:  {x:118, y:162, w:90, h:70, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B5:  {x:198, y:194, w:98, h:52, fill:'rgba(200,16,46,.10)',  stroke:'#C8102E'},
+      B6:  {x:182, y:260, w:76, h:50, fill:'rgba(0,212,180,.12)',  stroke:'#22d3a5'},
+      B7:  {x:320, y:260, w:70, h:42, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B8:  {x:304, y:182, w:72, h:42, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B9:  {x:388, y:194, w:90, h:48, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B10: {x:362, y:244, w:66, h:36, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B11: {x:334, y:302, w:64, h:58, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B12: {x:432, y:258, w:108,h:48, fill:'rgba(180,124,255,.11)',stroke:'#b47cff'},
+      B13: {x:470, y:162, w:88, h:42, fill:'rgba(200,16,46,.10)',  stroke:'#C8102E'},
+      B14: {x:556, y:388, w:108,h:36, fill:'rgba(180,124,255,.11)',stroke:'#b47cff'},
+      B15: {x:580, y:218, w:88, h:102,fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B16: {x:332, y:78,  w:76, h:54, fill:'rgba(200,16,46,.10)',  stroke:'#C8102E'},
+      B17: {x:418, y:76,  w:164,h:54, fill:'rgba(180,124,255,.11)',stroke:'#b47cff'},
+      B18: {x:632, y:120, w:88, h:30, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+      B19: {x:666, y:178, w:56, h:52, fill:'rgba(245,166,35,.11)', stroke:'#f5a623'},
+    };
+    const getB = id => bldgs.find(b=>b.id===id||b.buildingID===id);
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'100%'}}>
+        <rect width={W} height={H} fill="var(--s1)"/>
+        <defs>
+          <pattern id="cg" width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M25 0L0 0 0 25" fill="none" stroke="rgba(255,255,255,.02)" strokeWidth="0.7"/>
+          </pattern>
+        </defs>
+        <rect width={W} height={H} fill="url(#cg)"/>
+        {/* Roads and water inspired by RSU campus map */}
+        <rect x="70" y="34" width="12" height="430" rx="6" fill="rgba(80,90,100,.7)"/>
+        <rect x="755" y="34" width="12" height="430" rx="6" fill="rgba(80,90,100,.7)"/>
+        <rect x="18" y="404" width="820" height="12" rx="6" fill="rgba(80,90,100,.7)"/>
+        <rect x="16" y="150" width="74" height="10" rx="5" fill="rgba(80,90,100,.7)"/>
+        <path d="M82 156 L184 176 L250 34" fill="none" stroke="rgba(80,90,100,.7)" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="68" cy="156" r="22" fill="#fff" stroke="rgba(80,90,100,.75)" strokeWidth="10"/>
+        <circle cx="68" cy="156" r="8" fill="rgba(80,90,100,.75)"/>
+        <path d="M316 84 L555 84 L592 146 L533 146" fill="none" stroke="rgba(80,90,100,.7)" strokeWidth="8" strokeLinejoin="round"/>
+        <circle cx="592" cy="194" r="12" fill="#fff" stroke="rgba(80,90,100,.75)" strokeWidth="6"/>
+        <path d="M592 194 L720 194" fill="none" stroke="rgba(80,90,100,.75)" strokeWidth="8" strokeLinecap="round"/>
+        <path d="M716 84 L716 124 L778 124" fill="none" stroke="rgba(80,90,100,.75)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M724 204 L724 352 L620 352" fill="none" stroke="rgba(80,90,100,.65)" strokeWidth="8" strokeLinejoin="round"/>
+        <path d="M470 204 L436 352 L182 352 L182 252 L236 252 L236 404" fill="none" stroke="rgba(80,90,100,.62)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M300 214 L300 322 L236 322" fill="none" stroke="rgba(80,90,100,.6)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M300 214 L470 214" fill="none" stroke="rgba(80,90,100,.6)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M528 336 L528 404" fill="none" stroke="rgba(80,90,100,.6)" strokeWidth="7" strokeLinejoin="round"/>
+        <circle cx="510" cy="380" r="10" fill="#fff" stroke="rgba(80,90,100,.75)" strokeWidth="6"/>
+        <path d="M686 160 L686 378 L744 378" fill="none" stroke="rgba(80,90,100,.55)" strokeWidth="7" strokeLinejoin="round"/>
+        <path d="M300 120 L592 120" fill="none" stroke="rgba(80,90,100,.45)" strokeWidth="4" strokeDasharray="3 5"/>
+        <path d="M744 156 L744 414 L686 414 Q694 350 676 300 Q654 240 744 156Z" fill="rgba(63,164,230,.18)" stroke="rgba(63,164,230,.35)" strokeWidth="2"/>
+        <text x="428" y="414" fill="rgba(80,90,100,.35)" fontSize="8" textAnchor="middle">PHAHONYOTHIN ROAD</text>
+        {Object.entries(BPOS).map(([id,p]) => {
+          const b = getB(id); if (!b) return null;
+          return (
+            <g key={id} style={{cursor:'pointer'}}
+               onClick={()=>{setMapBuilding(b);setMapFloor(1);}}>
+              <rect x={p.x} y={p.y} width={p.w} height={p.h} rx="9"
+                fill={mapBuilding?.id===id||mapBuilding?.buildingID===id?'rgba(200,16,46,.18)':p.fill}
+                stroke={mapBuilding?.id===id||mapBuilding?.buildingID===id?'var(--rsu-red)':p.stroke}
+                strokeWidth={mapBuilding?.id===id||mapBuilding?.buildingID===id?2.5:1.5}/>
+              <rect x={p.x} y={p.y} width={p.w} height="5" rx="4" fill={p.stroke} opacity="0.5"/>
+              <text x={p.x+p.w/2} y={p.y+32} textAnchor="middle" fontSize="22">{b.emoji||'🏛️'}</text>
+              <text x={p.x+p.w/2} y={p.y+Math.min(32,p.h/2)} textAnchor="middle" fill="var(--text)" fontSize="9.5"
+                fontWeight="700" fontFamily="Kanit,sans-serif">{b.number || (b.id||'').replace('B','')}</text>
+              <text x={p.x+p.w/2} y={p.y+p.h-10} textAnchor="middle" fill="var(--muted)" fontSize="8.2">
+                {b.shortName.length>14 ? b.shortName.slice(0,13)+'…' : b.shortName}
+              </text>
+            </g>
+          );
+        })}
+        <g transform="translate(815,36)">
+          <circle r="17" fill="rgba(200,16,46,.09)" stroke="rgba(200,16,46,.25)" strokeWidth="1"/>
+          <text x="0" y="-4" fill="var(--rsu-red)" fontSize="10" fontWeight="700" textAnchor="middle">N</text>
+          <text x="0" y="14" fill="var(--muted)" fontSize="7.5" textAnchor="middle">S</text>
+          <text x="-11" y="5" fill="var(--muted)" fontSize="7.5" textAnchor="middle">W</text>
+          <text x="11"  y="5" fill="var(--muted)" fontSize="7.5" textAnchor="middle">E</text>
+          <line x1="0" y1="-12" x2="0" y2="-4" stroke="var(--rsu-red)" strokeWidth="2.5" strokeLinecap="round"/>
+        </g>
+      </svg>
+    );
+  };
+
+  // ── Route planner ──────────────────────────────────────────────
+  const planRoute = async () => {
+    if (!routeFrom||!routeTo) return;
+    setRouteResult(null);
+    try {
+      const res = await fetch(`${API}/api/navigate`,{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({from_building:routeFrom,to_building:routeTo})});
+      const d = await res.json();
+      if (d.success) setRouteResult(d.result);
+    } catch {
+      const fN = navData?.nodes?.find(n=>n.building===routeFrom&&n.type==='entrance')?.id;
+      const tN = navData?.nodes?.find(n=>n.building===routeTo&&n.type==='entrance')?.id;
+      if (fN&&tN) {
+        const res = dijkstraClient(fN,tN,navData.nodes,navData.edges);
+        if (res) {
+          const steps = res.path.map((nid,i)=>{
+            const n = navData.nodes.find(x=>x.id===nid);
+            return {step:i+1,instruction:i===0?`Start at <strong>${n?.label||nid}</strong>`:i===res.path.length-1?`Arrive at <strong>${n?.label||nid}</strong>`:`Go to <strong>${n?.label||nid}</strong>`,type:i===0?'start':i===res.path.length-1?'end':'walk'};
+          });
+          setRouteResult({steps,totalWeight:res.totalWeight,estimatedMinutes:Math.max(1,Math.round(res.totalWeight/80))});
+        }
+      }
+    }
+  };
+
+  const openDirections = async (building) => {
+    const bid = building?.id || building?.buildingID;
+    if (!bid) return;
+
+    setTab('map');
+    setMapBuilding(null);
+    setMapFloor(1);
+    setRouteFrom('');
+    setRouteTo(bid);
+    setRouteResult(null);
+
+    try {
+      const res = await fetch(`${API}/api/navigate`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({from_node:'N_CAMPUS_HUB',to_building:bid})
+      });
+      const d = await res.json();
+      if (d.success) {
+        setRouteResult(d.result);
+        return;
+      }
+    } catch {}
+
+    try {
+      const tN = navData?.nodes?.find(n=>n.building===bid&&n.type==='entrance')?.id;
+      if (!tN) return;
+      const res = dijkstraClient('N_CAMPUS_HUB', tN, navData.nodes, navData.edges);
+      if (res) {
+        const steps = res.path.map((nid,i)=>{
+          const n = navData.nodes.find(x=>x.id===nid);
+          return {
+            step:i+1,
+            instruction:i===0
+              ? `Start at <strong>${n?.label||nid}</strong>`
+              : i===res.path.length-1
+                ? `Arrive at <strong>${n?.label||nid}</strong>`
+                : `Go to <strong>${n?.label||nid}</strong>`,
+            type:i===0?'start':i===res.path.length-1?'end':'walk'
+          };
+        });
+        setRouteResult({steps,totalWeight:res.totalWeight,estimatedMinutes:Math.max(1,Math.round(res.totalWeight/80))});
+      }
+    } catch {}
+  };
+
+  // ── Directory helpers ──────────────────────────────────────────
+  const cats = ['All', ...Array.from(new Set((dbData?.buildings||[]).map(b => b.category).filter(Boolean)))];
+  const filteredBuildings = (dbData?.buildings||[]).filter(b => {
+    const catOk = dirFilter==='All'||(b.category||'')=== dirFilter;
+    const q = dirSearch.toLowerCase();
+    const qOk = !q || b.name.toLowerCase().includes(q) ||
+      (b.description||'').toLowerCase().includes(q) ||
+      (b.services||[]).some(s=>s.toLowerCase().includes(q)) ||
+      (b.clubs||[]).some(c=>c.name.toLowerCase().includes(q));
+    return catOk && qOk;
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  RENDER
+  // ════════════════════════════════════════════════════════════════
+  return (
+    <div className="app-shell">
+      {/* Floor Map Modal */}
+      {floorMapBld && <FloorMapModal building={floorMapBld} highlightRoomID={hlRoomID} onClose={()=>{setFloorMapBld(null);setHlRoomID(null);}}/>}
+
+      {/* Top Bar */}
+      <div className="topbar">
+        <div className="topbar-logo">
+          <div className="logo-badge">🎓</div>
+          <div>
+            <div className="logo-text">RSU Campus Buddy</div>
+            <div className="logo-sub">Rangsit University · Smart Campus</div>
+          </div>
+        </div>
+        <div className="tab-bar">
+          {[['chat','💬','Chat'],['map','🗺️','Uni Map'],['dir','📋','Directory']].map(([id,icon,label])=>
+            <button key={id} className={`tab-btn${tab===id?' active':''}`} onClick={()=>setTab(id)}>
+              <span>{icon}</span><span>{label}</span>
+            </button>
+          )}
+        </div>
+        <div className="status-pill"><span className="status-dot"/><span>Online</span></div>
+      </div>
+
+      {/* Pages */}
+      <div className="tab-content">
+
+        {/* ══ CHAT TAB ══ */}
+        {tab==='chat' && (
+          <div className="chat-layout">
+            {/* Sidebar */}
+            <div className={`sidebar${sidebarOpen?'':' collapsed'}`}>
+              <div className="sb-header">
+                <div className="sb-title">💬 Chat History</div>
+                <button className="sb-close" onClick={()=>setSidebarOpen(false)}>✕</button>
+              </div>
+              <button className="new-chat-btn" onClick={()=>{createSession();setMessages([]);}}>
+                <span>✦</span> New Conversation
+              </button>
+              <div className="sb-section">Recent</div>
+              <div className="history-list">
+                {sessions.length===0 ? (
+                  <div className="hist-empty">🗂️ No conversations yet</div>
+                ) : sessions.map(s => (
+                  <div key={s.id} className={`hist-item${s.id===activeID?' active':''}`}
+                       onClick={()=>loadSession(s.id)}>
+                    <div className="hist-icon">{s.icon||'💬'}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="hist-title">{s.title}</div>
+                      <div className="hist-time">{relTime(s.updatedAt)}</div>
+                    </div>
+                    <button className="hist-del" onClick={e=>{e.stopPropagation();deleteSession(s.id);}}>🗑</button>
+                  </div>
+                ))}
+              </div>
+              <div className="sb-footer">
+                <div className="sb-status"><span className="status-dot"/>AI Ready</div>
+                <button className="clear-btn" onClick={()=>{setSessions([]);saveSessions([]);setMessages([]);setActiveID(null);createSession();}}>Clear all</button>
+              </div>
+            </div>
+
+            {/* Chat Main */}
+            <div className="chat-main">
+              {/* Controls */}
+              <div className="chat-controls">
+                <button className="sb-toggle" onClick={()=>setSidebarOpen(!sidebarOpen)}>☰</button>
+                <button className="ctrl-btn" onClick={()=>{createSession();setMessages([]);}}>✦ New Chat</button>
+                <button className="ctrl-btn" onClick={()=>setMessages([])}>↩ Clear Messages</button>
+                <button className="ctrl-btn danger" onClick={()=>setTab('map')}>🗺️ Open Map</button>
+              </div>
+
+
+              {/* Messages */}
+              <div className="messages">
+                {messages.length===0 && (
+                  <div className="welcome">
+                    <div className="w-icon">🤖</div>
+                    <div className="w-title">RSU Campus AI Guide</div>
+                    <p className="w-sub">Upload a photo of any campus building — inside or outside — and I'll identify it. Or ask about buildings, services, clubs, or directions.</p>
+                    <div className="chips">
+                      {['Tell me about the Library','Where can I eat on campus?',
+                        'How do I get from Building 6 to Table Tennis Club in Building 11?',
+                        'Show me all student clubs','Building 11 opening hours',
+                        'List all campus buildings'].map((t,i)=>(
+                        <button key={i} className="chip" onClick={()=>quick(t)}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {messages.map((m,i) => (
+                  <div key={i} className={`msg-row ${m.role}`}>
+                    <div className={`av ${m.role}`}>{m.role==='bot'?'🤖':'👤'}</div>
+                    <div className={`bubble ${m.role}`}>
+                      {m.imageThumb && <img src={m.imageThumb} className="thumb" alt="uploaded"/>}
+                      {m.jsx ? m.jsx : <div dangerouslySetInnerHTML={{__html: typeof m.content==='string' ? m.content.replace(/\n/g,'<br>') : ''}}/>}
+                    </div>
+                  </div>
+                ))}
+                {loaderText && (
+                  loaderText===true
+                    ? <div className="typing-row"><div className="av bot">🤖</div>
+                        <div className="typing-bub"><div className="tdot"/><div className="tdot"/><div className="tdot"/></div></div>
+                    : <div className="prog-row"><div className="av bot">🤖</div>
+                        <div className="prog-bub"><div className="spin"/>{loaderText}</div></div>
+                )}
+                <div ref={messagesEndRef}/>
+              </div>
+
+              {/* Input */}
+              <div className="input-area">
+                {imgThumb && (
+                  <div className="preview-bar">
+                    <img src={imgThumb} alt="preview"/>
+                    <span className="prev-name">{imgName}</span>
+                    <span className="prev-badge">{tmLoaded?'🧠 Teachable Machine':'📷 Vision AI'}</span>
+                    <button className="rm-prev" onClick={clearImage}>✕</button>
+                  </div>
+                )}
+                <div className="input-row">
+                  <textarea ref={textareaRef} rows="1" placeholder="Ask about campus, upload a photo, or get directions…"
+                    value={textVal} onChange={e=>setTextVal(e.target.value)}
+                    onKeyDown={onKey} onInput={autoH}/>
+                  <button className="ibtn up" onClick={()=>document.getElementById('file-inp').click()} title="Upload photo">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  </button>
+                  <button className="ibtn snd" id="send-btn" onClick={send} disabled={busy}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+                <div className="input-hint">📸 Upload inside or outside building photos · 🧭 Type "How do I get from X to Y?" for directions</div>
+                <input type="file" id="file-inp" accept="image/*" style={{display:'none'}} onChange={onFileSelect}/>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ MAP TAB ══ */}
+        {tab==='map' && (
+          <div className="map-tab">
+            <div className="map-toolbar">
+              <div><div className="map-title">🗺️ RSU Campus Map</div>
+                <div className="map-sub">Rangsit University · Click a building · Pan and zoom to explore</div></div>
+              {mapBuilding && (
+                <div className="floor-tabs">
+                  {Array.from({length: typeof mapBuilding.floors==='number' ? mapBuilding.floors : (mapBuilding.floors||[]).length}, (_,i)=>i+1).map(f=>
+                    <button key={f} className={`floor-tab${mapFloor===f?' active':''}`} onClick={()=>setMapFloor(f)}>Floor {f}</button>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="map-body">
+              {/* SVG Map */}
+              <div className="map-svg-wrap">{renderCampusSVG()}</div>
+              {/* Side panel */}
+              <div className="map-panel">
+                <div className="map-panel-head">
+                  <div className="map-panel-title">{mapBuilding ? `${mapBuilding.emoji} ${mapBuilding.shortName}` : '🏛️ Campus Buildings'}</div>
+                </div>
+                <div className="map-panel-body">
+                  {!mapBuilding ? (
+                    <div>
+                      <div className="route-form" style={{marginBottom:16}}>
+                        <div className="rform-label">🧭 Route Planner</div>
+                        <div>
+                          <div style={{fontSize:11,color:'var(--muted)',marginBottom:4}}>From</div>
+                          <select className="rform-select" value={routeFrom} onChange={e=>setRouteFrom(e.target.value)}>
+                            <option value="">Select start…</option>
+                            {(dbData?.buildings||[]).map(b=><option key={b.id||b.buildingID} value={b.id||b.buildingID}>{b.shortName}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <div style={{fontSize:11,color:'var(--muted)',marginBottom:4}}>To</div>
+                          <select className="rform-select" value={routeTo} onChange={e=>setRouteTo(e.target.value)}>
+                            <option value="">Select destination…</option>
+                            {(dbData?.buildings||[]).map(b=><option key={b.id||b.buildingID} value={b.id||b.buildingID}>{b.shortName}</option>)}
+                          </select>
+                        </div>
+                        <button className="route-btn" onClick={planRoute}>Calculate Route →</button>
+                        {routeResult && (
+                          <div className="route-steps">
+                            <div style={{fontSize:11,color:'var(--teal)',fontWeight:600,marginBottom:4}}>
+                              ⏱ ~{routeResult.estimatedMinutes} min walk
+                            </div>
+                            {routeResult.steps.map((s,i)=>(
+                              <div key={i} className="rs-step">
+                                <div className="rs-num">{s.step}</div>
+                                <div dangerouslySetInnerHTML={{__html:s.instruction}}/>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{fontSize:10,fontWeight:700,letterSpacing:'.8px',textTransform:'uppercase',color:'var(--muted)',marginBottom:8}}>Buildings</div>
+                      <div className="map-bldg-list">
+                        {(dbData?.buildings||[]).map(b=>(
+                          <button key={b.id||b.buildingID} className={`map-bldg-btn${mapBuilding?.id===b.id?' active':''}`}
+                                  onClick={()=>{setMapBuilding(b);setMapFloor(1);}}>
+                            <span className="mbb-emoji">{b.emoji}</span>
+                            <div className="mbb-info">
+                              <div className="mbb-name">{b.shortName}</div>
+                              <div className="mbb-cat">{b.category}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <button className="ctrl-btn" style={{width:'100%',marginBottom:10}} onClick={()=>setMapBuilding(null)}>← All Buildings</button>
+                      <p style={{fontSize:13,color:'var(--dim)',lineHeight:1.6,marginBottom:12}}>{mapBuilding.description}</p>
+                      <div style={{marginBottom:10}}>
+                        <FloorSVG building={mapBuilding} floor={mapFloor} highlightRoomID={null}/>
+                      </div>
+                      <button className="cta primary" style={{width:'100%'}}
+                        onClick={()=>{setFloorMapBld(mapBuilding);setHlRoomID(null);}}>🏗️ Full Floor Plan</button>
+                    </div>
+                  )}
+                </div>
+                <div className="map-legend">
+                  {[['#3d9eff','Administration / Academic'],['#f5a623','Faculty'],['#22d3a5','Dining'],['#C8102E','Student / Campus Services'],['#b47cff','Residential / Culture / Recreation']].map(([c,l])=>
+                    <div key={l} className="leg-item"><div className="leg-dot" style={{background:c}}/>{l}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ DIRECTORY TAB ══ */}
+        {tab==='dir' && (
+          <div className="dir-tab">
+            <div className="dir-toolbar">
+              <div className="dir-title-txt">📋 Campus Directory</div>
+              <div className="search-box">
+                <span>🔍</span>
+                <input placeholder="Search buildings, services, clubs…" value={dirSearch} onChange={e=>setDirSearch(e.target.value)}/>
+              </div>
+            </div>
+            <div className="filter-row">
+              {cats.map(c=><button key={c} className={`ftab${dirFilter===c?' on':''}`} onClick={()=>setDirFilter(c)}>{c}</button>)}
+            </div>
+            <div className="dir-list">
+              {filteredBuildings.length===0 && <div className="no-res">😕 No results found.</div>}
+              {filteredBuildings.map(b => {
+                const bid = b.id||b.buildingID;
+                const open = expandedCard[bid];
+                const hrs = b.openHours ? Object.entries(b.openHours) : [];
+                const mapUrl=`https://www.google.com/maps/search/?api=1&query=${b.lat||0},${b.lng||0}`;
+                return (
+                  <div key={bid} className="dir-card" id={`dc-${bid}`}>
+                    <div className="dc-head">
+                      <div className="dc-emoji">{b.emoji}</div>
+                      <div className="dc-info">
+                        <div className="dc-name">{b.name}</div>
+                        <span className="dc-cat-badge">{b.category}</span>
+                        <div className="dc-desc">{b.description}</div>
+                      </div>
+                      <div className="dc-acts">
+                        <button className="dc-dir" onClick={()=>openDirections(b)}>🧭 Get Directions</button>
+                        <button className="dc-floor" onClick={()=>{setFloorMapBld(b);setHlRoomID(null);}}>🏗️ Floor Map</button>
+                      </div>
+                    </div>
+                    <div className="dc-body">
+                      <div style={{fontSize:13,color:'var(--dim)'}}>📍 {b.location}</div>
+                      <div className="dc-grid">
+                        <div>
+                          <div className="dc-sec-title">🛎 Services</div>
+                          <div className="dc-tag-list">{(b.services||[]).slice(0,5).map((s,i)=><span key={i} className="dc-tag s">{s}</span>)}</div>
+                        </div>
+                        <div>
+                          <div className="dc-sec-title">🔧 Facilities</div>
+                          <div className="dc-tag-list">{(b.facilities||[]).slice(0,5).map((f,i)=><span key={i} className="dc-tag f">{f}</span>)}</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="dc-sec-title">🕐 Opening Hours</div>
+                        <div className="dc-hrs">{hrs.map(([d,h],i)=><div key={i} className="dc-hr"><span className="dc-hr-d">{d}</span><span className="dc-hr-v">{h}</span></div>)}</div>
+                      </div>
+                      <button className="expand-tog" onClick={()=>setExpandedCard(p=>({...p,[bid]:!p[bid]}))}>
+                        {open?'▲ Show less':'▼ Show clubs, rules & more'}
+                      </button>
+                      <div className={`dc-extra${open?' open':''}`}>
+                        {b.clubs?.length>0 && <div>
+                          <div className="dc-sec-title">🎓 Student Clubs</div>
+                          {b.clubs.map((c,i)=>(
+                            <div key={i} className="dc-club">
+                              <div className="dc-club-name">{c.name}</div>
+                              <div className="dc-club-desc">{c.description||''}</div>
+                              <div className="dc-club-meta">📅 {c.schedule} &nbsp;📍 {c.meetingLocation}</div>
+                            </div>
+                          ))}
+                        </div>}
+                        {b.rules?.length>0 && <div>
+                          <div className="dc-sec-title">📌 Rules</div>
+                          {b.rules.map((r,i)=><div key={i} className="dc-rule">{r}</div>)}
+                        </div>}
+                        <div style={{display:'flex',gap:8,flexWrap:'wrap',paddingTop:4}}>
+                          <button className="dc-dir" onClick={()=>{setTextVal(`Tell me more about ${b.shortName}`);setTab('chat');}}>💬 Ask AI</button>
+                          <button className="dc-floor" onClick={()=>openDirections(b)}>🧭 Get Directions</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
