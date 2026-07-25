@@ -407,3 +407,92 @@ MVP Implementation Sprint 1
 - Complete the remaining Admin functions (add, edit, delete building records).
 - Improve search, filtering, and recognition accuracy.
 - Perform user testing, fix bugs, and optimize the prototype before the final presentation.
+
+# Weekly Logbook - Lab 11
+
+## Lab Topic
+MVP Implementation Sprint 2 and Startup Metrics
+
+---
+
+## Group Case
+
+**Project Title:** RSU Campus Buddy – Smart Campus Chatbot for Student Services with Image Recognition
+
+**Selected Case:**  
+An AI-powered campus navigation and student service assistant that helps users identify RSU buildings through image recognition, search campus information, view building details, and access directions using Google Teachable Machine and a Flask-based web application.
+
+---
+
+## Work Completed Today
+
+- Reviewed Lab 10 implementation progress and system requirements.
+- Improved the AI image recognition workflow using Google Teachable Machine.
+- Updated the campus building database (`database.json`).
+- Enhanced the Campus Directory search functionality.
+- Improved the Admin Panel for managing building information.
+- Added Startup/Product Metrics documentation.
+- Performed prototype testing and recorded testing results.
+- Updated Feature Implementation Status.
+- Updated README and GitHub documentation.
+- Created GitHub Issues for Sprint 2 improvements.
+
+---
+
+## Member Contributions
+
+| Member Name | Contribution | File/Feature Updated | GitHub Evidence |
+|---|---|---|---|
+| Khin Zu Zu Oo | Improved Homepage, AI Chatbot, Campus Directory, and Search functionality | `frontend.html`, `style.css`, `app.py',Updated Admin Panel, JSON database, documentation, and README | `admin.html`, `database.json`, `/docs`, `README.md`  | Lab11 commits |
+
+---
+
+## Requirements Addressed
+
+- **FR-01** – Homepage
+- **FR-03** – AI Image Upload
+- **FR-04** – Data Storage
+- **FR-05** – Campus Directory
+- **FR-06** – Search and Filter
+- **FR-07** – Building Detail View
+- **FR-08** – AI Recognition Results
+- **FR-09** – Admin Management
+- **FR-10** – Input Validation
+- **FR-11** – User Feedback Messages
+- **FR-12** – Dashboard and Startup Metrics
+- **FR-13** – UI Consistency
+- **FR-14** – Responsive Design
+- **FR-15** – Responsible Data Handling
+- **FR-16** – Prototype Traceability
+
+---
+
+## Metrics Added
+
+- Total Campus Buildings
+- AI Image Recognition Requests
+- Building Recognition Accuracy
+- Directory Search Success Rate
+- Admin Building Updates
+- Average User Feedback Score
+
+---
+
+## Problems Found
+
+- Google Teachable Machine occasionally misclassifies buildings with similar appearances.
+- Search currently supports keyword search only and requires additional category filters.
+- The Admin Panel requires complete Add and Delete functionality.
+- Dashboard metrics are currently limited and need additional visualizations.
+- Some campus buildings still require more detailed information and floor maps.
+
+---
+
+## Next Action Before Lab 12
+
+- Improve Google Teachable Machine recognition accuracy by retraining the model with additional building images.
+- Complete Admin CRUD (Create, Read, Update, Delete) functionality.
+- Add advanced search and filtering options.
+- Expand dashboard analytics and startup metrics.
+- Improve responsive design across different devices.
+- Perform final usability testing and fix remaining bugs before the final prototype presentation.
