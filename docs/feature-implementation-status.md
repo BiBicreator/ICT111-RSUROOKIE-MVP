@@ -1,57 +1,22 @@
-# Lab 10 - Feature Implementation Status
+# Feature Implementation Status
 
-## Purpose
-Use this file to prove that your prototype implementation is connected to `system-requirements.md`.
+> Update this file during Lab 11. Every prototype feature must connect to `system-requirements.md`.
 
-| Req ID | Required Functionality | Prototype Screen/Module | Current Status | Evidence | Next Fix Needed |
-|---|---|---|---|---|---|
-| FR-01 | Homepage or landing screen | Homepage | Working Draft | `prototype/index.html`, Homepage screenshot | Improve UI layout and project introduction |
-| FR-02 | Primary user pathway | Homepage → Chat → Recognition Result → Directory → Admin | Working Draft | Navigation menu and page links | Improve navigation flow and user experience |
-| FR-03 | User input or data submission | Chat (Image Upload) | Working Draft | Upload form, `script.js` | Improve image upload validation |
-| FR-04 | Data storage or simulated storage | JSON Database (`buildings.json`) | Working Draft | `prototype/data/buildings.json` | Expand building information and categories |
-| FR-05 | View records or information list | Directory | Working Draft | Directory page | Add more campus buildings and information |
-| FR-06 | Search, filter, or category function | Directory Search | In Progress | Search bar, JavaScript filter | Add category and facility filters |
-| FR-07 | Detail view for each record | Building Detail | Working Draft | Building information page | Display additional facilities, floor maps, and clubs |
-| FR-08 | Status or progress tracking | Recognition Result | Working Draft | Google Teachable Machine prediction result | Improve prediction confidence and recognition messages |
-| FR-09 | Admin or manager function | Admin Panel | In Progress | `admin.html` | Complete add, edit, and delete functions |
-| FR-10 | Validation and error prevention | Upload Form | In Progress | JavaScript validation | Validate image type and file size before upload |
-| FR-11 | Confirmation or feedback message | Upload Confirmation | Working Draft | Success message after upload | Improve success and error notifications |
-| FR-12 | Dashboard or summary view | Dashboard | In Progress | Dashboard page | Add statistics and summary cards |
-| FR-13 | Basic UI consistency | Homepage, Chat, Uni Map, Directory, Dashboard, Admin | Working Draft | Shared CSS stylesheet | Improve color consistency, spacing, and icons |
-| FR-14 | Mobile-friendly/responsive design | All pages | In Progress | Responsive CSS | Test on different screen sizes and devices |
-| FR-15 | Privacy and responsible data handling | Chat & Admin | Working Draft | Privacy notice and sample JSON data | Add clearer privacy statement and data handling information |
-| FR-16 | Final prototype traceability | Documentation | Working Draft | Lab 04–10 documents | Verify all features match requirements and user stories |
-
----
-
-## Summary
-
-### Features working today
-- Homepage with navigation
-- Chat interface
-- Image upload
-- Google Teachable Machine building recognition
-- Building directory
-- JSON database integration
-- Building detail page
-
-### Features partially working
-- Search and filter
-- Dashboard
-- Admin panel
-- Responsive layout
-- Upload validation
-- Recognition result display
-
-### Features not yet started
-- Indoor navigation
-- Voice interaction
-- Multi-language chatbot
-- User login and authentication
-- Analytics dashboard improvements
-
-### Features requiring instructor feedback
-- Google Teachable Machine integration approach
-- JSON database structure
-- Admin permission simulation
-- Future backend integration using Flask
+| Req ID | Required Functionality | Screen/Module | Lab 10 Status | Lab 11 Status | Owner | Evidence Screenshot/Commit | Notes/Next Action |
+|---|---|---|---|---|---|---|---|
+| FR-01 | Homepage or landing screen | Homepage | Partially Completed | **Completed** |Khin Zu Zu Oo| `homepage.png`, Homepage commits | Improve design and add project introduction if needed. |
+| FR-02 | Primary user pathway | Homepage → Chat → Directory → Dashboard | Partially Completed | **Completed** | Khin Zu Zu Oo | Navigation screenshots | User flow works correctly between all modules. |
+| FR-03 | User input/submission | AI Chat & Image Upload | Partially Completed | **Completed** |Khin Zu Zu Oo | `AI-image-chatbotpage.png` | Improve upload validation and recognition accuracy. |
+| FR-04 | Data storage/record management | JSON Database | Partially Completed | **Completed** | Khin Zu Zu Oo | JSON files, commits | Continue expanding building information. |
+| FR-05 | View records/list | Campus Directory | Partially Completed | **Completed** | Khin Zu Zu Oo | `Campus Directory.png` | Add more buildings and information. |
+| FR-06 | Search/filter/category | Directory Search | Pending | **Partially Completed** | Khin Zu Zu Oo | Search feature commit | Add category and facility filters. |
+| FR-07 | Detail view | Building Detail / Floor Map | Pending | **Completed** |Khin Zu Zu Oo | `floor-map.png`, chatbot response | Display more building details and facilities. |
+| FR-08 | Status/progress tracking | AI Recognition Result | Pending | **Partially Completed** |Khin Zu Zu Oo| `chatbot-respond.png` | Improve confidence level and recognition messages. |
+| FR-09 | Admin/manager function | Admin Panel | Pending | **Partially Completed** |Khin Zu Zu Oo | `admin-page.png` | Complete add, edit, and delete functions. |
+| FR-10 | Validation/error prevention | Image Upload Form | Pending | **Partially Completed** | Khin Zu Zu Oo| Validation commits | Validate image format and file size. |
+| FR-11 | Confirmation/feedback message | Chat Response | Pending | **Completed** |Khin Zu Zu Oo| `chatbot-respond-direction.png` | Improve error messages for invalid uploads. |
+| FR-12 | Dashboard/analytics view | Dashboard | Pending | **Partially Completed** |Khin Zu Zu Oo | Dashboard commits | Add startup metrics and summary cards. |
+| FR-13 | UI consistency | All Screens | Partially Completed | **Completed** |Khin Zu Zu Oo | CSS updates | Maintain consistent layout, colors, and navigation. |
+| FR-14 | Mobile/responsive consideration | All Screens | Pending | **Partially Completed** | Khin Zu Zu Oo | Responsive CSS commits | Continue testing on mobile devices. |
+| FR-15 | Privacy/responsible data handling | Data Collection | Pending | **Completed** | Member 2 | Privacy documentation | Continue using sample data and avoid sensitive information. |
+| FR-16 | Final prototype traceability | Documentation | Pending | **Completed** | Member 2 | Lab 04–11 documents | Verify every feature links to requirements and user stories. |
