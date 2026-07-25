@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel – RSU Campus Buddy</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060a12;--s1:#0c1220;--s2:#111a2e;--s3:#162038;
+  --border:#1e2d44;--border2:#273d5a;
+  --red:#8b0000;--red2:#b00000;--red3:rgba(139,0,0,0.15);
+  --gold:#c9a84c;--gold2:rgba(201,168,76,0.15);
+  --green:#10b981;--green2:rgba(16,185,129,0.15);
+  --blue:#3b82f6;--blue2:rgba(59,130,255,0.15);
+  --amber:#f59e0b;--red-del:#ef4444;
+  --text:#e8f0fc;--muted:#64748b;--dim:#94a3b8;
+  --r:12px;--fh:'Syne',sans-serif;--fb:'Plus Jakarta Sans',sans-serif;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--fb)}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 30% at 10% 0%,rgba(139,0,0,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 25% at 90% 100%,rgba(201,168,76,0.05) 0%,transparent 55%)}
+
+/* ── Layout ── */
+.shell{display:flex;min-height:100vh;position:relative;z-index:1}
+.sidebar{width:240px;background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* ── Sidebar ── */
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.sb-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--red),var(--red2));
+  border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;
+  box-shadow:0 0 16px rgba(139,0,0,0.35)}
+.sb-logo-name{font-family:var(--fh);font-size:14px;font-weight:800;
+  background:linear-gradient(90deg,var(--gold),#e6c97a);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sb-subtitle{font-size:10px;color:var(--muted);margin-top:2px}
+.sb-role{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;
+  color:var(--gold);background:var(--gold2);border:1px solid rgba(201,168,76,0.25);
+  padding:3px 9px;border-radius:20px;margin-top:8px}
+.sb-nav{flex:1;padding:12px 10px;overflow-y:auto}
+.sb-section{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);padding:8px 8px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);
+  cursor:pointer;transition:all 0.18s;margin-bottom:2px;color:var(--dim);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--s2);color:var(--text)}
+.nav-item.active{background:var(--red3);color:var(--gold);border-left:2px solid var(--red)}
+.nav-icon{font-size:16px;flex-shrink:0}
+.sb-footer{padding:14px 16px;border-top:1px solid var(--border)}
+.sb-admin-info{font-size:11px;color:var(--muted)}
+.sb-admin-name{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:2px}
+.logout-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);
+  background:none;border:1px solid var(--border2);border-radius:8px;padding:6px 12px;
+  cursor:pointer;transition:all 0.18s;margin-top:8px;font-family:var(--fb);width:100%;justify-content:center}
+.logout-btn:hover{border-color:var(--red-del);color:var(--red-del)}
+
+/* ── Top bar ── */
+.topbar{background:rgba(6,10,18,0.95);border-bottom:1px solid var(--border);
+  padding:12px 24px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(16px);
+  position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar-title{font-family:var(--fh);font-size:16px;font-weight:800;flex:1}
+.topbar-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;
+  color:var(--green);background:var(--green2);border:1px solid rgba(16,185,129,0.2);
+  padding:4px 10px;border-radius:20px}
+.badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+.topbar-time{font-size:11.5px;color:var(--muted)}
+
+/* ── Page sections ── */
+.page-section{display:none;padding:24px;animation:fadeUp 0.3s ease}
+.page-section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Stats row ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);
+  padding:16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.red::before{background:linear-gradient(90deg,var(--red),var(--red2))}
+.stat-card.gold::before{background:linear-gradient(90deg,var(--gold),#e6c97a)}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),#059669)}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--blue),#2563eb)}
+.stat-num{font-family:var(--fh);font-size:28px;font-weight:800;margin-bottom:3px}
+.stat-card.red .stat-num{color:var(--gold)}
+.stat-card.gold .stat-num{color:var(--gold)}
+.stat-card.green .stat-num{color:var(--green)}
+.stat-card.blue .stat-num{color:var(--blue)}
+.stat-label{font-size:11.5px;color:var(--muted)}
+.stat-icon{position:absolute;right:14px;top:14px;font-size:22px;opacity:0.25}
+
+/* ── Section header ── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.sec-title{font-family:var(--fh);font-size:17px;font-weight:800}
+.sec-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;
+  font-size:12.5px;font-weight:600;cursor:pointer;transition:all 0.18s;font-family:var(--fb);border:none}
+.btn-primary{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;
+  box-shadow:0 2px 10px rgba(139,0,0,0.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(139,0,0,0.4)}
+.btn-secondary{background:var(--s3);color:var(--dim);border:1px solid var(--border2)}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.btn-danger{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25)}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+.btn-sm{padding:5px 12px;font-size:11.5px}
+
+/* ── Table ── */
+.table-wrap{background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.table-search-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.table-search{display:flex;align-items:center;gap:7px;background:var(--s3);
+  border:1px solid var(--border2);border-radius:9px;padding:7px 12px;flex:1;max-width:340px}
+.table-search input{background:none;border:none;outline:none;color:var(--text);
+  font-family:var(--fb);font-size:13px;flex:1}
+.table-search input::placeholder{color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:10.5px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase;
+  color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);text-align:left;
+  background:var(--s1)}
+tbody tr{transition:background 0.15s}
+tbody tr:hover{background:var(--s3)}
+tbody td{padding:11px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+.td-name{font-weight:600;color:var(--text)}
+.td-cat{font-size:11.5px;padding:3px 9px;border-radius:20px;display:inline-block}
+.cat-academic{background:rgba(59,130,246,0.15);color:#7ab8ff;border:1px solid rgba(59,130,246,0.25)}
+.cat-faculty{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.25)}
+.cat-dining{background:rgba(16,185,129,0.15);color:#5de0c0;border:1px solid rgba(16,185,129,0.25)}
+.cat-admin{background:rgba(139,0,0,0.2);color:var(--gold);border:1px solid rgba(201,168,76,0.25)}
+.cat-sports{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.25)}
+.cat-health{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25)}
+.td-hours{font-size:12px;color:var(--dim)}
+.td-actions{display:flex;gap:6px}
+
+/* ── Form modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);
+  z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--s1);border:1px solid var(--border2);border-radius:16px;
+  width:100%;max-width:680px;max-height:90vh;overflow-y:auto;
+  animation:scaleIn 0.22s ease;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;
+  background:var(--s1);z-index:10}
+.modal-title{font-family:var(--fh);font-size:15px;font-weight:800}
+.modal-close{width:30px;height:30px;background:var(--s2);border:1px solid var(--border2);
+  border-radius:7px;color:var(--muted);cursor:pointer;font-size:14px;display:flex;
+  align-items:center;justify-content:center;transition:all 0.15s}
+.modal-close:hover{border-color:var(--red-del);color:var(--red-del)}
+.modal-body{padding:20px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;
+  border-top:1px solid var(--border)}
+
+/* ── Form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--dim)}
+.form-input,.form-select,.form-textarea{background:var(--s2);border:1px solid var(--border2);
+  border-radius:9px;padding:9px 13px;color:var(--text);font-family:var(--fb);font-size:13.5px;
+  outline:none;transition:border-color 0.15s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--red)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-select option{background:var(--s1)}
+.form-hint{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── Toast ── */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;
+  font-size:13px;font-weight:500;min-width:260px;animation:toastIn 0.3s ease;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.toast.success{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399}
+.toast.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#f87171}
+.toast.info{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#7ab8ff}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Teachable Machine section ── */
+.tm-box{background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);padding:20px}
+.tm-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:9px;
+  font-size:13px;margin-bottom:14px}
+.tm-status.connected{background:var(--green2);border:1px solid rgba(16,185,129,0.25);color:#34d399}
+.tm-status.disconnected{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:#fbbf24}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:9px;
+  padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b8d0;
+  overflow-x:auto;margin-top:10px;white-space:pre}
+
+/* ── Quick actions ── */
+.actions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.action-card{background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);
+  padding:16px;cursor:pointer;transition:all 0.2s;text-align:center}
+.action-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
+.action-card-icon{font-size:28px;margin-bottom:8px}
+.action-card-label{font-size:12.5px;font-weight:600;color:var(--text)}
+.action-card-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* ── Confirm dialog ── */
+.confirm-box{background:var(--s1);border:1px solid var(--border2);border-radius:14px;
+  max-width:380px;width:100%;padding:24px;text-align:center}
+.confirm-icon{font-size:36px;margin-bottom:12px}
+.confirm-title{font-family:var(--fh);font-size:16px;font-weight:800;margin-bottom:8px}
+.confirm-msg{font-size:13px;color:var(--dim);margin-bottom:20px;line-height:1.6}
+.confirm-btns{display:flex;gap:8px;justify-content:center}
+
+.back-btn{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
+  color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);
+  padding:6px 13px;border-radius:20px;text-decoration:none;transition:all 0.2s;flex-shrink:0}
+.back-btn:hover{background:rgba(201,168,76,0.2);border-color:rgba(201,168,76,0.5);transform:translateY(-1px)}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <div class="sb-logo-icon"></div>
+        <div class="sb-logo-name">RSU Navigator</div>
+      </div>
+      <div class="sb-subtitle">RSU Campus Buddy</div>
+      <div class="sb-role"> Admin Panel</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Main</div>
+      <button class="nav-item active" onclick="showPage('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('buildings')">
+        <span class="nav-icon">🏢</span> Buildings
+      </button>
+      <button class="nav-item" onclick="showPage('services')">
+        <span class="nav-icon">🛎</span> Services & Clubs
+      </button>
+      <div class="sb-section">AI & System</div>
+      <button class="nav-item" onclick="showPage('ai')">
+        <span class="nav-icon">🤖</span> AI / Teachable Machine
+      </button>
+      <button class="nav-item" onclick="showPage('logs')">
+        <span class="nav-icon">📋</span> Activity Logs
+      </button>
+      <div class="sb-section">Access</div>
+      <button class="nav-item" onclick="window.location.href='frontend.html'">
+        <span class="nav-icon">💬</span> Open Chatbot
+      </button>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-admin-name">Admin User</div>
+      <div class="sb-admin-info">RSU IT Department</div>
+      <button class="logout-btn" onclick="handleLogout()">🚪 Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="topbar">
+      <a href="frontend.html" class="back-btn" title="Back to Chatbot">← Chatbot</a>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-time" id="topbar-time"></div>
+      <div class="topbar-badge"><span class="badge-dot"></span> System Online</div>
+    </header>
+
+    <!-- ══ DASHBOARD ══ -->
+    <section class="page-section active" id="sec-dashboard">
+      <div class="stats-row">
+        <div class="stat-card red">
+          <div class="stat-num" id="stat-buildings">19</div>
+          <div class="stat-label">Campus Buildings</div>
+          <div class="stat-icon">🏢</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-num" id="stat-services">38</div>
+          <div class="stat-label">Services Listed</div>
+          <div class="stat-icon">🛎</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-num" id="stat-clubs">18</div>
+          <div class="stat-label">Student Clubs</div>
+          <div class="stat-icon">🎓</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-num" id="stat-queries">—</div>
+          <div class="stat-label">AI Queries Today</div>
+          <div class="stat-icon">🤖</div>
+        </div>
+      </div>
+
+      <div class="sec-header"><div><div class="sec-title">Quick Actions</div><div class="sec-sub">Common management tasks</div></div></div>
+      <div class="actions-grid">
+        <div class="action-card" onclick="showPage('buildings'); openAddBuilding()">
+          <div class="action-card-icon">➕</div>
+          <div class="action-card-label">Add Building</div>
+          <div class="action-card-sub">Register a new building</div>
+        </div>
+        <div class="action-card" onclick="showPage('services')">
+          <div class="action-card-icon">🛎</div>
+          <div class="action-card-label">Manage Services</div>
+          <div class="action-card-sub">Edit clubs & services</div>
+        </div>
+        <div class="action-card" onclick="showPage('ai')">
+          <div class="action-card-icon">🤖</div>
+          <div class="action-card-label">AI Model Config</div>
+          <div class="action-card-sub">Teachable Machine setup</div>
+        </div>
+        <div class="action-card" onclick="fetchAllFromBackend()">
+          <div class="action-card-icon">🔄</div>
+          <div class="action-card-label">Sync Database</div>
+          <div class="action-card-sub">Reload from backend</div>
+        </div>
+        <div class="action-card" onclick="window.location.href='index.html'">
+          <div class="action-card-icon">💬</div>
+          <div class="action-card-label">View Chatbot</div>
+          <div class="action-card-sub">Open student interface</div>
+        </div>
+        <div class="action-card" onclick="showPage('logs')">
+          <div class="action-card-icon">📋</div>
+          <div class="action-card-label">View Logs</div>
+          <div class="action-card-sub">Activity history</div>
+        </div>
+      </div>
+
+      <div class="sec-header"><div><div class="sec-title">Recent Buildings</div></div></div>
+      <div class="table-wrap" id="dash-table">
+        <table>
+          <thead><tr><th>Building</th><th>Category</th><th>Hours (Weekdays)</th><th>Services</th></tr></thead>
+          <tbody id="dash-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="page-section" id="sec-buildings">
+      <div class="sec-header">
+        <div><div class="sec-title">Buildings Management</div><div class="sec-sub">Add, edit, or remove campus buildings</div></div>
+        <button class="btn btn-primary" onclick="openAddBuilding()">➕ Add Building</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-search-bar">
+          <div class="table-search">
+            <span>🔍</span>
+            <input type="text" placeholder="Search buildings…" oninput="filterTable(this.value,'buildings-tbody')">
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Emoji</th><th>Name</th><th>Category</th><th>Hours (Weekdays)</th><th>Floors</th><th>Actions</th></tr></thead>
+          <tbody id="buildings-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══ SERVICES & CLUBS ══ -->
+    <section class="page-section" id="sec-services">
+      <div class="sec-header">
+        <div><div class="sec-title">Services &amp; Clubs</div><div class="sec-sub">Manage what's inside each building</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-search-bar">
+          <div class="table-search">
+            <span>🔍</span>
+            <input type="text" placeholder="Search services or clubs…" oninput="filterTable(this.value,'services-tbody')">
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Type</th><th>Name</th><th>Building</th><th>Schedule / Hours</th><th>Location</th><th>Actions</th></tr></thead>
+          <tbody id="services-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══ AI / TEACHABLE MACHINE ══ -->
+    <section class="page-section" id="sec-ai">
+      <div class="sec-header">
+        <div><div class="sec-title">AI Image Recognition</div><div class="sec-sub">Configure Teachable Machine model for campus image recognition</div></div>
+      </div>
+
+      <div class="tm-box" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-family:var(--fh);font-size:15px;font-weight:700">Teachable Machine Model</div>
+          <span class="btn btn-sm btn-secondary" onclick="checkModelStatus()">🔄 Check Status</span>
+        </div>
+        <div class="tm-status disconnected" id="tm-status">
+          ⚠️ No model URL configured — paste your Teachable Machine URL below to activate
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label class="form-label">Teachable Machine Model URL</label>
+          <input type="text" class="form-input" id="tm-url-input"
+            placeholder="https://teachablemachine.withgoogle.com/models/YOUR_MODEL_ID/"
+            value="">
+          <div class="form-hint">Export your model from Teachable Machine → Copy the shareable link → Paste it here</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-primary" onclick="saveModelURL()">💾 Save Model URL</button>
+          <button class="btn btn-secondary" onclick="testModel()">🧪 Test Model</button>
+        </div>
+      </div>
+
+      <div class="tm-box" style="margin-bottom:16px">
+        <div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:10px">
+          🗺️ Building → Class Label Mapping
+        </div>
+        <p style="font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.6">
+          Map your Teachable Machine class labels to building IDs. When the AI detects a class, the system will look up the corresponding building.
+        </p>
+        <div id="label-mapping-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        <button class="btn btn-secondary" style="margin-top:12px" onclick="addLabelMapping()">➕ Add Mapping</button>
+        <button class="btn btn-primary" style="margin-top:12px;margin-left:8px" onclick="saveLabelMappings()">💾 Save Mappings</button>
+      </div>
+
+      <div class="tm-box">
+        <div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:10px">
+          📋 How to Integrate Your Teachable Machine Model
+        </div>
+        <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:10px">
+          Your <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-family:monospace">index.html</code> has a clearly marked
+          <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-family:monospace">/* ── TEACHABLE MACHINE PLACEHOLDER ── */</code>
+          section. Paste your model code there.
+        </p>
+        <div class="code-block">/* ── TEACHABLE MACHINE PLACEHOLDER ── */
+// 1. Go to teachablemachine.withgoogle.com → Train your image model
+// 2. Export → "Tensorflow.js" → Copy the model URL
+// 3. Paste the URL in the Admin Panel → AI tab → Model URL field
+// 4. The frontend will automatically load and run your model
+
+// The integration point in index.html looks like this:
+const MODEL_URL = localStorage.getItem('tm_model_url') || '';
+
+// Your trained classes should match building names, e.g.:
+// Class 0: "Library"       → maps to building LIB
+// Class 1: "Engineering"   → maps to building B6
+// Class 2: "Cafeteria"     → maps to building CAF
+// (configure mappings above in the Label Mapping section)</div>
+      </div>
+    </section>
+
+    <!-- ══ LOGS ══ -->
+    <section class="page-section" id="sec-logs">
+      <div class="sec-header">
+        <div><div class="sec-title">Activity Logs</div><div class="sec-sub">Recent admin actions</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="clearLogs()">🗑 Clear Logs</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>Action</th><th>Target</th><th>Status</th></tr></thead>
+          <tbody id="logs-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ══ ADD / EDIT BUILDING MODAL ══ -->
+<div class="modal-overlay" id="building-modal" style="display:none" onclick="closeOnOverlay(event,'building-modal')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="building-modal-title">Add Building</div>
+      <button class="modal-close" onclick="closeModal('building-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Building ID *</label>
+          <input type="text" class="form-input" id="f-id" placeholder="e.g. LIB, B6, CAF">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emoji</label>
+          <input type="text" class="form-input" id="f-emoji" placeholder="🏢">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-input" id="f-name" placeholder="Building 6 – Engineering & Technology">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Short Name</label>
+          <input type="text" class="form-input" id="f-short" placeholder="Engineering (B6)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select class="form-select" id="f-cat">
+            <option value="">Select category…</option>
+            <option>Academic</option><option>Faculty</option><option>Dining</option>
+            <option>Administration</option><option>Sports & Recreation</option>
+            <option>Health & Welfare</option><option>Student Services</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Description *</label>
+          <textarea class="form-textarea" id="f-desc" placeholder="Describe the building and what it contains…"></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Location on Campus</label>
+          <input type="text" class="form-input" id="f-loc" placeholder="East Academic Zone">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weekday Hours</label>
+          <input type="text" class="form-input" id="f-hrs-wd" placeholder="07:30–20:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weekend Hours</label>
+          <input type="text" class="form-input" id="f-hrs-we" placeholder="08:00–14:00 / Closed">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Services (comma-separated)</label>
+          <input type="text" class="form-input" id="f-svcs" placeholder="Lab Reservation, Equipment Loan, Academic Advising">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Facilities (comma-separated)</label>
+          <input type="text" class="form-input" id="f-facs" placeholder="Computer Lab (80 PCs), Electronics Workshop, 3D Printing Lab">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Famous For (comma-separated)</label>
+          <input type="text" class="form-input" id="f-famous" placeholder="National robotics competition winners, Largest 3D printing lab">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number of Floors</label>
+          <input type="number" class="form-input" id="f-floors" placeholder="5" min="1" max="30">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rules (one per line)</label>
+          <textarea class="form-textarea" id="f-rules" placeholder="Safety goggles required&#10;No food in labs"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vision Keywords (comma-separated)</label>
+          <input type="text" class="form-input" id="f-keywords" placeholder="laboratory, engineering, robot, circuit">
+          <div class="form-hint">Used by AI image recognition to match this building</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Latitude</label>
+          <input type="text" class="form-input" id="f-lat" placeholder="14.0755">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitude</label>
+          <input type="text" class="form-input" id="f-lng" placeholder="100.6045">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('building-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBuilding()">💾 Save Building</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SERVICE/CLUB MODAL ══ -->
+<div class="modal-overlay" id="service-modal" style="display:none" onclick="closeOnOverlay(event,'service-modal')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="service-modal-title">Add Service / Club</div>
+      <button class="modal-close" onclick="closeModal('service-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <select class="form-select" id="sc-type">
+            <option value="service">Service</option>
+            <option value="club">Club / Activity</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Building *</label>
+          <select class="form-select" id="sc-building"></select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Name *</label>
+          <input type="text" class="form-input" id="sc-name" placeholder="Robotics Club">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="sc-desc" placeholder="Brief description…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hours / Schedule</label>
+          <input type="text" class="form-input" id="sc-hours" placeholder="Tue & Thu 17:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location / Room</label>
+          <input type="text" class="form-input" id="sc-room" placeholder="Lab B2, Floor 2">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('service-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveServiceClub()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM MODAL ══ -->
+<div class="modal-overlay" id="confirm-modal" style="display:none">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">Are you sure?</div>
+    <div class="confirm-msg" id="confirm-msg">This action cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" onclick="closeModal('confirm-modal')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const API = 'http://localhost:5000';
+
+// ── State ────────────────────────────────────────────────────────
+let buildings = {};
+let serviceClubs = [];   // { type, name, building, hours, room, desc }
+let logs = JSON.parse(localStorage.getItem('rsu_admin_logs') || '[]');
+let editingBuildingID = null;
+let editingSCIdx = null;
+let labelMappings = JSON.parse(localStorage.getItem('rsu_label_mappings') || '[]');
+
+// ── Init ────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  updateClock();
+  setInterval(updateClock, 1000);
+  restoreModelURL();
+  renderLabelMappings();
+  fetchAllFromBackend();
+  renderLogs();
+});
+
+function updateClock() {
+  document.getElementById('topbar-time').textContent =
+    new Date().toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+// ── Navigation ───────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(name.replace('-',' ').split(' ')[0])) n.classList.add('active');
+  });
+  const titles = { dashboard:'Dashboard', buildings:'Buildings Management',
+    services:'Services & Clubs', ai:'AI / Teachable Machine', logs:'Activity Logs' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+}
+
+// ── Fetch from backend ───────────────────────────────────────────
+async function fetchAllFromBackend() {
+  try {
+    const res  = await fetch(`${API}/api/campus`);
+    const data = await res.json();
+    if (data.success) {
+      buildings = {};
+      data.buildings.forEach(b => buildings[b.buildingID] = b);
+      renderDashTable();
+      renderBuildingsTable();
+      renderServicesTable();
+      updateStats();
+      toast('Database synced from backend ✅', 'success');
+      addLog('Sync', 'All buildings loaded from backend', 'success');
+    }
+  } catch {
+    toast('Backend offline — using local data', 'info');
+    // Use sample local data so admin still works
+    loadSampleData();
+    renderDashTable();
+    renderBuildingsTable();
+    renderServicesTable();
+    updateStats();
+  }
+}
+
+function loadSampleData() {
+  const sample = [
+    { buildingID:'LIB', name:'Pridi Banomyong Central Library', shortName:'Library', emoji:'📚',
+      category:'Academic', location:'North Zone', description:'Main academic library.',
+      openHours:{'Mon–Fri':'08:00–20:00','Sat':'09:00–17:00','Sun':'Closed'},
+      services:['Book Lending','Research Assistance','Study Rooms'], facilities:['Computer Lab','Printing'],
+      clubs:[{name:'Reading Society',schedule:'1st Sat 14:00',room:'Room 201'}], floors:[1,2,3,4,5] },
+    { buildingID:'B6', name:'Building 6 – Engineering', shortName:'Engineering (B6)', emoji:'⚙️',
+      category:'Faculty', location:'East Zone', description:'Engineering faculty.',
+      openHours:{'Mon–Fri':'07:30–20:00','Sat':'08:00–14:00','Sun':'Closed'},
+      services:['Lab Reservation','Equipment Loan'], facilities:['Computer Lab','3D Printing Lab'],
+      clubs:[{name:'Robotics Club',schedule:'Tue & Thu 17:00',room:'Lab B2 Floor 2'},{name:'Coding Society',schedule:'Mon 18:00',room:'Computer Lab 3'}], floors:[1,2,3,4,5] },
+    { buildingID:'CAF', name:'Main Cafeteria (SC Building)', shortName:'Cafeteria', emoji:'🍽️',
+      category:'Dining', location:'Central Zone', description:'Central dining hub.',
+      openHours:{'Mon–Fri':'06:30–20:00','Sat':'07:00–16:00','Sun':'07:00–14:00'},
+      services:['Hot Meals','Coffee & Beverages'], facilities:['300-Seat Dining','Outdoor Terrace'],
+      clubs:[{name:'Culinary Arts Club',schedule:'Fri 16:00',room:'Kitchen Demo, Floor 2'},{name:'Table Tennis Club',schedule:'Daily 17:00',room:'Recreation Room, Floor 2'}], floors:[1,2] },
+    { buildingID:'B11', name:'Building 11 – Student Services', shortName:'Admin (B11)', emoji:'🏢',
+      category:'Administration', location:'West Zone', description:'Administration and student services.',
+      openHours:{'Mon–Fri':'08:00–16:30','Sat':'Closed','Sun':'Closed'},
+      services:['Registration','Tuition Payment','Transcripts','Scholarship'], facilities:['Waiting Lounge','ATM'],
+      clubs:[{name:'Student Government',schedule:'Wed 16:00',room:'SGA Office'},{name:'Volunteer Club',schedule:'Sat 09:00',room:'Room 201'}], floors:[1,2,3] },
+    { buildingID:'SPT', name:'Sports Complex & Gymnasium', shortName:'Sports', emoji:'🏋️',
+      category:'Sports & Recreation', location:'South Zone', description:'Sports facilities.',
+      openHours:{'Mon–Fri':'06:00–21:00','Sat':'07:00–19:00','Sun':'08:00–17:00'},
+      services:['Gym Access','Swimming Pool','Court Reservation'], facilities:['Olympic Pool','Basketball Courts','Fitness Center'],
+      clubs:[{name:'Basketball Team',schedule:'Tue & Thu 18:00',room:'Court A, Floor 2'},{name:'Table Tennis Club',schedule:'Daily 16:00',room:'TT Room, Floor 2'}], floors:[1,2,3] },
+  ];
+  sample.forEach(b => buildings[b.buildingID] = b);
+}
+
+// ── Stats ────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-buildings').textContent = Object.keys(buildings).length;
+  const svcs = Object.values(buildings).reduce((a,b) => a + (b.services?.length||0), 0);
+  const clbs = Object.values(buildings).reduce((a,b) => a + (b.clubs?.length||0), 0);
+  document.getElementById('stat-services').textContent  = svcs;
+  document.getElementById('stat-clubs').textContent     = clbs;
+}
+
+// ── Render tables ────────────────────────────────────────────────
+function catClass(cat) {
+  const map = { 'Academic':'cat-academic','Faculty':'cat-faculty','Dining':'cat-dining',
+    'Administration':'cat-admin','Sports & Recreation':'cat-sports','Health & Welfare':'cat-health',
+    'Student Services':'cat-admin' };
+  return map[cat] || 'cat-academic';
+}
+
+function renderDashTable() {
+  const tbody = document.getElementById('dash-tbody');
+  tbody.innerHTML = Object.values(buildings).slice(0,6).map(b => `
+    <tr>
+      <td class="td-name">${b.emoji||'🏢'} ${b.name}</td>
+      <td><span class="td-cat ${catClass(b.category)}">${b.category}</span></td>
+      <td class="td-hours">${b.openHours?.['Mon–Fri'] || '—'}</td>
+      <td class="td-hours">${(b.services||[]).length} services</td>
+    </tr>`).join('');
+}
+
+function renderBuildingsTable() {
+  const tbody = document.getElementById('buildings-tbody');
+  tbody.innerHTML = Object.values(buildings).map(b => `
+    <tr data-search="${(b.name+b.category+b.location).toLowerCase()}">
+      <td style="font-size:22px">${b.emoji||'🏢'}</td>
+      <td class="td-name">${b.name}<br><span style="font-size:11px;color:var(--muted)">${b.location||''}</span></td>
+      <td><span class="td-cat ${catClass(b.category)}">${b.category}</span></td>
+      <td class="td-hours">${b.openHours?.['Mon–Fri']||'—'}</td>
+      <td class="td-hours">${(b.floors||[]).length} floors</td>
+      <td><div class="td-actions">
+        <button class="btn btn-secondary btn-sm" onclick="editBuilding('${b.buildingID}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('building','${b.buildingID}')">🗑</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderServicesTable() {
+  const tbody = document.getElementById('services-tbody');
+  let rows = '';
+  Object.values(buildings).forEach(b => {
+    (b.clubs||[]).forEach((c,i) => {
+      rows += `<tr data-search="${(c.name+(b.shortName||b.name)).toLowerCase()}">
+        <td><span class="td-cat cat-academic">🎓 Club</span></td>
+        <td class="td-name">${c.name}</td>
+        <td>${b.emoji||''} ${b.shortName||b.name}</td>
+        <td class="td-hours">${c.schedule||'—'}</td>
+        <td class="td-hours">${c.meetingLocation||c.room||'—'}</td>
+        <td><div class="td-actions">
+          <button class="btn btn-danger btn-sm" onclick="confirmDeleteClub('${b.buildingID}',${i})">🗑</button>
+        </div></td>
+      </tr>`;
+    });
+    (b.services||[]).forEach((s,i) => {
+      const name = typeof s === 'string' ? s : s.name;
+      const hrs  = typeof s === 'object' ? s.hours||'' : '';
+      rows += `<tr data-search="${(name+(b.shortName||b.name)).toLowerCase()}">
+        <td><span class="td-cat cat-dining">🛎 Service</span></td>
+        <td class="td-name">${name}</td>
+        <td>${b.emoji||''} ${b.shortName||b.name}</td>
+        <td class="td-hours">${hrs||'—'}</td>
+        <td>—</td>
+        <td><div class="td-actions">
+          <button class="btn btn-danger btn-sm" onclick="confirmDeleteService('${b.buildingID}',${i})">🗑</button>
+        </div></td>
+      </tr>`;
+    });
+  });
+  tbody.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No services or clubs yet.</td></tr>';
+}
+
+// ── Filter ───────────────────────────────────────────────────────
+function filterTable(q, tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.querySelectorAll('tr[data-search]').forEach(row => {
+    row.style.display = row.dataset.search.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ── Building CRUD ────────────────────────────────────────────────
+function openAddBuilding() {
+  editingBuildingID = null;
+  document.getElementById('building-modal-title').textContent = 'Add Building';
+  ['f-id','f-emoji','f-name','f-short','f-desc','f-loc','f-hrs-wd','f-hrs-we',
+   'f-svcs','f-facs','f-famous','f-rules','f-keywords','f-lat','f-lng'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('f-cat').value = '';
+  document.getElementById('f-floors').value = '';
+  openModal('building-modal');
+}
+
+function editBuilding(bid) {
+  const b = buildings[bid]; if (!b) return;
+  editingBuildingID = bid;
+  document.getElementById('building-modal-title').textContent = 'Edit Building';
+  document.getElementById('f-id').value       = b.buildingID;
+  document.getElementById('f-id').disabled    = true;
+  document.getElementById('f-emoji').value    = b.emoji||'';
+  document.getElementById('f-name').value     = b.name||'';
+  document.getElementById('f-short').value    = b.shortName||'';
+  document.getElementById('f-cat').value      = b.category||'';
+  document.getElementById('f-desc').value     = b.description||'';
+  document.getElementById('f-loc').value      = b.location||'';
+  document.getElementById('f-hrs-wd').value   = b.openHours?.['Mon–Fri']||'';
+  document.getElementById('f-hrs-we').value   = b.openHours?.['Sat']||b.openHours?.['Sat–Sun']||'';
+  document.getElementById('f-svcs').value     = (b.services||[]).map(s=>typeof s==='string'?s:s.name).join(', ');
+  document.getElementById('f-facs').value     = (b.facilities||[]).join(', ');
+  document.getElementById('f-famous').value   = (b.famousFor||[]).join(', ');
+  document.getElementById('f-rules').value    = (b.rules||[]).join('\n');
+  document.getElementById('f-keywords').value = (b.keywords||[]).join(', ');
+  document.getElementById('f-lat').value      = b.lat||'';
+  document.getElementById('f-lng').value      = b.lng||'';
+  document.getElementById('f-floors').value   = (b.floors||[]).length||'';
+  openModal('building-modal');
+}
+
+async function saveBuilding() {
+  const bid  = (document.getElementById('f-id').value||'').trim().toUpperCase();
+  const name = document.getElementById('f-name').value.trim();
+  const cat  = document.getElementById('f-cat').value;
+  if (!bid || !name || !cat) { toast('Building ID, Name, and Category are required', 'error'); return; }
+
+  const numFloors = parseInt(document.getElementById('f-floors').value)||1;
+  const floorArr  = Array.from({length:numFloors},(_,i)=>i+1);
+
+  const payload = {
+    buildingID:   bid,
+    name,
+    shortName:    document.getElementById('f-short').value.trim() || name,
+    emoji:        document.getElementById('f-emoji').value.trim() || '🏢',
+    category:     cat,
+    description:  document.getElementById('f-desc').value.trim(),
+    location:     document.getElementById('f-loc').value.trim(),
+    lat:          parseFloat(document.getElementById('f-lat').value)||0,
+    lng:          parseFloat(document.getElementById('f-lng').value)||0,
+    openHours: {
+      'Mon–Fri': document.getElementById('f-hrs-wd').value.trim(),
+      'Sat–Sun': document.getElementById('f-hrs-we').value.trim() || 'Closed',
+    },
+    services:  document.getElementById('f-svcs').value.split(',').map(s=>s.trim()).filter(Boolean),
+    facilities:document.getElementById('f-facs').value.split(',').map(s=>s.trim()).filter(Boolean),
+    famousFor: document.getElementById('f-famous').value.split(',').map(s=>s.trim()).filter(Boolean),
+    rules:     document.getElementById('f-rules').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    keywords:  document.getElementById('f-keywords').value.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean),
+    floors:    floorArr,
+    clubs:     buildings[bid]?.clubs || [],
+    rooms:     buildings[bid]?.rooms || [],
+  };
+
+  // Try backend
+  try {
+    const res  = await fetch(`${API}/api/admin/campus`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ buildingID: bid, data: payload })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+  } catch { /* offline — save locally only */ }
+
+  buildings[bid] = payload;
+  closeModal('building-modal');
+  document.getElementById('f-id').disabled = false;
+  renderBuildingsTable(); renderDashTable(); renderServicesTable(); updateStats();
+  toast(`Building "${name}" saved ✅`, 'success');
+  addLog('Save Building', bid, 'success');
+}
+
+// ── Delete ───────────────────────────────────────────────────────
+function confirmDelete(type, id) {
+  document.getElementById('confirm-msg').textContent = `Delete ${type} "${id}"? This cannot be undone.`;
+  document.getElementById('confirm-ok').onclick = () => {
+    if (type === 'building') deleteBuilding(id);
+    closeModal('confirm-modal');
+  };
+  openModal('confirm-modal');
+}
+
+async function deleteBuilding(bid) {
+  try {
+    await fetch(`${API}/api/admin/campus/${bid}`, { method:'DELETE',
+      headers:{'X-Admin-Secret':'tu-admin-2025'} });
+  } catch {}
+  delete buildings[bid];
+  renderBuildingsTable(); renderDashTable(); renderServicesTable(); updateStats();
+  toast(`Building "${bid}" deleted`, 'info');
+  addLog('Delete Building', bid, 'info');
+}
+
+function confirmDeleteClub(bid, idx) {
+  document.getElementById('confirm-msg').textContent = `Remove this club from ${bid}?`;
+  document.getElementById('confirm-ok').onclick = () => {
+    buildings[bid].clubs.splice(idx, 1);
+    renderServicesTable(); updateStats();
+    toast('Club removed', 'info');
+    closeModal('confirm-modal');
+  };
+  openModal('confirm-modal');
+}
+
+function confirmDeleteService(bid, idx) {
+  document.getElementById('confirm-msg').textContent = `Remove this service from ${bid}?`;
+  document.getElementById('confirm-ok').onclick = () => {
+    buildings[bid].services.splice(idx, 1);
+    renderServicesTable(); updateStats();
+    toast('Service removed', 'info');
+    closeModal('confirm-modal');
+  };
+  openModal('confirm-modal');
+}
+
+// ── Service / Club add ───────────────────────────────────────────
+function openAddService() {
+  editingSCIdx = null;
+  document.getElementById('service-modal-title').textContent = 'Add Service / Club';
+  ['sc-name','sc-desc','sc-hours','sc-room'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('sc-type').value = 'service';
+  // Populate building select
+  const sel = document.getElementById('sc-building');
+  sel.innerHTML = Object.values(buildings).map(b =>
+    `<option value="${b.buildingID}">${b.emoji||''} ${b.shortName||b.name}</option>`).join('');
+  openModal('service-modal');
+}
+
+function saveServiceClub() {
+  const type  = document.getElementById('sc-type').value;
+  const bid   = document.getElementById('sc-building').value;
+  const name  = document.getElementById('sc-name').value.trim();
+  if (!bid || !name) { toast('Building and Name are required', 'error'); return; }
+  const entry = {
+    name, description: document.getElementById('sc-desc').value.trim(),
+    schedule: document.getElementById('sc-hours').value.trim(),
+    meetingLocation: document.getElementById('sc-room').value.trim(),
+  };
+  if (!buildings[bid]) return;
+  if (type === 'club') {
+    buildings[bid].clubs = buildings[bid].clubs || [];
+    buildings[bid].clubs.push(entry);
+  } else {
+    buildings[bid].services = buildings[bid].services || [];
+    buildings[bid].services.push(entry.name);
+  }
+  closeModal('service-modal');
+  renderServicesTable(); updateStats();
+  toast(`${type === 'club' ? 'Club' : 'Service'} "${name}" added ✅`, 'success');
+  addLog(`Add ${type}`, name, 'success');
+}
+
+// ── AI / Teachable Machine ───────────────────────────────────────
+function restoreModelURL() {
+  const url = localStorage.getItem('tm_model_url') || '';
+  document.getElementById('tm-url-input').value = url;
+  updateTMStatus(!!url);
+}
+
+function saveModelURL() {
+  const url = document.getElementById('tm-url-input').value.trim();
+  localStorage.setItem('tm_model_url', url);
+  updateTMStatus(!!url);
+  toast(url ? 'Model URL saved ✅' : 'Model URL cleared', url ? 'success' : 'info');
+  addLog('AI Model URL', url ? 'Updated' : 'Cleared', 'success');
+}
+
+function updateTMStatus(connected) {
+  const el = document.getElementById('tm-status');
+  if (connected) {
+    el.className = 'tm-status connected';
+    el.textContent = '✅ Teachable Machine model URL configured and ready';
+  } else {
+    el.className = 'tm-status disconnected';
+    el.textContent = '⚠️ No model URL configured — paste your Teachable Machine URL above';
+  }
+}
+
+async function checkModelStatus() {
+  const url = localStorage.getItem('tm_model_url');
+  if (!url) { toast('No model URL set', 'error'); return; }
+  try {
+    const res = await fetch(url + 'metadata.json');
+    if (res.ok) { updateTMStatus(true); toast('Model reachable ✅', 'success'); }
+    else throw new Error();
+  } catch { toast('Cannot reach model URL — check the link', 'error'); }
+}
+
+function testModel() {
+  toast('Open the Chatbot and upload a test image to try recognition', 'info');
+  setTimeout(() => window.open('index.html','_blank'), 800);
+}
+
+// ── Label mappings ───────────────────────────────────────────────
+function renderLabelMappings() {
+  const wrap = document.getElementById('label-mapping-list');
+  if (!labelMappings.length) {
+    wrap.innerHTML = `<div style="color:var(--muted);font-size:13px">No mappings yet. Click "Add Mapping" to create one.</div>`;
+    return;
+  }
+  wrap.innerHTML = labelMappings.map((m,i) => `
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" class="form-input" value="${m.label}" placeholder="Teachable Machine class label"
+        style="flex:1" onchange="labelMappings[${i}].label=this.value">
+      <span style="color:var(--muted);font-size:18px">→</span>
+      <select class="form-select" style="flex:1" onchange="labelMappings[${i}].buildingID=this.value">
+        ${Object.values(buildings).map(b=>`<option value="${b.buildingID}" ${b.buildingID===m.buildingID?'selected':''}>${b.emoji||''} ${b.shortName||b.name}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="labelMappings.splice(${i},1);renderLabelMappings()">✕</button>
+    </div>`).join('');
+}
+
+function addLabelMapping() {
+  const bids = Object.keys(buildings);
+  labelMappings.push({ label:'', buildingID: bids[0]||'' });
+  renderLabelMappings();
+}
+
+function saveLabelMappings() {
+  localStorage.setItem('rsu_label_mappings', JSON.stringify(labelMappings));
+  toast('Label mappings saved ✅', 'success');
+  addLog('AI Mappings', `${labelMappings.length} mappings saved`, 'success');
+}
+
+// ── Logs ─────────────────────────────────────────────────────────
+function addLog(action, target, status) {
+  logs.unshift({ time: new Date().toLocaleTimeString(), action, target, status });
+  if (logs.length > 100) logs.splice(100);
+  localStorage.setItem('rsu_admin_logs', JSON.stringify(logs));
+  renderLogs();
+}
+
+function renderLogs() {
+  const tbody = document.getElementById('logs-tbody');
+  if (!logs.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">No activity yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = logs.slice(0,50).map(l => {
+    const cls = l.status==='success'?'cat-dining':l.status==='error'?'cat-health':'cat-academic';
+    return `<tr>
+      <td class="td-hours">${l.time}</td>
+      <td class="td-name">${l.action}</td>
+      <td class="td-hours">${l.target}</td>
+      <td><span class="td-cat ${cls}">${l.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function clearLogs() {
+  logs = [];
+  localStorage.setItem('rsu_admin_logs', JSON.stringify(logs));
+  renderLogs();
+  toast('Logs cleared', 'info');
+}
+
+// ── Modal helpers ────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).style.display='flex'; }
+function closeModal(id) {
+  document.getElementById(id).style.display='none';
+  if (id==='building-modal') document.getElementById('f-id').disabled=false;
+}
+function closeOnOverlay(e, id) { if(e.target===document.getElementById(id)) closeModal(id); }
+
+// ── Toast ────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span> ${msg}`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.4s'; setTimeout(()=>el.remove(),400); }, 3000);
+}
+
+function handleLogout() {
+  if (confirm('Sign out of Admin Panel?')) window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>
