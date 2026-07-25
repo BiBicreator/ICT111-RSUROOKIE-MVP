@@ -1,8 +1,8 @@
 # Prototype Testing Notes
 
 ## Test Environment
-- **Prototype link or folder:** GitHub Repository (frontend.html, admin.html, app.py)
-- **Browser/device used:** Google Chrome (Desktop), Microsoft Edge, Android Mobile (Chrome)
+- **Prototype link or folder:** prototype/(frontend.html, admin.html, app.py)
+- **Browser/device used:** Google Chrome (Desktop), Microsoft Edge
 - **Tester role:** Student and Administrator
 - **Test date:** 25 July 2026
 
