@@ -259,4 +259,58 @@ After reviewing the prototype during Lab 09, the team confirmed that **no functi
 |---|---|
 | Min Khant Zaw | Prepared the Data Inventory, Privacy and Data Protection Review, Legal & Ethical Checklist, Security Risk Check, Risk Register, Data Handling Policy. |
 | Khin Zu Zu Oo | Created GitHub Issues for Lab 09, organized repository files and folders, IP and Third-Party Assets Register,User Consent Statement, Updated Requirements Note, and supporting CSV documentation. updated the README, maintained project documentation, and assisted with repository management. |
+## Lab 10 - MVP Implementation Sprint 1
+
+### Sprint Goal
+Our goal in Lab 10 is to develop the first working version of the **RSU Campus Buddy** prototype based on the approved requirements, user stories, system architecture, wireframes, and responsible IT design. The prototype demonstrates the core workflow of recognizing campus buildings using **Google Teachable Machine**, displaying building information from a **JSON database**, and providing administrative management functions.
+
+---
+
+### Implementation Approach
+
+- **Platform/tools:** HTML, CSS, JavaScript, Google Teachable Machine (TensorFlow.js), JSON Database, GitHub, VS Code
+- **Backend status:** Simulated backend (JSON database)
+- **Data storage/simulation:** Campus building information stored in `prototype/data/buildings.json`
+- **Prototype folder:** `/prototype`
+
+---
+
+### Features Implemented in Sprint 1
+
+| Feature | Requirement ID | Status | Evidence |
+|---|---|---|---|
+| Homepage | FR-01 | ✅ Working Draft | `prototype/index.html` |
+| AI Chat & Image Upload | FR-03 | ✅ Working Draft | `chat.html`, `script.js` |
+| Building Directory | FR-05 | ✅ Working Draft | `directory.html` |
+| Search & Filter | FR-06 | 🟡 In Progress | Directory search bar |
+| Building Detail View | FR-07 | ✅ Working Draft | Building detail page |
+| Recognition Result | FR-08 | 🟡 In Progress | Google Teachable Machine prediction |
+| Admin Panel | FR-09 | 🟡 In Progress | `admin.html` |
+| Dashboard | FR-12 | 🟡 In Progress | `dashboard.html` |
+
+---
+
+### Screenshots
+
+- **Homepage:** `/screenshots/homepage.png`
+- **AI Chat & Image Upload:** `/screenshots/AI-image-chatbotpage.png`
+- **Campus Directory:** `/screenshots/Campus Directory.png`
+- **Uni Map:** `/screenshots/UniMap.png`
+- **Chatbot Response:** `/screenshots/chatbot-respond.png`
+- **Chatbot Direction Response:** `/screenshots/chatbot-respond-direction.png`
+- **Floor Map:** `/screenshots/floor-map.png`
+- **Admin Dashboard:** `/screenshots/admin-page.png`
+- **Admin Building Management:** `/screenshots/admin-building management-page.png`
+- **Admin Teachable Machine Training:** `/screenshots/admin-teachable-machine-training-page.png`
+
+---
+
+### Team Contribution
+
+- **Khin Zu ZU Oo**
+  - Developed the Homepage, Chat interface, Directory, Dashboard,Managed the GitHub repository, JSON database, and integrated Google Teachable Machine.
+  - Created and updated project documentation.
+
+- **Min Khant Zaw**
+  -  Admin panel, and testing support.
 
