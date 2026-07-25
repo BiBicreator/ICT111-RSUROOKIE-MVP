@@ -279,14 +279,16 @@ Our goal in Lab 10 is to develop the first working version of the **RSU Campus B
 
 | Feature | Requirement ID | Status | Evidence |
 |---|---|---|---|
-| Homepage | FR-01 | ✅ Working Draft | `prototype/index.html` |
-| AI Chat & Image Upload | FR-03 | ✅ Working Draft | `chat.html`, `script.js` |
-| Building Directory | FR-05 | ✅ Working Draft | `directory.html` |
-| Search & Filter | FR-06 | 🟡 In Progress | Directory search bar |
-| Building Detail View | FR-07 | ✅ Working Draft | Building detail page |
-| Recognition Result | FR-08 | 🟡 In Progress | Google Teachable Machine prediction |
+| Homepage | FR-01 | ✅ Working Draft | `frontend.html` |
+| AI Chat & Image Upload | FR-03 | ✅ Working Draft | `frontend.html`, `app.py` |
+| Campus Building Database | FR-04 | ✅ Working Draft | `database.json` |
+| Campus Directory | FR-05 | ✅ Working Draft | `frontend.html`, `database.json` |
+| Search & Filter | FR-06 | 🟡 In Progress | Search function in `frontend.html` |
+| Building Detail View | FR-07 | ✅ Working Draft | Building information displayed after AI recognition in `frontend.html` |
+| AI Recognition Result | FR-08 | 🟡 In Progress | Google Teachable Machine integration in `app.py` |
 | Admin Panel | FR-09 | 🟡 In Progress | `admin.html` |
-| Dashboard | FR-12 | 🟡 In Progress | `dashboard.html` |
+| Input Validation | FR-10 | 🟡 In Progress | `app.py` |
+| Dashboard / Analytics | FR-12 | 🟡 In Progress | Dashboard section in `frontend.html` |
 
 ---
 
