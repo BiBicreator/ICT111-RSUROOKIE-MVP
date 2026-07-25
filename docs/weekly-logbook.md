@@ -355,3 +355,55 @@ RSUROOKIE
 - Complete administrator authentication.
 - Continue frontend and backend development based on the reviewed documentation.
 - Test the improved prototype before the next lab.
+
+# Weekly Logbook - Lab 10
+
+## Lab Topic
+MVP Implementation Sprint 1
+
+## What We Built Today
+- Developed the Homepage, Chat, Uni Map, Directory, Dashboard, and Admin interface.
+- Implemented image upload and integrated Google Teachable Machine for campus building recognition.
+- Connected the prototype with a JSON database and updated Lab 10 documentation.
+
+## Requirement IDs Addressed
+- **FR-01:** Homepage or landing screen
+- **FR-03:** User input and image upload
+- **FR-04:** JSON data storage
+- **FR-05:** Building directory
+- **FR-06:** Search and filter
+- **FR-07:** Building detail view
+- **FR-08:** Recognition result display
+- **FR-09:** Admin management
+- **FR-10:** Input validation
+- **FR-11:** Confirmation messages
+- **FR-12:** Dashboard summary
+- **FR-13:** Consistent user interface
+- **FR-14:** Responsive design
+- **FR-15:** Privacy and responsible data handling
+- **FR-16:** Prototype traceability
+
+## Contribution by Members
+
+| Member | Contribution | Evidence |
+|---|---|---|
+| Khin Zu Zu Oo | Developed Homepage, Chat, Directory, Dashboard, integrated Google Teachable Machine, updated documentation,Managed GitHub repository, README updates | GitHub commits, Issues #45–#48 |
+| Min Khant Zaw |JSON database, Admin module | GitHub commits, Issues #47 |
+
+## Screenshots Added
+- `/screenshots/homepage.png`
+- `/screenshots/chat.png`
+- `/screenshots/unimap.png`
+- `/screenshots/directory.png`
+- `/screenshots/dashboard.png`
+- `/screenshots/admin-view.png`
+
+## Problems Faced
+- Configuring Google Teachable Machine model and connecting prediction results with the JSON database.
+- Improving recognition accuracy for similar-looking campus buildings.
+- Ensuring the responsive layout works correctly across different devices.
+
+## Plan for Next Lab
+- Complete the remaining Admin functions (add, edit, delete building records).
+- Improve search, filtering, and recognition accuracy.
+- Perform user testing, fix bugs, and optimize the prototype before the final presentation.
