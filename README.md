@@ -316,3 +316,75 @@ Our goal in Lab 10 is to develop the first working version of the **RSU Campus B
 - **Min Khant Zaw**
   -  Admin panel, and testing support.
 
+  ## Lab 11: MVP Implementation Sprint 2 and Startup Metrics
+
+### Prototype Progress
+
+During Lab 11, our team enhanced the MVP developed in Lab 10 by improving the AI-powered campus navigation workflow, expanding the campus building database, and refining the overall user experience. We integrated Google Teachable Machine with our Flask backend (`app.py`) to improve building recognition, updated the Campus Directory with additional building information, enhanced the search functionality, and improved the Admin Panel for managing campus data. We also documented startup/product metrics and completed prototype testing to evaluate the system's usability and performance.
+
+---
+
+### Implemented / Improved Features
+
+| Requirement ID | Feature | Status | Evidence |
+|---|---|---|---|
+| FR-03 | AI Chatbot and Image Upload | ✅ Improved | `frontend.html`, `app.py` |
+| FR-04 | Campus Building Database | ✅ Improved | `database.json` |
+| FR-05 | Campus Directory | ✅ Improved | `frontend.html` |
+| FR-06 | Building Search | 🟡 Improved | Search function in `frontend.html` |
+| FR-08 | AI Building Recognition | 🟡 Improved | Google Teachable Machine + `app.py` |
+| FR-09 | Admin Panel | 🟡 Improved | `admin.html` |
+| FR-12 | Startup Metrics Documentation | ✅ Completed | `docs/startup-metrics.md` |
+
+---
+
+### Startup/Product Metrics
+
+The following startup metrics were documented:
+
+- Total Campus Buildings
+- AI Image Recognition Requests
+- Building Recognition Accuracy
+- Directory Search Success Rate
+- Admin Building Updates
+- Average User Feedback Score
+
+These metrics help evaluate user activity, AI performance, and prototype effectiveness.
+
+---
+
+### Prototype Screenshots
+
+- Homepage (`frontend.html`)
+- AI Chat and Image Recognition
+- Campus Directory
+- Building Information Display
+- Admin Panel (`admin.html`)
+- Dashboard / Startup Metrics
+- Mobile Responsive Interface
+
+---
+
+### Member Contributions
+
+**Khin Zu Zu Oo**
+- Improved Homepage and user interface.
+- Enhanced AI Chatbot and Google Teachable Machine integration.
+- Improved Campus Directory and Search functionality.
+- Updated responsive design.
+- Updated Flask backend (`app.py`) and `database.json`.
+- Improved Admin Panel functionality.
+- Prepared Lab 11 documentation.
+- Updated README and project reports.
+
+---
+
+### Remaining Work
+
+- Improve Google Teachable Machine recognition accuracy with additional training images.
+- Complete Admin CRUD (Create, Read, Update, Delete) functionality.
+- Add advanced search filters (faculty, building category, facilities).
+- Expand dashboard analytics and startup metrics.
+- Improve responsive design for different screen sizes.
+- Perform final usability testing and fix remaining issues before the final presentation.
+
