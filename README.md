@@ -388,3 +388,64 @@ These metrics help evaluate user activity, AI performance, and prototype effecti
 - Improve responsive design for different screen sizes.
 - Perform final usability testing and fix remaining issues before the final presentation.
 
+# Lab 12 - Landing Page and Digital Go-to-Market
+
+## Landing Page
+
+- **Landing page folder/link:** `landing-page/index.html`
+- **Main CTA:** **Try the Chatbot**
+- **Prototype/demo link:** `frontend.html`
+
+---
+
+## Go-to-Market Plan
+
+- **Target early users:**
+  - New and current RSU students
+  - International students
+  - University staff
+  - Campus visitors
+
+- **Selected channels:**
+  - RSU class LINE groups
+  - Campus QR code posters
+  - Facebook and Instagram
+  - University orientation events
+  - GitHub project repository
+
+- **Main marketing message:**
+
+  *Navigate RSU Campus Smarter with AI. Upload a building photo to instantly identify campus buildings, explore facilities, and find directions using RSU Campus Buddy.*
+
+---
+
+## Acquisition Metrics
+
+- **Landing Page Views** – Number of users who open the landing page.
+- **Chatbot CTA Clicks** – Number of users who click **Try the Chatbot**.
+- **Chatbot Visits** – Number of users who open and test the chatbot prototype.
+- **Image Uploads** – Number of building images submitted for AI recognition.
+- **Feedback Responses** – Number of users who submit prototype feedback.
+- **Interest Conversion Rate** – Percentage of landing page visitors who continue to the chatbot.
+
+---
+
+## Screenshots
+
+- Landing page screenshot: `/screenshots/landing-page.png`
+- CTA screenshot: `/screenshots/call-to-action.png`
+
+---
+
+## Requirement Alignment
+
+The landing page communicates the purpose and value of **RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)** while encouraging users to test the prototype through the **Try the Chatbot** call-to-action. The landing page introduces the AI building recognition feature, interactive campus map, building directory, and campus navigation functions that correspond to the functional requirements defined in `system-requirements.md`. The acquisition metrics support prototype evaluation by measuring user engagement, chatbot usage, image uploads, and feedback collection.
+
+---
+
+## Member Contributions
+
+| Member | Contribution | Commit/Issue Evidence |
+| --- | --- | --- |
+| KHIN ZUZU OO | Designed the landing page, created acquisition metrics, prepared the digital go-to-market plan, wrote marketing messages, and updated Lab 12 documentation. | GitHub commits and Lab 12 documentation |
+
