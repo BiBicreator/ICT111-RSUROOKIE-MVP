@@ -566,3 +566,77 @@ Prototype metrics are simulated using JavaScript and local browser storage (`loc
 - Finalize documentation and screenshots.
 - Polish the UI/UX and fix remaining issues before the final presentation.
 - Verify all requirements are fully traceable to the implemented prototype.
+
+# Weekly Logbook - Lab 13
+
+## Group Name
+
+RSUROOKIE
+
+## Project Title
+
+RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)
+
+## Date
+
+31 July 2026
+
+## Members and Contributions
+
+| Member | Contribution This Lab | GitHub Evidence |
+| --- | --- | --- |
+| KHIN ZUZUOO | Created the sales scenario, demo script, user testing plan, user testing results, final improvement list, updated documentation, and captured prototype screenshots. | Git commits, Issues, `/docs/`, `/screenshots/` |
+
+---
+
+## Work Completed
+
+- **Sales scenario:** Created a realistic usage scenario for RSU students, visitors, and university staff.
+- **Demo script:** Prepared a complete presentation flow from the landing page to the dashboard, aligned with project requirements.
+- **User testing plan:** Designed usability testing tasks, tester profiles, success criteria, and testing procedures.
+- **User testing results:** Conducted simulated user testing with five testers and documented usability findings.
+- **Final improvement list:** Prioritized improvements before Lab 14, including retraining the Google Teachable Machine model with additional building images.
+- **Screenshots:** Added prototype screenshots, demo flow, user testing evidence, testing summary, and improvement list to the `/screenshots` folder.
+
+---
+
+## Key Decisions
+
+- Continue using **Google Teachable Machine** as the primary AI model for building recognition.
+- Keep the prototype desktop/laptop focused for the final MVP.
+- Improve AI recognition accuracy by training additional building images.
+- Prioritize usability improvements instead of adding new features before the final presentation.
+
+---
+
+## Problems Encountered
+
+- Google Teachable Machine occasionally misclassified buildings with similar appearances.
+- Some buildings require more training images to improve prediction accuracy.
+- Interactive campus map could provide clearer visual feedback for clickable buildings.
+- Dashboard currently displays simulated metrics instead of real-time usage data.
+
+---
+
+## Next Actions Before Lab 14
+
+- Retrain the Google Teachable Machine model using more campus building images.
+- Improve the campus map interface and navigation.
+- Refine the Admin Panel layout.
+- Verify that every implemented feature matches the requirement IDs in `system-requirements.md`.
+- Perform final testing and capture updated screenshots for the final presentation.
+
+---
+
+## Requirement Traceability Notes
+
+The following requirements require final verification before Lab 14:
+
+- **FR-01** – Landing Page
+- **FR-03** – AI Image Recognition
+- **FR-05** – Building Directory
+- **FR-06** – Search and Filter
+- **FR-07** – Building Detail View
+- **FR-09** – Admin Panel
+- **FR-12** – Dashboard and Prototype Metrics
+- **FR-16** – Final Prototype Traceability
