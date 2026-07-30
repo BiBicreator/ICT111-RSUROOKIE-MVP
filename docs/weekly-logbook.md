@@ -496,3 +496,73 @@ An AI-powered campus navigation and student service assistant that helps users i
 - Expand dashboard analytics and startup metrics.
 - Improve responsive design across different devices.
 - Perform final usability testing and fix remaining bugs before the final prototype presentation.
+
+# Weekly Logbook - Lab 12
+
+## Group Name
+
+RSUROOKIE
+
+## Project Title
+
+**RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)**
+
+## Lab Date
+
+30 July 2026
+
+## Work Completed Today
+
+| Member Name | Contribution | File/Commit Evidence |
+| --- | --- | --- |
+| KHIN ZUZUOO | Designed and improved the landing page, created acquisition metrics, completed the digital go-to-market plan, wrote marketing messages, and updated project documentation. | Landing page files, `docs/landing-page-content.md`, `docs/acquisition-metrics.md`, `docs/digital-go-to-market-plan.md`, `docs/marketing-message.md` |
+
+---
+
+## Landing Page Progress
+
+- Designed a modern AI-themed landing page using a blue gradient and glassmorphism style.
+- Added sections including Hero, Problem, Solution, Key Features, How It Works, Acquisition Metrics, Technology Stack, and Footer.
+- Improved the call-to-action (CTA) and responsible data message.
+- Added simulated engagement metrics for prototype evaluation.
+
+---
+
+## Go-to-Market Progress
+
+- Identified early target users including RSU students, international students, staff, and campus visitors.
+- Planned promotion through class LINE groups, QR codes, social media, and university orientation events.
+- Prepared marketing messages tailored for different communication channels.
+
+---
+
+## Metrics Plan
+
+The prototype will measure:
+
+- Landing page views
+- Chatbot CTA clicks
+- Chatbot visits
+- Image recognition usage
+- Feedback responses
+- Interest conversion rate
+
+Prototype metrics are simulated using JavaScript and local browser storage (`localStorage`).
+
+---
+
+## Problems Encountered
+
+- Fine-tuning the landing page layout and responsive design.
+- Ensuring the AI recognition workflow accurately reflects the Google Teachable Machine model.
+- Designing meaningful acquisition metrics without a production analytics backend.
+
+---
+
+## Next Action Before Lab 13
+
+- Complete testing of the landing page and chatbot.
+- Improve the Google Teachable Machine model with additional building images.
+- Finalize documentation and screenshots.
+- Polish the UI/UX and fix remaining issues before the final presentation.
+- Verify all requirements are fully traceable to the implemented prototype.
