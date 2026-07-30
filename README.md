@@ -449,3 +449,39 @@ The landing page communicates the purpose and value of **RSU Campus Buddy (Smart
 | --- | --- | --- |
 | KHIN ZUZU OO | Designed the landing page, created acquisition metrics, prepared the digital go-to-market plan, wrote marketing messages, and updated Lab 12 documentation. | GitHub commits and Lab 12 documentation |
 
+
+# README Update - Lab 13
+
+## Lab 13: Sales Scenario, Demo Script, and User Testing
+
+### Lab 13 Objective
+
+This lab focused on preparing the final MVP demonstration by creating a realistic sales scenario, writing a structured demo script, conducting user testing, documenting usability results, and identifying the final improvements required before the Lab 14 presentation.
+
+---
+
+### Files Completed
+
+- ✅ `/docs/sales-scenario.md`
+- ✅ `/docs/demo-script.md`
+- ✅ `/docs/user-testing-plan.md`
+- ✅ `/docs/user-testing-results.md`
+- ✅ `/docs/final-improvement-list.md`
+- ✅ `/docs/weekly-logbook.md`
+- ✅ `/screenshots/demo-flow.png`
+- ✅ `/screenshots/user-testing-evidence.png`
+- ✅ `/screenshots/testing-results-summary.png`
+- ✅ `/screenshots/final-improvement-list.png`
+
+---
+
+### Prototype / Demo Link
+
+/docs/frontend.html
+---
+
+### Final Preparation Status
+
+The prototype is **nearly ready for Lab 14**. Core features, including the landing page, AI building recognition using Google Teachable Machine, building directory, interactive campus map, admin panel, and dashboard, are functioning correctly.
+
+Before the final presentation, the project will focus on improving the AI model by training additional building images to increase recognition accuracy. Minor usability improvements, including clearer campus map interactions and enhanced admin navigation, will also be completed. After these refinements and final testing, **RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)** will be ready for the final MVP demonstration and venture pitch.
