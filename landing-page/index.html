@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSU Campus Buddy – AI Image Chatbot</title>
+  <link rel="stylesheet" href="landing-page-style.css" />
+</head>
+<body>
+
+  <header class="hero">
+    <nav class="nav">
+      <div class="brand">RSU Campus Buddy</div>
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#metrics">Metrics</a>
+      <a href="frontend.html">Try Demo</a>
+    </nav>
+
+    <section class="hero-content">
+      <div>
+        <p class="eyebrow">Rangsit University · AI Image ChatBot Prototype</p>
+        <h1>Know your campus.<br>Just snap a photo.</h1>
+        <p class="subtitle">
+          Upload any photo of a campus building inside or outside
+          and our AI instantly tells you what's there: services, facilities,
+          clubs, opening hours, and how to get there.
+        </p>
+        <div class="hero-btns">
+          <button id="ctaButton" class="primary-btn">Try the Chatbot</button>
+          <button id="learnBtn" class="secondary-btn">Learn More ↓</button>
+        </div>
+        <p class="small-note">Prototype for RSU IT / IS capstone project · Google Vision API + Flask</p>
+      </div>
+
+      <div class="demo-card">
+        <h3>Live System Status</h3>
+        <div class="metric"><span id="buildingCount">7</span><small>Buildings mapped</small></div>
+        <div class="metric"><span id="ctaCount">0</span><small>Demo visits</small></div>
+        <div class="metric"><span id="recognitionCount">0</span><small>Images recognized</small></div>
+        <div class="status-row">
+          <div class="status online">AI Online</div>
+          <div class="status floors">Floors mapped</div>
+        </div>
+        <p class="demo-card-note">Google Cloud Vision · Flask API</p>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section id="problem" class="section grid-two">
+      <div class="card-box">
+        <h2>The Problem</h2>
+        <p>
+          New students at RSU often struggle to find buildings, offices, and services on the large campus.
+          Important information is scattered across notice boards, Facebook groups, and word-of-mouth —
+          leading to confusion, missed appointments, and wasted time.
+        </p>
+        <ul class="problem-list">
+          <li>🗺️ No interactive campus map</li>
+          <li>📋 Hard to find club meeting locations</li>
+          <li>🕐 Inconsistent opening hours info</li>
+          <li>🔄 Staff receive repetitive inquiries</li>
+        </ul>
+      </div>
+      <div class="card-box">
+        <h2>The Solution</h2>
+        <p>
+          RSU Smart Campus Navigator is an AI-powered chatbot that identifies campus buildings from photos
+          and instantly delivers structured information — reducing confusion and freeing up staff time.
+        </p>
+        <ul class="problem-list">
+          <li>📸 Upload any building photo → instant ID</li>
+          <li>🧭 Step-by-step indoor navigation</li>
+          <li>🏗️ Floor-by-floor room maps</li>
+          <li>💬 Chat history saved locally</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="section-header">
+        <p class="eyebrow-dark">What it does</p>
+        <h2>Key Features</h2>
+        <p class="section-sub">Three integrated tabs working together to guide every RSU student.</p>
+      </div>
+      <div class="cards">
+        <article>
+          <div class="feat-icon">💬</div>
+          <h3>AI Image Chat</h3>
+          <p>Upload a photo of any RSU building — inside or outside — and the AI identifies it using Google Cloud Vision, returning full building info instantly.</p>
+        </article>
+        <article>
+          <div class="feat-icon">🗺️</div>
+          <h3>Uni Map</h3>
+          <p>Interactive SVG campus map with all buildings clickable. Pan, zoom, and click any building to jump to its full directory entry.</p>
+        </article>
+        <article>
+          <div class="feat-icon">📋</div>
+          <h3>Directory</h3>
+          <p>Searchable, filterable directory of every building with services, facilities, clubs, opening hours, rules, and a Get Direction button.</p>
+        </article>
+        <article>
+          <div class="feat-icon">🏗️</div>
+          <h3>Floor Plans</h3>
+          <p>SVG floor maps for every building show room layouts per floor. Destination rooms are highlighted when navigating.</p>
+        </article>
+        <article>
+          <div class="feat-icon">🧭</div>
+          <h3>Indoor Navigation</h3>
+          <p>Type "from Cafeteria to Table Tennis Club in B11" and get step-by-step walking directions with a floor mini-map.</p>
+        </article>
+        <article>
+          <div class="feat-icon">🕓</div>
+          <h3>Chat History</h3>
+          <p>All conversations saved locally with a GPT-style sidebar. Reload any past session, delete old ones, or start fresh anytime.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="section how-section">
+      <div class="section-header">
+        <p class="eyebrow-dark">The process</p>
+        <h2>How Image Recognition Works</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Student uploads a photo</h3>
+            <p>Any photo of an RSU building — entrance, lobby, lab, cafeteria, corridor — inside or outside.</p>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Google Vision API analyzes it</h3>
+            <p>The image is sent to Google Cloud Vision which returns labels, objects, and landmark detections.</p>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Flask matches to campus DB</h3>
+            <p>Labels are matched against each building's keyword list. The best match is returned with a confidence score.</p>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Rich info card displayed</h3>
+            <p>Building name, services, facilities, clubs, hours, floor map button, and Google Maps direction link.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="try" class="section cta-section">
+      <div class="cta-inner">
+        <div class="cta-icon">🚀</div>
+        <h2>Ready to explore RSU campus?</h2>
+        <p>Open the chatbot, upload a building photo, or type any campus question. No login required for students.</p>
+        <div class="cta-btns">
+          <button id="demoButton" class="primary-btn large-btn">💬 Open Campus Chatbot</button>
+        </div>
+        <p id="demoMessage" class="cta-message"></p>
+        <div class="cta-chips">
+          <span class="chip-tag">📸 Upload any building photo</span>
+          <span class="chip-tag">🧭 Ask for directions</span>
+          <span class="chip-tag">🎓 Find student clubs</span>
+          <span class="chip-tag">🕐 Check opening hours</span>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="metrics" class="section">
+      <div class="section-header">
+        <p class="eyebrow-dark">Prototype evaluation</p>
+        <h2>Acquisition Metrics</h2>
+        <p class="section-sub">Tracked locally to evaluate engagement with the prototype.</p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>What it measures</th>
+            <th>Target</th>
+            <th>Current (demo)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Chatbot visits</strong></td>
+            <td>Students who clicked "Try the Chatbot"</td>
+            <td>50+</td>
+            <td id="ctaTableCount">0</td>
+          </tr>
+          <tr>
+            <td><strong>Image uploads</strong></td>
+            <td>Photos submitted for AI recognition</td>
+            <td>30+</td>
+            <td id="demoCount">0</td>
+          </tr>
+          <tr>
+            <td><strong>Buildings covered</strong></td>
+            <td>Campus buildings fully mapped in DB</td>
+            <td>7</td>
+            <td>7</td>
+          </tr>
+          <tr>
+            <td><strong>Feedback responses</strong></td>
+            <td>Useful user feedback collected</td>
+            <td>10+</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="section tech-section">
+      <div class="section-header">
+        <p class="eyebrow-dark">Under the hood</p>
+        <h2>Technology Stack</h2>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-icon">🌐</div>
+          <div class="tech-name">HTML / CSS / JS</div>
+          <div class="tech-desc">Pure frontend, no build tools needed</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🐍</div>
+          <div class="tech-name">Python Flask</div>
+          <div class="tech-desc">REST API backend, single app.py file</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">👁️</div>
+          <div class="tech-name">Google Cloud Vision</div>
+          <div class="tech-desc">Label + object + landmark detection</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">👁️</div>
+          <div class="tech-name">Teachable Machine AI</div>
+          <div class="tech-desc">Train building Images</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🗄️</div>
+          <div class="tech-name">JSON Database</div>
+          <div class="tech-desc">Campus data stored in structured JSON</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🏗️</div>
+          <div class="tech-name">SVG Floor Maps</div>
+          <div class="tech-desc">Dynamic room layout per building floor</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">💾</div>
+          <div class="tech-name">localStorage</div>
+          <div class="tech-desc">Chat history saved in browser</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">RSU Campus Buddy</div>
+      <div class="footer-links">
+        <a href="index.html">Chatbot</a>
+        <a href="#features">Features</a>
+      </div>
+      <p class="footer-note">
+        Capstone prototype · Rangsit University · Faculty of Information Technology<br>
+        Responsible data: This prototype does not collect personal data beyond demo click counts stored in your browser.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
