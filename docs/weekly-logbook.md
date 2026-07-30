@@ -640,3 +640,35 @@ The following requirements require final verification before Lab 14:
 - **FR-09** – Admin Panel
 - **FR-12** – Dashboard and Prototype Metrics
 - **FR-16** – Final Prototype Traceability
+
+# Weekly Logbook - Lab 14
+
+## Group Name
+RSUROOKIE
+## Date
+31 July 2026
+## Members Present
+Khin Zu Zu Oo
+## What We Completed Today
+During Lab 14, our team focused on completing the final prototype preparation and checking all project requirements before the final presentation.
+
+Completed tasks:
+
+-Finalized the RSU Campus Buddy Smart Campus Chatbot prototype.
+-Improved chatbot interaction flow for student service inquiries.
+-Tested image recognition function for identifying RSU campus buildings.
+-Reviewed system architecture and project documentation.
+-Prepared final presentation slides and demonstration flow.
+
+## Final Prototype Updates
+
+## Final Documentation Updates
+
+## GitHub Contributions Today
+| Member | File/Issue/Commit Updated | Evidence Link |
+|---|---|---|
+| | | |
+
+## Problems Found Before Submission
+
+## Action Before Final Presentation
