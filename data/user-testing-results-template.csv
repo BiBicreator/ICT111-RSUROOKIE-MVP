@@ -1,0 +1,30 @@
+Tester_ID,Tester_Type,Task_ID,Task_Description,Completed,Completion_Time_Min,Confusion_Point,Feedback_Score_1_5,Comment,Related_Requirement
+T001,RSU Student,T01,Open landing page and explain the system purpose,Yes,2,None,5,"The landing page clearly explains the purpose of the system.",FR-01
+T001,RSU Student,T02,Upload a building photo for AI recognition,Yes,3,Selecting a suitable building image,5,"AI recognized the building quickly and accurately.",FR-03
+T001,RSU Student,T03,Search for a building in the directory,Yes,2,None,5,"Search function was easy to use.",FR-05;FR-06
+T001,RSU Student,T04,View building details and campus map,Yes,2,None,4,"Building information was complete and helpful.",FR-07
+T001,RSU Student,T05,View dashboard metrics,Yes,1,None,4,"Dashboard was easy to understand.",FR-12
+
+T002,International Student,T01,Open landing page and explain the system purpose,Yes,2,None,5,"Easy to understand even for new students.",FR-01
+T002,International Student,T02,Upload a building photo for AI recognition,Partial,4,Unsure which images work best,4,"Some photos were not recognized correctly.",FR-03
+T002,International Student,T03,Search for a building in the directory,Yes,2,None,5,"Found the building quickly.",FR-05;FR-06
+T002,International Student,T04,View building details and campus map,Yes,3,Clickable buildings not obvious,4,"Campus map needs clearer indicators.",FR-07
+T002,International Student,T05,View dashboard metrics,Yes,1,None,4,"Metrics are easy to read.",FR-12
+
+T003,RSU Student,T01,Open landing page and explain the system purpose,Yes,2,None,5,"Looks modern and easy to understand.",FR-01
+T003,RSU Student,T02,Upload a building photo for AI recognition,Yes,3,None,4,"Recognition worked well for my photo.",FR-03
+T003,RSU Student,T03,Search for a building in the directory,Yes,2,None,5,"Search results appeared instantly.",FR-05;FR-06
+T003,RSU Student,T04,View building details and campus map,Yes,2,None,5,"Building details are useful.",FR-07
+T003,RSU Student,T05,View dashboard metrics,Yes,1,None,4,"Would like to see live statistics.",FR-12
+
+T004,University Staff,T01,Open landing page and explain the system purpose,Yes,2,None,5,"The purpose is clearly presented.",FR-01
+T004,University Staff,T02,Upload a building photo for AI recognition,Yes,3,None,4,"Recognition is good but more building images should be trained.",FR-03
+T004,University Staff,T03,Search for a building in the directory,Yes,2,None,5,"Search function is efficient.",FR-05;FR-06
+T004,University Staff,T04,View building details and campus map,Yes,2,None,5,"Building information is organized well.",FR-07
+T004,University Staff,T05,View dashboard metrics,Yes,2,None,4,"Dashboard is useful for monitoring prototype usage.",FR-12
+
+T005,Campus Visitor,T01,Open landing page and explain the system purpose,Yes,2,None,5,"Easy to understand without prior knowledge.",FR-01
+T005,Campus Visitor,T02,Upload a building photo for AI recognition,Partial,4,Recognition failed for one blurry image,4,"Need better support for unclear photos.",FR-03
+T005,Campus Visitor,T03,Search for a building in the directory,Yes,2,None,5,"Very helpful for finding campus buildings.",FR-05;FR-06
+T005,Campus Visitor,T04,View building details and campus map,Yes,3,Map labels could be larger,4,"Directions are useful.",FR-07
+T005,Campus Visitor,T05,View dashboard metrics,Yes,1,None,4,"Simple and easy to read.",FR-12
