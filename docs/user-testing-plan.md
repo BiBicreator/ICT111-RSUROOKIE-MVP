@@ -1,47 +1,43 @@
-# User Testing Results
+# User Testing Plan
 
-## 1. Testing Summary
+## 1. Testing Objective
 
-- **Date:** 28 July 2026
-- **Number of testers:** 5
-- **Prototype link:** `prototype/frontend.html`
-- **Testing location/platform:** Desktop/Laptop using Google Chrome at Rangsit University
+Evaluate whether users can successfully use **RSU Campus Buddy** to identify campus buildings, search for campus information, navigate the interactive campus map, and understand the AI image recognition feature before the final MVP release in Lab 14. The testing also aims to identify usability issues and collect suggestions for improving the prototype.
 
 ---
 
-## 2. Task Completion Summary
+## 2. Test User Profile
 
-| Task ID | Task | Completed? | Main Issue Found | Evidence / Comment |
+| User Type | Number of Testers | Why This User Type Matters |
+| --- | ---: | --- |
+| RSU Students (Target Users) | 4 | They are the primary users who need help identifying buildings and accessing campus information. |
+| University Staff / Admin | 1 | They evaluate the Admin Panel and verify the accuracy of building information management. |
+
+---
+
+## 3. Testing Tasks
+
+| Task ID | User Task | Related Requirement | Success Criteria | Observation Focus |
 | --- | --- | --- | --- | --- |
-| T01 | Open the landing page and click **Try the Chatbot** | Yes | None | All testers easily located the CTA button. |
-| T02 | Upload a building photo for AI recognition | Yes | Some building images were not recognized correctly | Similar-looking buildings reduced recognition accuracy. |
-| T03 | Search for a building using the Directory | Yes | None | Search returned results quickly and accurately. |
-| T04 | Open a building detail page | Yes | None | Testers successfully viewed building information and facilities. |
-| T05 | Use the Interactive Campus Map | Partial | Some users were unsure which buildings were clickable | Suggested adding hover effects or tooltips. |
-| T06 | Access the Admin Panel | Yes | Admin page needs clearer navigation | Functional but could be easier to locate. |
-| T07 | View Dashboard Metrics | Yes | Metrics are currently simulated | Testers understood the dashboard but suggested real-time statistics in future versions. |
+| T01 | Open the landing page and explain the purpose of the system. | FR-01 | User correctly understands that the system helps identify RSU buildings and provides campus information. | Clarity of the headline and value proposition. |
+| T02 | Click **Try the Chatbot** and upload a building photo for AI recognition. | FR-03, FR-10, FR-11 | User successfully uploads an image and receives the correct building information. | Ease of image upload and AI recognition accuracy. |
+| T03 | Search for a building using the Building Directory. | FR-05, FR-06 | User finds the desired building using the search function. | Search usability and response speed. |
+| T04 | Open a building detail page and explore the campus map. | FR-07 | User can locate building information, facilities, and navigation details. | Clarity of building details and map interaction. |
+| T05 | View the Dashboard and Admin Panel. | FR-09, FR-12 | User understands the dashboard metrics and admin functions. | Dashboard usefulness and admin interface usability. |
 
 ---
 
-## 3. Common Usability Issues
+## 4. Testing Procedure
 
-| Issue ID | Issue Description | Severity | Related Requirement | Proposed Fix |
-| --- | --- | --- | --- | --- |
-| UI-01 | AI occasionally misidentifies similar-looking campus buildings. | Important | FR-03 | Retrain the Google Teachable Machine model with more building images. |
-| UI-02 | Interactive campus map does not clearly indicate clickable buildings. | Useful | FR-07 | Add hover effects, labels, and visual highlights. |
-| UI-03 | Admin Panel navigation could be more intuitive. | Useful | FR-09 | Add a clearer navigation menu and icons. |
-| UI-04 | Dashboard metrics use simulated data only. | Future | FR-12 | Connect dashboard to real prototype usage data in a future version. |
-
----
-
-## 4. User Feedback Summary
-
-Most testers found the prototype easy to use and appreciated the AI building recognition feature. They liked having the building directory, campus map, and chatbot integrated into one platform. Testers suggested improving the accuracy of AI recognition by training the model with additional building images and making the interactive campus map easier to understand. Overall, users believed the prototype would be especially useful for new students and international students who are unfamiliar with the RSU campus.
+1. Introduce the purpose of the usability test.
+2. Explain that the prototype is being evaluated, not the tester.
+3. Ask each tester to complete the assigned tasks without assistance whenever possible.
+4. Observe task completion time, user behavior, comments, and any difficulties encountered.
+5. Record task completion results, usability issues, and improvement suggestions.
+6. Ask the tester for overall feedback after completing all tasks.
 
 ---
 
-## 5. Evidence-Based Decision
+## 5. Ethical Reminder
 
-### ✅ Ready for Final Improvement
-
-The core features of **RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)** function as expected, including AI image recognition, the building directory, campus map, and admin panel. The remaining issues are related to usability improvements and AI model refinement rather than major functional problems. These enhancements will be completed before the final MVP release in Lab 14.
+Participation in the usability test is voluntary. Testers should not provide sensitive personal information. Feedback and observations will be used only for academic purposes to improve **RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)** before the final prototype presentation in Lab 14.
