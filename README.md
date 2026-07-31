@@ -485,3 +485,112 @@ This lab focused on preparing the final MVP demonstration by creating a realisti
 The prototype is **nearly ready for Lab 14**. Core features, including the landing page, AI building recognition using Google Teachable Machine, building directory, interactive campus map, admin panel, and dashboard, are functioning correctly.
 
 Before the final presentation, the project will focus on improving the AI model by training additional building images to increase recognition accuracy. Minor usability improvements, including clearer campus map interactions and enhanced admin navigation, will also be completed. After these refinements and final testing, **RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)** will be ready for the final MVP demonstration and venture pitch.
+
+# Project Title
+
+# RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)
+
+---
+
+# Group Members
+
+| Name | Role | Main Contribution |
+|---|---|---|
+| **Khin Zu Zu Oo** | Product Lead + Technical Lead | Led the project, developed the landing page, AI image recognition system, Flask backend, dashboard, integrated prototype, and managed the GitHub repository. |
+| **Min Khant Zaw** | Documentation Lead + Validation Lead | Maintained project documentation, conducted user testing, collected validation results, updated reports, and verified requirement traceability. |
+| **Phyo Min Khant** | UX/UI Lead | Designed the user interface, wireframes, user flow, landing page layout, and improved the overall user experience and visual consistency. |
+
+---
+
+# Project Overview
+
+RSU Campus Buddy is a web-based Smart Campus Chatbot that helps students identify campus buildings using AI image recognition. By uploading a photo of a university building, users instantly receive building information, facilities, opening hours, student clubs, floor plans, and directions. The system combines Google Teachable Machine, Python Flask, and a campus building database to provide a smarter campus navigation experience.
+
+---
+
+# Target Users
+
+- New students at Rangsit University
+- Current students
+- Campus visitors
+- University staff and administrators
+
+---
+
+# Problem Solved
+
+Students and visitors often struggle to identify campus buildings and locate university services. Campus information is scattered across multiple platforms, making navigation confusing and time-consuming.
+
+RSU Campus Buddy solves this problem by providing AI-powered building recognition and a centralized campus information system.
+
+---
+
+# Final Prototype
+
+- **Prototype folder/link:**
+`/prototype/frontend.html'
+'/prototype/app.py'
+'/prototype/admin.html'
+'/prototype/building_rsu_database.py'
+'/prototype/database.json'
+'/prototype/style.css`
+- **Landing page link:**
+`/landing-page/index.html`
+`/landing-page/landing-page-style.css`
+`/landing-page/script.js`
+- **Final demo link:** Run `app.py` to launch the Flask server and open `http://127.0.0.1:5000` in a web browser.
+
+---
+
+# Final Documentation
+
+- System requirements: `/docs/system-requirements.md`
+- User stories: `/docs/user-stories.md`
+- MVP feature list: `/docs/mvp-feature-list.md`
+- Feature implementation status: `/docs/feature-implementation-status.md`
+- Final prototype report: `/docs/final-prototype-report.md`
+- Final demo script: `/docs/final-demo-script.md`
+- Final reflection: `/docs/final-reflection.md`
+
+---
+
+# Screenshots
+
+- `/screenshots/final-homepage.png`
+- `/screenshots/final-input-form.png`
+- `/screenshots/final-record-list.png`
+- `/screenshots/final-detail-view.png`
+- `/screenshots/final-dashboard.png`
+- `/screenshots/final-admin-view.png`
+- `/screenshots/demo-flow.png`
+- `/screenshots/user-testing-evidence.png`
+
+---
+
+# Pitch
+
+- Final pitch slides: `/pitch/final-pitch-slides.pptx`
+
+---
+
+# Data and Diagrams
+
+### Final Sample Data
+- `/data/final-sample-data.csv`
+- `/data/user-testing-results.csv`
+
+### Final Diagrams
+- `/diagrams/use-case-diagram.png`
+- `/diagrams/system-architecture.png`
+- `/diagrams/user-flow.mmd`
+- `/diagrams/data-flow.mmd`
+
+---
+
+# Final Submission Notes
+
+This repository contains the complete final MVP for **RSU Campus Buddy (Smart Campus Chatbot with AI Image Recognition)** developed for **ICT111 Fundamental Technology Entrepreneurship**.
+
+The project includes the final prototype, supporting documentation, user validation results, startup metrics, GitHub evidence, screenshots, and venture pitch materials. All implemented features are traceable to the system requirements (FR-01 to FR-12), user stories, and MVP feature list. The prototype has been tested with representative users, and feedback has been incorporated into the final release.
+
+Future improvements include expanding the Google Teachable Machine dataset with additional campus building images, improving AI recognition accuracy, implementing indoor navigation, and developing a mobile-friendly version of the system.
