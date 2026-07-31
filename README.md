@@ -528,12 +528,12 @@ RSU Campus Buddy solves this problem by providing AI-powered building recognitio
 # Final Prototype
 
 - **Prototype folder/link:**
-`/prototype/frontend.html'
-'/prototype/app.py'
-'/prototype/admin.html'
-'/prototype/building_rsu_database.py'
-'/prototype/database.json'
-'/prototype/style.css`
+`/prototype/frontend.html`
+`/prototype/app.py`
+`/prototype/admin.html`
+`/prototype/building_rsu_database.py`
+`/prototype/database.json`
+`/prototype/style.css`
 - **Landing page link:**
 `/landing-page/index.html`
 `/landing-page/landing-page-style.css`
